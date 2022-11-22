@@ -1,0 +1,8 @@
+alias cac="cd /root/.cache && ls -a" \
+cf="cd /root/.config && ls -a" \
+h="cd /root && ls -a" \
+mn="cd /mnt && ls -a" \
+cfs="$EDITOR /root/.config/shell/shortcutrc" \
+cfa="$EDITOR /root/.config/shell/aliasrc" \
+cfv="$EDITOR /root/.config/nvim/init.vim" \
+cfz="$EDITOR /root/.zshrc" \

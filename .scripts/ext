@@ -1,0 +1,2 @@
+#!/bin/sh
+sudo mount -o noatime,uid=1000,gid=1000,fmask=133,dmask=022 UUID="54A36F8323C79D05" /home/ext

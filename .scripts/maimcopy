@@ -1,0 +1,8 @@
+#!/bin/sh
+# ** requires maim **
+
+#  pause brower media, playerctl needed
+playerctl pause
+# maim select mod, copy to clipboard
+# -u flag hides cursor
+maim -u -s | xclip -selection clipboard  -t image/png

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# 1. kill all mpv socket
+for i in $(ls /tmp/mpvSockets/*); do
+        echo '{ "command": ["set_property", "pause", true] }' | socat - "$i";
+done
+# 2. kill ncmpcpp by mpc
+mpc pause
+# 3. pause web browser stuff
+playerctl pause
+
+# actual locker
+import -window root /tmp/1.png
+convert /tmp/1.png -blur 0x20 /tmp/2.png
+rm /tmp/1.png
+
+i3lock -i /tmp/2.png
+exit 0

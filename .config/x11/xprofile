@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# This file runs when a DM logs you into a graphical session.
+# If you use startx/xinit like a Chad, this file will also be sourced.
+
+xrandr --dpi 200		# Set DPI. User may want to use a larger number for larger screens.
+setbg0 &			# set the background with the `setbg` script
+remaps &		# run the remaps script, switching caps/esc and more; check it for more info
+
+autostart="picom copyq mpd pipewire dunst unclutter clashd"
+
+for program in $autostart; do
+	pidof -s "$program" || "$program" &
+done >/dev/null 2>&1
+
+# export GTK_IM_MODULE=fcitx
+# export QT_IM_MODULE=fcitx
+# export XMODIFIERS=@im=fcitx
+wal -R # refresh pywal colors

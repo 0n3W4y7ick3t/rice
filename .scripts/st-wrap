@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# A dmenu wrapper script for selecting fonts for st
+
+case "$(printf "HackFC\nHackFCItalic\nHackFCCCGItalic\nMonoLisa\nMonoLisaItalic" | dmenu -i -p 'use which font for st? ')" in
+	"HackFC")          sh -c "st -f 'Hack FC Ligatured:pixelsize=22'";;
+	"HackFCItalic")    sh -c "st -f 'Hack FC Ligatured:style=Italic:pixelsize=22'";;
+	"HackFCCCGItalic") sh -c "st -f 'Hack FC Ligatured CCG:style=Italic:pixelsize=22'";;
+	"MonoLisa")        sh -c "st -f 'MonoLisa:pixelsize=22'";;
+	"MonoLisaItalic")  sh -c "st -f 'MonoLisa:style=Book Italic:pixelsize=22'";;
+	*) exit 1 ;;
+esac

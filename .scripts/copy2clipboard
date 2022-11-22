@@ -1,0 +1,2 @@
+#!/bin/sh
+xclip -selection clipboard "$1" -t `file --mime-type "$1" | cut -d':' -f2`

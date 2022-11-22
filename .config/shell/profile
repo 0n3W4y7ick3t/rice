@@ -29,9 +29,9 @@ export TERMINAL="st"
 # firefox and chrome are two scripts
 export BROWSER1="firefix"
 export BROWSER2="chrome"
-export APP1=""
-export APP2=""
-export APP3=""
+export APPH=""
+export APPJ=""
+export APPK=""
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

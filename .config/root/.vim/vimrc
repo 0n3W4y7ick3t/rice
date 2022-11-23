@@ -1,6 +1,5 @@
 syntax on
 filetype on
-filetype plugin on
 filetype indent on
 let mapleader = "\<Space>"
 command CFG :tabe $MYVIMRC
@@ -20,6 +19,7 @@ hi NonText guibg=NONE ctermbg=NONE
 hi LineNr guibg=NONE ctermbg=NONE
 
 set ai et ts=2 sw=2
+
 set noswapfile nobk nowb " disable swap and backup file
 set autoread
 set mousehide
@@ -40,14 +40,6 @@ set shellslash
 
 " :Q to quit without saving
 command Q :q!
-" :W force save with sudo
-nnoremap <silent> <Leader>w :w<CR>
-" comment
-" comment //
-autocmd BufRead,BufNewfile *.c,*.cpp,*.cxx,*.h,*.go,*.java noremap <Leader>/ I// <ESC>
-" uncomment //
-autocmd BufRead,BufNewfile *.c,*.cpp,*.cxx,*.h,*.go,*.java noremap <Leader>\ ^3xh<ESC>
-" use `:set ft?` to find out current file's filetype
 if &ft == 'vim'
   noremap <Leader>/ I" <ESC>
   noremap <Leader>\ ^2xh<ESC>
@@ -57,8 +49,6 @@ if &ft == 'confinit' || &ft == 'python' || &ft == 'conf'
   noremap <Leader>\ ^2xh<ESC>
 endif
 
-" jump between {}
-nnoremap <TAB> %
 " jump between selected boundrys in visual mode
 vnoremap <TAB> o
 " copy to sysem clipboard(X11, xclip)

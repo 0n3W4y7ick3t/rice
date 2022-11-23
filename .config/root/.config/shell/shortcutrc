@@ -4,5 +4,5 @@ h="cd /root && ls -a" \
 mn="cd /mnt && ls -a" \
 cfs="$EDITOR /root/.config/shell/shortcutrc" \
 cfa="$EDITOR /root/.config/shell/aliasrc" \
-cfv="$EDITOR /root/.config/nvim/init.vim" \
+cfv="$EDITOR /root/.vim/vimrc" \
 cfz="$EDITOR /root/.zshrc" \

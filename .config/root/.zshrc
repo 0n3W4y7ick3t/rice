@@ -1,46 +1,36 @@
 # Enable colors and change prompt:
-autoload -U colors && colors	# Load colors
+autoload -U colors && colors  # Load colors
 PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
 
-setopt autocd		# Automatically cd into typed directory.
-stty stop undef		# Disable ctrl-s to freeze terminal.
+setopt autocd   # Automatically cd into typed directory.
+setopt autopushd
+# automatically pushd everytime before using cd.
+# type cd -<Enter> to view dir stack
+stty stop undef   # Disable ctrl-s to freeze terminal.
 setopt interactive_comments
+setopt prompt_subst # for loading theme files
 
-# History in cache directory:
+# # History in cache directory:
 HISTSIZE=10000000
 SAVEHIST=10000000
-HISTFILE=/root/.cache/zshistory
+HISTFILE="$XDG_CACHE_HOME/zshistory"
+
+export EDITOR='vim'
 
 # Load aliases and shortcuts if existent.
-source "/root/.config/shell/shortcutrc"
-source "/root/.config/shell/aliasrc"
-
+[ -f "/root/.config/shell/aliasrc" ] && source "/root/.config/shell/aliasrc"
+[ -f "/root/.config/shell/shortcutrc" ] && source "/root/.config/shell/shortcutrc"
 # Basic auto/tab complete:
 zstyle ':completion:*' menu select
 # case insensitive
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 autoload -U compinit && compinit
 zmodload zsh/complist
-_comp_options+=(globdots)		# Include hidden files.
+_comp_options+=(globdots)   # Include hidden files.
 
 # vi mode
 bindkey -v
 export KEYTIMEOUT=1
-export all_proxy=127.0.0.1:7890
-export LANG=en_US.UTF-8
-export TIME_STYLE='+%y/%m/%d %H:%M:%S'
-export HIST_STAMPS="yyyy-mm-dd"
-
-unsetopt PROMPT_SP
-
-# Default programs:
-export EDITOR="nvim"
-export TERMINAL="st"
-
-export XAUTHORITY="/root/.config/.Xauthority" # This line will break some DMs.
-export LESSHISTFILE="-"
-export INPUTRC="/root/.config/shell/inputrc"
-export FZF_DEFAULT_OPTS="--layout=reverse --height 40%"
 
 # Use vim keys in tab complete menu:
 bindkey -M menuselect 'h' vi-backward-char
@@ -56,6 +46,7 @@ function zle-keymap-select () {
         viins|main) echo -ne '\e[5 q';; # beam
     esac
 }
+
 
 zle -N zle-keymap-select
 zle-line-init() {
@@ -101,5 +92,3 @@ bindkey -M visual '^[[P' vi-delete
 
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
-
-sudo -n loadkeys $/root/.local/share/ttymaps.kmap 2>/dev/null

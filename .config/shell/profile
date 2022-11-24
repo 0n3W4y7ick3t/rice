@@ -29,9 +29,9 @@ export TERMINAL="st"
 # firefox and chrome are two scripts
 export BROWSER1="firefix"
 export BROWSER2="chrome"
-export APPH=""
+export APPH="telegram-desktop"
 export APPJ=""
-export APPK=""
+export APPK="code" # vscode
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

@@ -2,7 +2,7 @@
 
 # Shows the current moon phase.
 
-moonfile="${XDG_DATA_HOME:-$HOME/.local/share}/moonphase"
+moonfile="$XDG_DATA_HOME/moonphase"
 # ignore proxys
 unset all_proxy
 unset http_proxy

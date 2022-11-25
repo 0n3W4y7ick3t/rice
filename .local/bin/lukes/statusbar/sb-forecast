@@ -11,7 +11,7 @@
 unset http_proxy
 unset https_proxy
 unset all_proxy
-weatherreport="${XDG_DATA_HOME:-$HOME/.local/share}/weatherreport"
+weatherreport="$XDG_DATA_HOME/weatherreport"
 getforecast() { curl -sf "wttr.in/$LOCATION" > "$weatherreport" || exit 1 ;}
 
 # Some very particular and terse stream manipulation. We get the maximum

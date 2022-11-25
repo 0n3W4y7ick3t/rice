@@ -7,7 +7,7 @@
 # Imagemagick and ffmpeg required.
 
 # Application cache if not stated elsewhere.
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/slider"
+cache="$XDG_CACHE_HOME/slider"
 
 while getopts "hvrpi:c:a:o:d:f:t:e:x:" o; do case "${o}" in
 	c) bgc="$OPTARG" ;;

@@ -10,7 +10,7 @@ else
 		notify-send "That doesn't look like a full URL." && exit 1
 fi
 
-RSSFILE="${XDG_CONFIG_HOME:-$HOME/.config}/newsboat/urls"
+RSSFILE="$XDG_CONFIG_HOME/newsboat/urls"
 if awk '{print $1}' "$RSSFILE" | grep "^$url$" >/dev/null; then
 	notify-send "You already have this RSS feed."
 else

@@ -24,3 +24,4 @@ let g:airline#extensions#tabline#enabled = 1
 " if use catppuccin
 let g:catppuccin_flavour = 'frappe' " frappe, macchiato, mocha
 colorscheme $THEME
+call Removebg()

@@ -1,6 +1,15 @@
+# install themes if not exist
+[ -z $XDG_CONFIG_HOME/zsh/powerlevel10k ] && git clone https://github.com/romkatv/powerlevel10k.git $XDG_CONFIG_HOME/zsh/powerlevel10k
+[ -z $XDG_CONFIG_HOME/zsh/agnoster-zsh-theme ] && git clone https://github.com/agnoster/agnoster-zsh-theme $XDG_CONFIG_HOME/zsh/agnoster-zsh-theme
+
 # Enable colors and change prompt:
 autoload -U colors && colors	# Load colors
+
+# Select theme
 PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
+# source $XDG_CONFIG_HOME/zsh/agnoster-zsh-theme/agnoster.zsh-theme
+# source $XDG_CONFIG_HOME/zsh/powerlevel10k/powerlevel10k.zsh-theme
+
 
 setopt autocd		# Automatically cd into typed directory.
 setopt autopushd
@@ -9,7 +18,6 @@ setopt autopushd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 setopt interactive_comments
 setopt prompt_subst # for loading theme files
-# source $XDG_CONFIG_HOME/zsh/agnoster.zsh-theme
 
 # History in cache directory:
 HISTSIZE=10000000

@@ -15,7 +15,6 @@ setopt autocd		# Automatically cd into typed directory.
 setopt autopushd
 # automatically pushd everytime before using cd.
 # type cd -<Enter> to view dir stack
-stty stop undef		# Disable ctrl-s to freeze terminal.
 setopt interactive_comments
 setopt prompt_subst # for loading theme files
 

@@ -20,6 +20,10 @@ source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
 # Enable plugins
 source $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
+# wd () { . /usr/share/wd/wd.sh }
+# Since wd can not be naively installed by git,
+# you should check https://github.com/mfaerevaag/wd for more instruction.
+# If you use AUR, `yay -S zsh-plugin-wd` will do it.
 
 setopt autocd		# Automatically cd into typed directory.
 setopt autopushd
@@ -84,16 +88,6 @@ lfcd () {
     fi
 }
 
-mkcd () { mkdir "$1" && cd "$1" }
-
-wd () { . /usr/share/wd/wd.sh }
-
-# For more info, check https://github.com/dutchcoders/transfer.sh/blob/main/examples.md
-transfer() {
-    wget -t 1 -qO - --method=PUT --body-file="$1" --header="Content-Type: $(file -b --mime-type "$1")" https://transfer.sh/$(basename "$1");
-    echo
-}
-
 bindkey -s '^o' '^ulfcd\n' # Open lf file browser
 bindkey -s '^v' '^unvim\n'
 bindkey -s '^n' '^uneofetch\n' # Typical arch users be like...
@@ -108,3 +102,12 @@ bindkey '^e' edit-command-line
 bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
+
+# Custom functions
+mkcd () { mkdir "$1" && cd "$1" }
+
+# For more info, check https://github.com/dutchcoders/transfer.sh/blob/main/examples.md
+transfer() {
+    wget -t 1 -qO - --method=PUT --body-file="$1" --header="Content-Type: $(file -b --mime-type "$1")" https://transfer.sh/$(basename "$1");
+    echo
+}

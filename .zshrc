@@ -1,22 +1,31 @@
-# install themes if not exist
-[ -d $XDG_CONFIG_HOME/zsh-themes/powerlevel10k ] || git clone https://github.com/romkatv/powerlevel10k.git $XDG_CONFIG_HOME/zsh-themes/powerlevel10k
-[ -d $XDG_CONFIG_HOME/zsh-themes/agnoster-zsh-theme ] || git clone https://github.com/agnoster/agnoster-zsh-theme $XDG_CONFIG_HOME/zsh-themes/agnoster-zsh-theme
+###            *** Leon Satoshi's zshrc ***               ###
+### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
-# Enable colors and change prompt:
-autoload -U colors && colors	# Load colors
+# *** Install themes and plugins if not present  ***
+# You can remove this lines after they are installed.
+[ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
+  git clone https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
+[ -d $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme ] || \
+  git clone https://github.com/agnoster/agnoster-zsh-theme $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme
+[ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
+  git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions
+[ -d $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting ] || \
+  git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting
 
-# Select theme
-# PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
-# source $XDG_CONFIG_HOME/zsh-themes/agnoster-zsh-theme/agnoster.zsh-theme
-source $XDG_CONFIG_HOME/zsh-themes/powerlevel10k/powerlevel10k.zsh-theme
+# Set theme
+# autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
+# setopt prompt_subst && source $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme/agnoster.zsh-theme
+source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
 
+# Enable plugins
+source $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
+source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
 
 setopt autocd		# Automatically cd into typed directory.
 setopt autopushd
-# automatically pushd everytime before using cd.
-# type cd -<Enter> to view dir stack
+# Automatically pushd everytime before using cd.
+# Type cd -<Enter> to view dir stack
 setopt interactive_comments
-setopt prompt_subst # for loading theme files
 
 # History in cache directory:
 HISTSIZE=10000000
@@ -30,7 +39,7 @@ HISTFILE="$XDG_CACHE_HOME/zshistory"
 
 # Basic auto/tab complete:
 zstyle ':completion:*' menu select
-# case insensitive
+# Case insensitive
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 autoload -U compinit && compinit
 zmodload zsh/complist
@@ -55,7 +64,6 @@ function zle-keymap-select () {
     esac
 }
 
-
 zle -N zle-keymap-select
 zle-line-init() {
     zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
@@ -78,23 +86,19 @@ lfcd () {
 
 mkcd () { mkdir "$1" && cd "$1" }
 
-wd () {
-    . /usr/share/wd/wd.sh
-}
+wd () { . /usr/share/wd/wd.sh }
 
-# more info, check https://github.com/dutchcoders/transfer.sh/blob/main/examples.md
+# For more info, check https://github.com/dutchcoders/transfer.sh/blob/main/examples.md
 transfer() {
     wget -t 1 -qO - --method=PUT --body-file="$1" --header="Content-Type: $(file -b --mime-type "$1")" https://transfer.sh/$(basename "$1");
     echo
 }
 
-bindkey -s '^o' '^ulfcd\n'
-
+bindkey -s '^o' '^ulfcd\n' # Open lf file browser
 bindkey -s '^v' '^unvim\n'
-
+bindkey -s '^n' '^uneofetch\n' # Typical arch users be like...
 bindkey -s '^a' '^ubc -lq\n'
-
-bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n'
+bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
 
 bindkey '^[[P' delete-char
 
@@ -104,6 +108,3 @@ bindkey '^e' edit-command-line
 bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
-
-source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null

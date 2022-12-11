@@ -139,6 +139,7 @@ noremap <silent> <Leader>. :bn<CR> " next buffer
 " with and without input redirect
 noremap <leader>c :w! \| !compiler "%:p"<CR>
 noremap <leader>r :w! \| !compiler-red "%:p"<CR>
+noremap <leader>i :vs "%:p:h/inp"<CR>:w inp<CR> " edit inp file
 " make options
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %

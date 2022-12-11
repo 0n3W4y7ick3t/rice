@@ -4,7 +4,7 @@
 # *** Install themes and plugins if not present  ***
 # You can remove this lines after they are installed.
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
-  git clone https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme ] || \
   git clone https://github.com/agnoster/agnoster-zsh-theme $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \

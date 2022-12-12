@@ -2,41 +2,41 @@
 
 # Check if necessary programs are installed
 for prog in dmenu jq sxiv; do
-	[ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
+  [ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
 done
 # If notify-send is not installed, use echo as notifier
 [ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
 # args
 while [ $# -gt 0 ]; do
-	case $1 in
-		-l|--limit)
-			shift
-			LIMIT=$1
-			case $LIMIT in
-				''|*[!0-9]*)
-					echo 'limit is NaN'
-					exit 1
-			esac
-			shift
-			;;
-		-f|--filter)
-			FILTER=1
-			shift
-			;;
-		-k|--keep)
-			KEEP=1
-			shift
-			;;
-		-v|--verbose)
-			VERBOSE=1
-			shift
-			;;
-		*)
-			subreddit=$1
-			shift
-			;;
-	esac
+  case $1 in
+    -l|--limit)
+      shift
+      LIMIT=$1
+      case $LIMIT in
+        ''|*[!0-9]*)
+          echo 'limit is NaN'
+          exit 1
+      esac
+      shift
+      ;;
+    -f|--filter)
+      FILTER=1
+      shift
+      ;;
+    -k|--keep)
+      KEEP=1
+      shift
+      ;;
+    -v|--verbose)
+      VERBOSE=1
+      shift
+      ;;
+    *)
+      subreddit=$1
+      shift
+      ;;
+  esac
 done
 
 # Default config directory
@@ -56,11 +56,11 @@ defaultsub="linuxmemes"
 
 # If no argument is passed
 if [ -z "$subreddit" ]; then
-	# Ask the user to enter a subreddit
-	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
+  # Ask the user to enter a subreddit
+  subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
 
-	# If no subreddit was chosen, exit
-	[ -z "$subreddit" ] && echo "no sub chosen" && exit 1
+  # If no subreddit was chosen, exit
+  [ -z "$subreddit" ] && echo "no sub chosen" && exit 1
 fi
 
 # Default directory used to store the feed file and fetched images
@@ -68,8 +68,8 @@ cachedir="/tmp/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
-	echo "$cachedir does not exist, creating..."
-	mkdir -p "$cachedir"
+  echo "$cachedir does not exist, creating..."
+  mkdir -p "$cachedir"
 fi
 
 # Send a notification
@@ -88,9 +88,9 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 
 # Download images to $cachedir
 for img in $imgs; do
-	if [ ! -e "$cachedir/${img##*/}" ]; then
-		wget -P "$cachedir" $img
-	fi
+  if [ ! -e "$cachedir/${img##*/}" ]; then
+    wget -P "$cachedir" $img
+  fi
 done
 
 # Send a notification
@@ -99,9 +99,9 @@ rm "$cachedir/tmp.json"
 
 # Display the images
 if [ $FILTER -eq 1 ]; then
-	sxiv -a -o "$cachedir"
+  sxiv -a -o "$cachedir"
 else
-	sxiv -a "$cachedir"
+  sxiv -a "$cachedir"
 fi
 
 # Once finished, remove all of the cached images

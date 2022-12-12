@@ -2,7 +2,7 @@
 
 # sudo not required for some system commands
 for command in mount umount sv pacman updatedb su shutdown poweroff reboot ; do
-	alias $command="sudo $command"
+  alias $command="sudo $command"
 done; unset command
 
 # These common commands are just too long! Abbreviate them.
@@ -10,42 +10,42 @@ alias \
   cx="chmod +x" \
   curl="curl --user-agent 'noleak'" \
   cwd="pwd|xclip -selection clipboard" \
-	g="git" \
-	ka="killall" \
+  g="git" \
+  ka="killall" \
   lg="lazygit" \
-	magit="nvim -c MagitOnly" \
+  magit="nvim -c MagitOnly" \
   nf="neofetch" \
   o="xdg-open" \
-	p="pacman" \
+  p="pacman" \
   shred="shred -zf" \
   s="sdcv" \
   sz="source ~/.zshrc" \
   t="tmux" \
-	trem="transmission-remote" \
+  trem="transmission-remote" \
   vimconfig="vim ~/.config/nvim/init.vim" \
   vi="nvim -u NONE" \
   wget="wget -c --user-agent 'noleak'" \
-	YT="youtube-viewer" \
-	z="zathura"
+  YT="youtube-viewer" \
+  z="zathura"
 
 # Verbosity and settings that you pretty much just always are going to want.
 alias \
-	bc="bc -ql" \
-	cp="cp -iv" \
-	ffmpeg="ffmpeg -hide_banner" \
-	mv="mv -iv" \
-	mkd="mkdir -pv" \
-	rm="rm -vI" \
-	yt="yt-dlp --embed-metadata -i" \
-	yta="yt -x -f bestaudio/best"
+  bc="bc -ql" \
+  cp="cp -iv" \
+  ffmpeg="ffmpeg -hide_banner" \
+  mv="mv -iv" \
+  mkd="mkdir -pv" \
+  rm="rm -vI" \
+  yt="yt-dlp --embed-metadata -i" \
+  yta="yt -x -f bestaudio/best"
 
 # Colorize commands when possible.
 alias \
-	ccat="highlight --out-format=ansi" \
-	diff="diff --color=auto" \
-	grep="grep --color=auto" \
-	ip="ip -color=auto" \
-	ls="ls -hN --color=auto --group-directories-first" \
+  ccat="highlight --out-format=ansi" \
+  diff="diff --color=auto" \
+  grep="grep --color=auto" \
+  ip="ip -color=auto" \
+  ls="ls -hN --color=auto --group-directories-first" \
   la="ls -a" \
   ll="ls -l" \
   l="ls -al"
@@ -64,6 +64,6 @@ alias vdir="vdir --color=auto"
 se() { cd ~/.local/bin; $EDITOR $(fzf) ;}
 
 alias \
-	lf="lfub" \
-	ref="shortcuts >/dev/null; source ${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc ; source ${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc" \
-	weather="less -S ${XDG_DATA_HOME:-$HOME/.local/share}/weatherreport" \
+  lf="lfub" \
+  ref="shortcuts >/dev/null; source $XDG_CONFIG_HOME/shell/shortcutrc ; source $XDG_CONFIG_HOME/shell/zshnameddirrc" \
+  weather="less -S $XDG_DATA_HOME/weatherreport" \

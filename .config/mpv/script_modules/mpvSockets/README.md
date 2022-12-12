@@ -1,7 +1,7 @@
 # mpvSockets
 create one sockets per mpv instance (with the instance's process **ID** (PID), (**unique**)), instead of one socket for the last started instance
 
-dangling sockets for crashed or killed instances is an issue, 
+dangling sockets for crashed or killed instances is an issue,
 not sure if this script should handle/remove them or the clients/users, or both.
 
 # Installation
@@ -27,10 +27,10 @@ bash:
 ``` bash
 #!/bin/bash
 for i in $(ls /tmp/mpvSockets/*); do
-	echo '{ "command": ["set_property", "pause", true] }' | socat - "$i";
+  echo '{ "command": ["set_property", "pause", true] }' | socat - "$i";
 done
-# Socat  is  a  command  line based utility that establishes two bidirec-tional byte streams  and	 transfers  data  between  them.
-# available on Linux and FreeBSD, propably most unixes. you can also use 
+# Socat is a command line based utility that establishes two bidirec-tional byte streams and transfers data between them.
+# available on Linux and FreeBSD, propably most unixes. you can also use
 ```
 
 ## Windows (named pipes):
@@ -56,21 +56,21 @@ $npipeClient = new-object System.IO.Pipes.NamedPipeClientStream('.', $socketName
 
 $pipeReader = $pipeWriter = $null
 try {
-    $npipeClient.Connect()
-    $pipeReader = new-object System.IO.StreamReader($npipeClient)
-    $pipeWriter = new-object System.IO.StreamWriter($npipeClient)
-    $pipeWriter.AutoFlush = $true
+  $npipeClient.Connect()
+  $pipeReader = new-object System.IO.StreamReader($npipeClient)
+  $pipeWriter = new-object System.IO.StreamWriter($npipeClient)
+  $pipeWriter.AutoFlush = $true
 
-    $pipeWriter.WriteLine($message)
+  $pipeWriter.WriteLine($message)
 
-    while (($data = $pipeReader.ReadLine()) -ne $null) {
-      $data
-    }
+  while (($data = $pipeReader.ReadLine()) -ne $null) {
+    $data
+  }
 }
 catch {
-    "An error occurred that could not be resolved."
+  "An error occurred that could not be resolved."
 }
 finally {
-    $npipeClient.Dispose()
+  $npipeClient.Dispose()
 }
 ```

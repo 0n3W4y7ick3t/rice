@@ -868,9 +868,9 @@ function sortplaylist(startover)
 
   local order = {}
   for i=1, #playlist do
-		order[i] = i
+    order[i] = i
     playlist[i].string = get_name_from_index(i - 1, true)
-	end
+  end
 
   table.sort(order, function(a, b)
     return dosort(playlist[a].string, playlist[b].string)

@@ -16,11 +16,11 @@ ln -sf "$(find "$trueloc" -iregex '.*.\(jpg\|jpeg\|png\|gif\)' -type f | shuf -n
 
 # If pywal is installed, use it.
 if command -v wal >/dev/null 2>&1 ; then
-	wal -i "$(readlink -f $bgloc)" -o "$XDG_CONFIG_HOME/wal/postrun" >/dev/null 2>&1
+  wal -i "$(readlink -f $bgloc)" -o "$XDG_CONFIG_HOME/wal/postrun" >/dev/null 2>&1
 # If pywal is removed, return config files to normal.
 else
-	[ -f "$dunstconf.bak" ] && unlink "$dunstconf" && mv "$dunstconf.bak" "$dunstconf"
-	[ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
+  [ -f "$dunstconf.bak" ] && unlink "$dunstconf" && mv "$dunstconf.bak" "$dunstconf"
+  [ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
 fi
 
 feh --bg-fill $base'0' $base'1'

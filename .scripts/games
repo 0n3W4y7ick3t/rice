@@ -4,7 +4,7 @@
 GAME_PATH="/home/shared/Games"
 
 case "$(printf "stardew valley\nterraria" | dmenu -i -p 'Play which game? ')" in
-	"stardew valley") . "$GAME_PATH/Stardew Valley/start.sh";;
-	"terraria")       . "$GAME_PATH/Terraria/start.sh";;
-	*) exit 1 ;;
+  "stardew valley") . "$GAME_PATH/Stardew Valley/start.sh";;
+  "terraria")       . "$GAME_PATH/Terraria/start.sh";;
+  *) exit 1 ;;
 esac

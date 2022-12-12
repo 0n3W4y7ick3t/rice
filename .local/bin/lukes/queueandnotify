@@ -6,9 +6,9 @@
 queuefile="$XDG_DATA_HOME/newsboat/queue"
 
 while read -r line; do
-	[ -z "$line" ] && continue
-	url="${line%%[	 ]*}"
-	qndl "$url" "curl -LO"
+  [ -z "$line" ] && continue
+  url="${line%%[\t ]*}"
+  qndl "$url" "curl -LO"
 done < "$queuefile"
 
 echo > "$queuefile"

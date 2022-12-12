@@ -25,7 +25,8 @@ source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plug
 # you should check https://github.com/mfaerevaag/wd for more instruction.
 # If you use AUR, `yay -S zsh-plugin-wd` will do it.
 
-setopt autocd		# Automatically cd into typed directory.
+setopt autocd
+# Automatically cd into typed directory.
 setopt autopushd
 # Automatically pushd everytime before using cd.
 # Type cd -<Enter> to view dir stack
@@ -47,7 +48,7 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 autoload -U compinit && compinit
 zmodload zsh/complist
-_comp_options+=(globdots)		# Include hidden files.
+_comp_options+=(globdots) # Include hidden files.
 
 # vi mode
 bindkey -v

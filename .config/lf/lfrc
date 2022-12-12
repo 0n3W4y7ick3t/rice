@@ -126,6 +126,8 @@ map <c-y> up
 map V push :!nvim<space>
 
 map W $setsid -f $TERMINAL >/dev/null 2>&1
-
-map Y $printf "%s" "$fx" | xclip -selection clipboard
+# Y copy file to clipboard
+map Y $xclip -sel clip "$f" -t `file --mime-type -b "$f"`
+# P copy file full path to clipboard
+map P $printf "%s" "$fx" | xclip -sel clip
 source "~/.config/lf/shortcutrc"

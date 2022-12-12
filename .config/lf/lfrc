@@ -1,11 +1,6 @@
-# Luke's lf settings
-
+# Leon's lf settings
 
 # Note on Image Previews
-# For those wanting image previews, like this system, there are four steps to
-# set it up. These are done automatically for LARBS users, but I will state
-# them here for others doing it manually.
-#
 # 1. ueberzug must be installed.
 # 2. The scope file (~/.config/lf/scope for me), must have a command similar to
 #    mine to generate ueberzug images.
@@ -28,6 +23,7 @@ set period 1
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
 set cleaner '~/.config/lf/cleaner'
 set previewer '~/.config/lf/scope'
+set autoquit on
 
 # cmds/functions
 cmd open ${{
@@ -132,3 +128,4 @@ map V push :!nvim<space>
 map W $setsid -f $TERMINAL >/dev/null 2>&1
 
 map Y $printf "%s" "$fx" | xclip -selection clipboard
+source "~/.config/lf/shortcutrc"

@@ -1,12 +1,10 @@
 ###            *** Leon Satoshi's zshrc ***               ###
 ### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
-# *** Install themes and plugins if not present  ***
-# You can remove this lines after they are installed.
+# *** Install powerlevel10k theme and plugins if not present  ***
+# You can remove these lines after they are installed.
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
-[ -d $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme ] || \
-  git clone https://github.com/agnoster/agnoster-zsh-theme $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
   git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions
 [ -d $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting ] || \
@@ -14,16 +12,11 @@
 
 # Set theme
 # autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
-# setopt prompt_subst && source $XDG_CONFIG_HOME/zsh/themes/agnoster-zsh-theme/agnoster.zsh-theme
 source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
 
 # Enable plugins
 source $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
-# wd () { . /usr/share/wd/wd.sh }
-# Since wd can not be naively installed by git,
-# you should check https://github.com/mfaerevaag/wd for more instruction.
-# If you use AUR, `yay -S zsh-plugin-wd` will do it.
 
 setopt autocd
 # Automatically cd into typed directory.
@@ -104,11 +97,4 @@ bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
 
-# Custom functions
 mkcd () { mkdir "$1" && cd "$1" }
-
-# For more info, check https://github.com/dutchcoders/transfer.sh/blob/main/examples.md
-transfer() {
-    wget -t 1 -qO - --method=PUT --body-file="$1" --header="Content-Type: $(file -b --mime-type "$1")" https://transfer.sh/$(basename "$1");
-    echo
-}

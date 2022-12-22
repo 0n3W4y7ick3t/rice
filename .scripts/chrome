@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/google-chrome-stable "$@" && rm -rf $XDG_CACHE_HOME/google-chrome

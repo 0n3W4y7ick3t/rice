@@ -1,0 +1,14 @@
+#!/bin/sh
+# ** requires maim **
+
+IMG_FOLDER=$HOME/Pictures/Screenshots
+IMG_PATH=$IMG_FOLDER/pic-select-"$(date '+%y%m%d-%H%M-%S').png"
+
+#  pause brower media, playerctl needed
+playerctl pause
+# maim select mod, copy to clipboard and save screenshot to IMG_PATH
+# -u flag hides cursor
+maim -u -s | tee $IMG_PATH | xclip -selection clipboard  -t image/png
+
+# if quiting maim with ESC, delete empty file.
+[ -s $IMG_PATH ] || rm $IMG_PATH

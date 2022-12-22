@@ -87,8 +87,8 @@ bindkey -s '^v' '^unvim\n'
 bindkey -s '^n' '^uneofetch\n' # Typical arch users be like...
 bindkey -s '^a' '^ubc -lq\n'
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
+bindkey -s '^r' '!!\n' # redo last command
 
-bindkey '^[[P' delete-char
 
 # Edit line in vim with ctrl-e:
 autoload edit-command-line; zle -N edit-command-line

@@ -10,9 +10,8 @@ mpc pause
 playerctl pause
 
 # actual locker
-import -window root /tmp/1.png
-convert /tmp/1.png -blur 0x20 /tmp/2.png
-rm /tmp/1.png
+import -window root /tmp/1.jpg
+convert /tmp/1.jpg -blur 0x20 /tmp/2.png
 
 i3lock -i /tmp/2.png
 exit 0

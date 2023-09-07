@@ -69,7 +69,6 @@ source ~/.config/nvim/shortcuts.vim
 " *** plugin settings ***
 nmap <Leader>m <Plug>MarkdownPreviewToggle
 
-let g:AutoPairsFlyMode = 1
 " lua plugins are configured in the bottom
 
 " Ensure files are read as what I want:
@@ -159,6 +158,8 @@ vnoremap <TAB> o
 nnoremap <Leader>; A;<Esc>
 " add space before and after a char
 noremap <Leader>s i<space><ESC>la<space><ESC>
+" remove search highlights
+nnoremap <silent> ,/ :nohlsearch<CR>
 
 " comment //
 autocmd BufRead,BufNewfile *.c,*.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>
@@ -187,7 +188,6 @@ noremap <c-k> <c-w>k
 
 " tabs and buffers
 noremap <Leader>t <ESC>:tabe<CR> " new tab
-noremap <c-w> <ESC>:tabc<CR>     " close tab
 noremap <Leader>[ <ESC>:tabp<CR> " previous tab
 noremap <Leader>] <ESC>:tabn<CR> " next tab
 noremap <silent> <Leader>' :ls<CR> " list buffer

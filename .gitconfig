@@ -6,3 +6,8 @@
   diff = auto
   interactive = auto
   status = auto
+
+[includeIf "gitdir:~/companyA/"]
+  path = .gitconfig-companyA
+[includeIf "gitdir:~/personal/"]
+  path = .gitconfig-personal

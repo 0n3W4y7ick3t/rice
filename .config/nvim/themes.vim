@@ -1,9 +1,10 @@
-
-let $THEME='nightfly'
-" jellybeans nord gruvbox dracula nightfly everforest catppuccin
+let $THEME=$NVIM_THEME
 set background=dark
 autocmd BufWritePost ~/.config/nvim/themes.vim :so $MYVIMRC
-autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh
+
+if !has('gui_running')
+  set t_Co=256
+endif
 
 " enable truecolor
 if exists('+termguicolors')
@@ -18,10 +19,15 @@ function Removebg ()
     hi LineNr guibg=NONE ctermbg=NONE
 endfunction
 
+" if using airline
 let g:airline_theme=$THEME
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-" if use catppuccin
+autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh
+" if using lightline
+" let g:lightline = { 'colorscheme': 'dracula' }
+
+" if using catppuccin
 let g:catppuccin_flavour = 'frappe' " frappe, macchiato, mocha
 colorscheme $THEME
 call Removebg()

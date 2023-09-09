@@ -14,12 +14,12 @@ export LANG=en_US.UTF-8
 export TIME_STYLE='+%y/%m/%d %H:%M:%S'
 export HIST_STAMPS="yyyy-mm-dd"
 
+# nvim theme
+# jellybeans nord gruvbox dracula nightfly everforest catppuccin
+export NVIM_THEME="nightfly"
+
 # Adds `~/.local/bin` to $PATH
 export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
-# setproxy
-# export all_proxy="127.0.0.1:7890"
-# export http_proxy="127.0.0.1:7890"
-# export https_proxy="127.0.0.1:7890"
 
 unsetopt PROMPT_SP
 

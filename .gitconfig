@@ -7,10 +7,11 @@
   br = branch
   df = diff
   dc = diff --cached
-  pr = pull --rebase 
+  pr = pull --rebase
   pl = pull
   ps = push
   rb = rebase
+  root = rev-parse --show-toplevel
 [color]
   branch = auto
   diff = auto

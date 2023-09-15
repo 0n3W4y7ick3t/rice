@@ -22,5 +22,16 @@
       "}"
     ],
     "description": "common problem sovling skeleton for c"
+  },
+  "malloc error":{
+    "prefix": ["mallocerr", "erralloc", "errmalloc"],
+    "body":[
+      "if (${1:str} == NULL) {",
+      "\tfprintf(stderr, \"${2:malloc error}\\n\");",
+      "\texit(1);",
+      "}",
+      "$0"
+    ],
+    "description": "memory allocation error"
   }
 }

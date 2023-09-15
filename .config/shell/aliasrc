@@ -60,6 +60,7 @@ alias fgrep="fgrep --color=auto"
 alias free="free -h"
 alias grep="grep --color=auto"
 alias vdir="vdir --color=auto"
+alias groot="cd \`git rev-parse --show-toplevel\`"
 
 se() { cd ~/.local/bin; $EDITOR $(fzf) ;}
 

@@ -26,7 +26,7 @@
   "malloc error":{
     "prefix": ["mallocerr", "erralloc", "errmalloc"],
     "body":[
-      "if (${1:str} == NULL) {",
+      "if ($!{ptr}) {",
       "\tfprintf(stderr, \"${2:malloc error}\\n\");",
       "\texit(1);",
       "}",

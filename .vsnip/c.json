@@ -12,11 +12,11 @@
       "#include<string.h>",
       "",
       "void solve($3) {",
-      "\t${4://}",
+      "\t${4}",
       "}",
       "",
       "int main(void) {",
-      "\t// ${2:dealing inputs}",
+      "\t/* ${2:dealing inputs} */",
       "\tsolve($5);",
       "\treturn 0;",
       "}"
@@ -26,7 +26,7 @@
   "malloc error":{
     "prefix": ["mallocerr", "erralloc", "errmalloc"],
     "body":[
-      "if ($!{ptr}) {",
+      "if (!${1:ptr}) {",
       "\tfprintf(stderr, \"${2:malloc error}\\n\");",
       "\texit(1);",
       "}",

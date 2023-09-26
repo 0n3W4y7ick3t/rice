@@ -6,6 +6,6 @@
       "${4:headline}",
       "${5:body}"
     ],
-    "description": "common problem sovling skeleton for c"
+    "description": "diary header"
   }
 }

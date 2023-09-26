@@ -19,5 +19,12 @@
       "$CURRENT_MONTH_NAME $CURRENT_DATE $CURRENT_YEAR"
     ],
     "description": "March 18 2023"
+  },
+  "filename" :{
+    "prefix":["filename", "name", "fname"],
+    "body":[
+      "$TM_FILENAME"
+    ],
+    "description": "get curent filename"
   }
 }

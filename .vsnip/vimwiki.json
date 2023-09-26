@@ -1,0 +1,11 @@
+{
+  "diary": {
+    "prefix": ["diary"],
+    "body": [
+      "$CURRENT_DAY_NAME_SHORT, $CURRENT_MONTH_NAME_SHORT $CURRENT_DATE $CURRENT_YEAR at $CURRENT_HOUR:$CURRENT_MINUTE:$CURRENT_SECOND | ${1:rainy} | ${2:enlighted} | ${3:keywords}",
+      "${4:headline}",
+      "${5:body}"
+    ],
+    "description": "common problem sovling skeleton for c"
+  }
+}

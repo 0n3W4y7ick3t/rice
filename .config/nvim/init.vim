@@ -7,6 +7,7 @@ let mapleader = "\<Space>"
 command CFG :tabe $MYVIMRC
 command THEME :tabe ~/.config/nvim/themes.vim
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
+autocmd BufWritePost $MYVIMRC silent:LspRestart
 
 " automatically install vim-plug
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -25,6 +26,7 @@ Plug 'iamcco/markdown-preview.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'github/copilot.vim'
 " edit
 " Plug 'windwp/nvim-autopairs' " has bug
 Plug 'LunarWatcher/auto-pairs'
@@ -71,6 +73,10 @@ nmap <Leader>m <Plug>MarkdownPreviewToggle
 
 " lua plugins are configured in the bottom
 
+" copilot that everybody digs
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+let g:copilot_no_tab_map = v:true
+
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 map <leader>i :VimwikiIndex<CR>
@@ -103,8 +109,6 @@ set completeopt=menu,menuone,noselect
 set ai et ts=2 sw=2
 " do not use space when indenting in .go
 autocmd BufRead *.go :set noet
-" runs gofmt after save .go file
-autocmd BufWritePost *.go silent! !gofmt -w %
 " Disables automatic commenting on newline:
 autocmd FileType * setlocal formatoptions-=cro
 autocmd FocusLost * redraw!
@@ -147,12 +151,11 @@ autocmd BufReadPost *
 command Q :q!
 " :W force save with sudo
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
-nnoremap <silent> <Leader>w :w<CR>
 nnoremap <silent> <Leader>q :q<CR>
 
 " jump between {}
 nnoremap <TAB> %
-" jump between selected boundrys in visual mode
+" " jump between selected boundrys in visual mode
 vnoremap <TAB> o
 " quick semicolon
 nnoremap <Leader>; A;<Esc>
@@ -162,9 +165,13 @@ noremap <Leader>s i<space><ESC>la<space><ESC>
 nnoremap <silent> ,/ :nohlsearch<CR>
 
 " comment //
-autocmd BufRead,BufNewfile *.c,*.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>
-" uncomment //
-autocmd BufRead,BufNewfile *.c,*.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3xh<ESC>
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>
+" comment /* */
+autocmd BufRead,BufNewfile *.c noremap <Leader>/ I/* <ESC>A */<ESC>
+" uncomment
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3xh$
+autocmd BufRead,BufNewfile *.c noremap <Leader>\ ^3xh$xxx
+
 " use `:set ft?` to find out current file's filetype
 if &ft == 'vim'
   noremap <Leader>/ I" <ESC>
@@ -225,12 +232,17 @@ nnoremap S :%s//g<Left><Left>
 autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
+
+" run format tools after saving
+autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag %!clang-format -style=llvm
+autocmd BufWritePost *.go silent! !gofmt -w %
 " Automatically deletes all trailing whitespace and newlines at end of file on save. & reset cursor position
 autocmd BufWritePre * let currPos = getpos(".")
 autocmd BufWritePre * %s/\s\+$//e
 autocmd BufWritePre * %s/\n\+\%$//e
 autocmd BufWritePre *.[ch] %s/\%$/\r/e
 autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
+
 " Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
 if &diff
         highlight! link DiffText MatchParen
@@ -268,6 +280,8 @@ lua <<EOF
           cmp.select_next_item()
         elseif vim.fn["vsnip#available"](1) == 1 then
           feedkey("<Plug>(vsnip-expand-or-jump)", "")
+        elseif vim.fn["vsnip#jumpable"](-1) == 1 then
+          feedkey("<Plug>(vsnip-jump-next)", "")
         elseif has_words_before() then
           cmp.complete()
         else

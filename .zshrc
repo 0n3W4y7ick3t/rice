@@ -9,7 +9,8 @@
   git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions
 [ -d $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting ] || \
   git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting
-
+[ -d $XDG_CONFIG_HOME/zsh/plugins/wd ] || \
+  git clone https://github.com/mfaerevaag/wd $XDG_CONFIG_HOME/zsh/plugins/wd
 # Set theme
 # autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
 source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
@@ -82,12 +83,13 @@ lfcd () {
     fi
 }
 
-bindkey -s '^o' '^ulfcd\n' # Open lf file browser
-bindkey -s '^v' '^unvim\n'
-bindkey -s '^n' '^uneofetch\n' # Typical arch users be like...
-bindkey -s '^a' '^ubc -lq\n'
+bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
+bindkey -s '^v' '^unvim\n'                     # gimee neovim!
+bindkey -s '^n' '^uneofetch\n'                 # typical arch users be like...
+bindkey -s '^a' '^ubc -lq\n'                   # caculator
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
-bindkey -s '^r' '!!\n' # redo last command
+bindkey -s '^r' '!!\n'                         # redo last command
+bindkey -s '^k' '^ucode . &> /dev/null &\n'    # nahaha
 
 
 # Edit line in vim with ctrl-e:
@@ -98,3 +100,4 @@ bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
 
 mkcd () { mkdir "$1" && cd "$1" }
+wd() { . $XDG_CONFIG_HOME/zsh/plugins/wd/wd.sh  }

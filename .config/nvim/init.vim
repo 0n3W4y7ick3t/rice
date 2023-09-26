@@ -233,11 +233,11 @@ autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 
-" run format tools after saving
-autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag %!clang-format -style=llvm
-autocmd BufWritePost *.go silent! !gofmt -w %
 " Automatically deletes all trailing whitespace and newlines at end of file on save. & reset cursor position
 autocmd BufWritePre * let currPos = getpos(".")
+" run format tools after saving
+autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag %!clang-format -style=llvm
+autocmd BufWritePre *.go !gofmt -w %
 autocmd BufWritePre * %s/\s\+$//e
 autocmd BufWritePre * %s/\n\+\%$//e
 autocmd BufWritePre *.[ch] %s/\%$/\r/e

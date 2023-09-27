@@ -67,7 +67,6 @@ noremap <silent> <Leader>b :call Removebg()<CR>
 " shortcuts for command mode
 source ~/.config/nvim/shortcuts.vim
 
-
 " *** plugin settings ***
 nmap <Leader>m <Plug>MarkdownPreviewToggle
 
@@ -103,7 +102,6 @@ noremap <c-s> :VsnipOpenVsplit<CR>
 
 set completeopt=menu,menuone,noselect
 " *** plugin setting ends ***
-
 
 " *** others ***
 set ai et ts=2 sw=2
@@ -146,7 +144,6 @@ autocmd BufReadPost *
   \ |   exe "normal! g`\""
   \ | endif
 
-
 " :Q to quit without saving
 command Q :q!
 " :W force save with sudo
@@ -164,13 +161,12 @@ noremap <Leader>s i<space><ESC>la<space><ESC>
 " remove search highlights
 nnoremap <silent> ,/ :nohlsearch<CR>
 
-" comment //
+" //
 autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>
-" comment /* */
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3x$
+" /* */
 autocmd BufRead,BufNewfile *.c noremap <Leader>/ I/* <ESC>A */<ESC>
-" uncomment
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3xh$
-autocmd BufRead,BufNewfile *.c noremap <Leader>\ ^3xh$xxx
+autocmd BufRead,BufNewfile *.c noremap <Leader>\ ^3x$xxx
 
 " use `:set ft?` to find out current file's filetype
 if &ft == 'vim'
@@ -220,7 +216,6 @@ inoremap <F4> <ESC> :!./%<
 " F5 to run executable with input file 'inp'
 noremap <F5> <ESC> :!./%< < inp<CR>
 inoremap <F5> <ESC> :!./%< < inp<CR>
-
 
 " Some basics:
 nnoremap c "_c

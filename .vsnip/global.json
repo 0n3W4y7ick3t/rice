@@ -26,5 +26,21 @@
       "$TM_FILENAME"
     ],
     "description": "get curent filename"
+  },
+  "ANSI single line comment": {
+    "prefix": ["/*"],
+    "body": [
+      "/* ${1} */"
+    ],
+    "description": "/* */ comment"
+  },
+  "ANSI multible lines comment": {
+    "prefix": ["/**"],
+    "body": [
+      "/**",
+      "* ${1}",
+      "*/"
+    ],
+    "description": "/** */ multible lines comment"
   }
 }

@@ -50,13 +50,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 " colorscheme
 Plug 'bluz71/vim-nightfly-guicolors'
-Plug 'sainnhe/everforest'
-Plug 'arcticicestudio/nord-vim'
-Plug 'nanotech/jellybeans.vim'
-Plug 'morhetz/gruvbox'
 Plug 'dylanaraps/wal.vim'
-Plug 'dracula/vim', { 'as': 'dracula'  }
-Plug 'catppuccin/nvim', {'as': 'catppuccin'}
 call plug#end()
 
 " themes and statusline settings
@@ -162,21 +156,17 @@ noremap <Leader>s i<space><ESC>la<space><ESC>
 nnoremap <silent> ,/ :nohlsearch<CR>
 
 " //
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>$
 autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3x$
 " /* */
-autocmd BufRead,BufNewfile *.c noremap <Leader>/ I/* <ESC>A */<ESC>
+autocmd BufRead,BufNewfile *.c noremap <Leader>/ I/* <ESC>A */<ESC>hhh
 autocmd BufRead,BufNewfile *.c noremap <Leader>\ ^3x$xxx
-
-" use `:set ft?` to find out current file's filetype
-if &ft == 'vim'
-  noremap <Leader>/ I" <ESC>
-  noremap <Leader>\ ^2xh<ESC>
-endif
-if &ft == 'conf' || &ft == 'python'
-  noremap <Leader>/ I# <ESC>
-  noremap <Leader>\ ^2xh<ESC>
-endif
+" #
+autocmd BufRead,BufNewfile *.py,*conf noremap <Leader>/ I# <ESC>
+autocmd BufRead,BufNewfile *.py,*conf noremap <Leader>\ ^2x$
+" "
+autocmd BufRead,BufNewfile *.vim noremap <Leader>/ I" <ESC>
+autocmd BufRead,BufNewfile *.vim noremap <Leader>\ ^2x$
 
 " split: horizontal, vertical
 noremap <silent> <Leader>h :new<CR>

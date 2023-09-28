@@ -1,4 +1,4 @@
-let $THEME=$NVIM_THEME
+let $THEME="nightfly"
 set background=dark
 autocmd BufWritePost ~/.config/nvim/themes.vim :so $MYVIMRC
 
@@ -27,7 +27,5 @@ autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh
 " if using lightline
 " let g:lightline = { 'colorscheme': 'dracula' }
 
-" if using catppuccin
-let g:catppuccin_flavour = 'frappe' " frappe, macchiato, mocha
 colorscheme $THEME
 call Removebg()

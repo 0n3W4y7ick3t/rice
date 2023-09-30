@@ -26,15 +26,18 @@ Plug 'iamcco/markdown-preview.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'szw/vim-maximizer'
 Plug 'github/copilot.vim'
+Plug 'mbbill/undotree'
 " edit
-" Plug 'windwp/nvim-autopairs' " has bug
 Plug 'LunarWatcher/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-fugitive'
+" debug
+
 " nvim-cmp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -63,6 +66,8 @@ source ~/.config/nvim/shortcuts.vim
 
 " *** plugin settings ***
 nmap <Leader>m <Plug>MarkdownPreviewToggle
+noremap <silent> <Leader><CR> :MaximizerToggle<CR>
+noremap <silent> <Leader>u :UndotreeToggle<CR>
 
 " lua plugins are configured in the bottom
 

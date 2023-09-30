@@ -3,18 +3,18 @@
 
 # *** Install powerlevel10k theme and plugins if not present  ***
 # You can remove these lines after they are installed.
+[ -d $XDG_CONFIG_HOME/zsh/plugins/wd ] || \
+  git clone https://github.com/mfaerevaag/wd $XDG_CONFIG_HOME/zsh/plugins/wd
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
   git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions
 [ -d $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting ] || \
   git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting
-[ -d $XDG_CONFIG_HOME/zsh/plugins/wd ] || \
-  git clone https://github.com/mfaerevaag/wd $XDG_CONFIG_HOME/zsh/plugins/wd
+
 # Set theme
 # autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
 source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
-
 # Enable plugins
 source $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
@@ -103,4 +103,4 @@ bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
 
-wd() { . /home/leon/.local/wd/wd.sh }
+wd() { . $HOME/.local/wd/wd.sh }

@@ -91,6 +91,7 @@ bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!
 bindkey -s '^n' '^uneofetch\n'                 # typical arch users be like...
 bindkey -s '^a' '^ubc -lq\n'                   # caculator
+bindkey -s '^g' '^ulazygit\n'                  # lazier everyday!
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
 bindkey -s '^r' '!!\n'                         # redo last command
 bindkey -s '^k' '^ucode . &> /dev/null &\n'    # nahaha

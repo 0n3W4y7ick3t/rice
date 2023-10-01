@@ -65,7 +65,7 @@ noremap <silent> <Leader>b :call Removebg()<CR>
 source ~/.config/nvim/shortcuts.vim
 
 " *** plugin settings ***
-nmap <Leader>m <Plug>MarkdownPreviewToggle
+nnoremap <Leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <Leader><CR> :MaximizerToggle<CR>
 noremap <silent> <Leader>u :UndotreeToggle<CR>
 
@@ -185,9 +185,9 @@ noremap <c-j> <c-w>j
 noremap <c-k> <c-w>k
 
 " tabs and buffers
-noremap <Leader>t <ESC>:tabe<CR> " new tab
-noremap <Leader>[ <ESC>:tabp<CR> " previous tab
-noremap <Leader>] <ESC>:tabn<CR> " next tab
+noremap <silent> <Leader>t <ESC>:tabe<CR> " new tab
+noremap <silent> <Leader>[ <ESC>:tabp<CR> " previous tab
+noremap <silent> <Leader>] <ESC>:tabn<CR> " next tab
 noremap <silent> <Leader>' :ls<CR> " list buffer
 noremap <silent> <Leader>, :bp<CR> " previous buffer
 noremap <silent> <Leader>. :bn<CR> " next buffer

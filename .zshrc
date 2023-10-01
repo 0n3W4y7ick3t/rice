@@ -84,8 +84,8 @@ lfcd () {
 }
 
 mkcd () { mkdir "$1" && cd "$1" }
-bmf () { echo "$1" `$2` >> $XDG_CONFIG_HOME/shell/bm-files } # add file to files bookmark
-bmd () { echo "$1" `pwd` >> $XDG_CONFIG_HOME/shell/bm-dirs } # add current dir to dirs bookmark
+bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files } # add file to files bookmark
+bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs }   # add current dir to dirs bookmark
 
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!

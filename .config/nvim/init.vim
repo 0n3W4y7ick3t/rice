@@ -19,6 +19,7 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 " enhancement
 Plug 'jreybert/vimagit'
+Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'ptzz/lf.vim'
 Plug 'voldikss/vim-floaterm'
@@ -65,11 +66,10 @@ noremap <silent> <Leader>b :call Removebg()<CR>
 source ~/.config/nvim/shortcuts.vim
 
 " *** plugin settings ***
+" lua plugins are configured in the bottom
 nnoremap <Leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <Leader><CR> :MaximizerToggle<CR>
 noremap <silent> <Leader>u :UndotreeToggle<CR>
-
-" lua plugins are configured in the bottom
 
 " copilot that everybody digs
 imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
@@ -92,10 +92,12 @@ let g:lf_command_override = 'lf -command "set hidden"'
 let g:lf_map_keys = 0
 noremap <silent> <a-f> :Lf<CR>
 
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+" finders! telescope and fzf
+nnoremap <leader>tf <cmd>Telescope find_files<cr>
+nnoremap <leader>tg <cmd>Telescope live_grep<cr>
+nnoremap <leader>tb <cmd>Telescope buffers<cr>
+nnoremap <leader>th <cmd>Telescope help_tags<cr>
+nnoremap <Leader>fg :RG 
 
 noremap <c-s> :VsnipOpenVsplit<CR>
 
@@ -223,14 +225,10 @@ autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 
-" Automatically deletes all trailing whitespace and newlines at end of file on save. & reset cursor position
 autocmd BufWritePre * let currPos = getpos(".")
 " run format tools after saving
 autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag %!clang-format -style=llvm
 autocmd BufWritePre *.go !gofmt -w %
-autocmd BufWritePre * %s/\s\+$//e
-autocmd BufWritePre * %s/\n\+\%$//e
-autocmd BufWritePre *.[ch] %s/\%$/\r/e
 autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
 
 " Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.

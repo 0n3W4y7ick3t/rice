@@ -73,6 +73,8 @@ noremap <silent> <Leader>u :UndotreeToggle<CR>
 
 " copilot that everybody digs
 imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+nnoremap <Leader>pe :Copilot enable<CR>
+nnoremap <Leader>pd :Copilot disable<CR>
 let g:copilot_no_tab_map = v:true
 
 " Ensure files are read as what I want:

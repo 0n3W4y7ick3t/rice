@@ -96,7 +96,6 @@ bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
 bindkey -s '^r' '!!\n'                         # redo last command
 bindkey -s '^k' '^ucode . &> /dev/null &\n'    # nahaha
 
-
 # Edit line in vim with ctrl-e:
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line

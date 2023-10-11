@@ -61,8 +61,10 @@ alias free="free -h"
 alias grep="grep --color=auto"
 alias vdir="vdir --color=auto"
 alias groot="cd \`git rev-parse --show-toplevel\`"
+# the space here make shell to check if next word is an alias too, thus make `sudo my-alias` work.
+alias sudo="sudo "
 
-se() { cd ~/.local/bin; $EDITOR $(fzf) ;}
+se() { cd ~/.scripts; $EDITOR $(fzf) ;}
 
 alias \
   lf="lfub" \

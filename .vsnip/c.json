@@ -9,26 +9,26 @@
       " * @problem $2",
       " * @link $3",
       " */",
-      "#include<stdio.h>",
-      "#include<stdlib.h>",
-      "#include<string.h>",
+      "#include <stdio.h>",
+      "#include <stdlib.h>",
       "",
       "int main(void) {",
-      "\t/* $4 */",
       "\t$0",
       "\treturn 0;",
       "}"
     ],
     "description": "common problem sovling skeleton for c"
   },
-  "malloc error":{
-    "prefix": ["mallocerr", "erralloc", "errmalloc"],
+  "not null inline func":{
+    "prefix": ["mallocerr", "erralloc", "errmalloc", "not_null"],
     "body":[
-      "if (!${1:ptr}) {",
-      "\tfprintf(stderr, \"${2:malloc error}\\n\");",
-      "\texit(1);",
-      "}",
-      "$0"
+      "static inline void not_null(void *ptr) {",
+       "\tif (!ptr) {",
+       "\t\tfprintf(stderr, \"err, pointer is null\\n\");",
+       "\t\texit(1);",
+       "\t}",
+       "}",
+       "$0"
     ],
     "description": "memory allocation error"
   }

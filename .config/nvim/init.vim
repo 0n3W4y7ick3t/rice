@@ -18,6 +18,7 @@ endif
 
 call plug#begin('~/.config/nvim/plugged')
 " enhancement
+Plug 'junegunn/goyo.vim'
 Plug 'jreybert/vimagit'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
@@ -26,6 +27,8 @@ Plug 'voldikss/vim-floaterm'
 Plug 'iamcco/markdown-preview.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/nvim-treesitter-context'
+" Plug 'wellle/context.vim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 Plug 'szw/vim-maximizer'
 Plug 'github/copilot.vim'
@@ -38,7 +41,7 @@ Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-fugitive'
 " debug
-
+Plug 'puremourning/vimspector'
 " nvim-cmp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -59,23 +62,26 @@ call plug#end()
 
 " themes and statusline settings
 source ~/.config/nvim/themes.vim
-" <Leader>b to remove vim backgroud color, make it transparent
+" <leader>b to remove vim backgroud color, make it transparent
 " use ]ob to refresh (dark), supported by pope/vim-unimpaired
-noremap <silent> <Leader>b :call Removebg()<CR>
+noremap <silent> <leader>b :call Removebg()<CR>
 " shortcuts for command mode
 source ~/.config/nvim/shortcuts.vim
 
 " *** plugin settings ***
 " lua plugins are configured in the bottom
-nnoremap <Leader>m <Plug>MarkdownPreviewToggle
-noremap <silent> <Leader><CR> :MaximizerToggle<CR>
-noremap <silent> <Leader>u :UndotreeToggle<CR>
+nnoremap <leader>m <Plug>MarkdownPreviewToggle
+noremap <silent> <leader><CR> :MaximizerToggle<CR>
+noremap <silent> <leader>u :UndotreeToggle<CR>
 
 " copilot that everybody digs
 imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
-nnoremap <Leader>pe :Copilot enable<CR>
-nnoremap <Leader>pd :Copilot disable<CR>
+nnoremap <leader>pe :Copilot enable<CR>
+nnoremap <leader>pd :Copilot disable<CR>
 let g:copilot_no_tab_map = v:true
+
+let g:vimspector_enable_mappings = 'HUMAN'
+hi TreesitterContextBottom gui=underline guisp=Grey
 
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
@@ -94,12 +100,14 @@ let g:lf_command_override = 'lf -command "set hidden"'
 let g:lf_map_keys = 0
 noremap <silent> <a-f> :Lf<CR>
 
+nnoremap <silent> <leader>g :Goyo<CR>
+
 " finders! telescope and fzf
 nnoremap <leader>tf <cmd>Telescope find_files<cr>
 nnoremap <leader>tg <cmd>Telescope live_grep<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
-nnoremap <Leader>fg :RG 
+nnoremap <leader>fg :RG 
 
 noremap <c-s> :VsnipOpenVsplit<CR>
 
@@ -138,8 +146,8 @@ set shellslash
 " (I think neovim often has this build in by default)
 set clipboard^=unnamedplus
 " Or, use this fallback(X11, xclip) to make works.
-" vnoremap <silent> <Leader>y :w !xclip -in -selection clipboard<CR><ESC>
-" noremap <silent> <Leader>p :r !xclip -out -selection clipboard<CR><ESC>
+" vnoremap <silent> <leader>y :w !xclip -in -selection clipboard<CR><ESC>
+" noremap <silent> <leader>p :r !xclip -out -selection clipboard<CR><ESC>
 
 " Return to last edit position when opening file again
 autocmd BufReadPost *
@@ -147,40 +155,40 @@ autocmd BufReadPost *
   \ |   exe "normal! g`\""
   \ | endif
 
-" :Q to quit without saving
-command Q :q!
+command Q :q! " :Q<CR> to quit without saving
+nnoremap <silent> <c-q> :q<CR>
 " :W force save with sudo
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
-nnoremap <silent> <Leader>q :q<CR>
+nnoremap <silent> <leader>q :q<CR>
 
 " jump between {}
 nnoremap <TAB> %
 " " jump between selected boundrys in visual mode
 vnoremap <TAB> o
 " quick semicolon
-nnoremap <Leader>; A;<Esc>
+nnoremap <leader>; A;<Esc>
 " add space before and after a char
-noremap <Leader>s i<space><ESC>la<space><ESC>
+noremap <leader>s i<space><ESC>la<space><ESC>
 " remove search highlights
 nnoremap <silent> ,/ :nohlsearch<CR>
 
 " //
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>/ I// <ESC>$
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <Leader>\ ^3x$
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <leader>/ I// <ESC>$
+autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <leader>\ ^3x$
 " /* */
-autocmd BufRead,BufNewfile *.c noremap <Leader>/ I/* <ESC>A */<ESC>hhh
-autocmd BufRead,BufNewfile *.c noremap <Leader>\ ^3x$xxx
+autocmd BufRead,BufNewfile *.c noremap <leader>/ I/* <ESC>A */<ESC>hhh
+autocmd BufRead,BufNewfile *.c noremap <leader>\ ^3x$xxx
 " #
-autocmd BufRead,BufNewfile *.py,*conf noremap <Leader>/ I# <ESC>
-autocmd BufRead,BufNewfile *.py,*conf noremap <Leader>\ ^2x$
+autocmd BufRead,BufNewfile *.py,*conf noremap <leader>/ I# <ESC>
+autocmd BufRead,BufNewfile *.py,*conf noremap <leader>\ ^2x$
 " "
-autocmd BufRead,BufNewfile *.vim noremap <Leader>/ I" <ESC>
-autocmd BufRead,BufNewfile *.vim noremap <Leader>\ ^2x$
+autocmd BufRead,BufNewfile *.vim noremap <leader>/ I" <ESC>
+autocmd BufRead,BufNewfile *.vim noremap <leader>\ ^2x$
 
 " split: horizontal, vertical
-noremap <silent> <Leader>h :new<CR>
-noremap <silent> <Leader>v :vnew<CR>
-noremap <Leader>n :vs
+noremap <silent> <leader>h :new<CR>
+noremap <silent> <leader>v :vnew<CR>
+noremap <leader>n :vs
 
 " panel navigation
 noremap <c-h> <c-w>h
@@ -189,12 +197,12 @@ noremap <c-j> <c-w>j
 noremap <c-k> <c-w>k
 
 " tabs and buffers
-noremap <silent> <Leader>t <ESC>:tabe<CR> " new tab
-noremap <silent> <Leader>[ <ESC>:tabp<CR> " previous tab
-noremap <silent> <Leader>] <ESC>:tabn<CR> " next tab
-noremap <silent> <Leader>' :ls<CR> " list buffer
-noremap <silent> <Leader>, :bp<CR> " previous buffer
-noremap <silent> <Leader>. :bn<CR> " next buffer
+noremap <silent> <leader>t <ESC>:tabe<CR> " new tab
+noremap <silent> <leader>[ <ESC>:tabp<CR> " previous tab
+noremap <silent> <leader>] <ESC>:tabn<CR> " next tab
+noremap <silent> <leader>' :ls<CR> " list buffer
+noremap <silent> <leader>, :bp<CR> " previous buffer
+noremap <silent> <leader>. :bn<CR> " next buffer
 
 " script to compile and run single source code file,
 " with and without input redirect
@@ -322,6 +330,20 @@ lua <<EOF
       { name = 'cmdline' }
     })
   })
+  require'treesitter-context'.setup{
+  enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+  max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
+  min_window_height = 0, -- Minimum editor window height to enable context. Values <= 0 mean no limit.
+  line_numbers = true,
+  multiline_threshold = 20, -- Maximum number of lines to show for a single context
+  trim_scope = 'outer', -- Which context lines to discard if `max_lines` is exceeded. Choices: 'inner', 'outer'
+  mode = 'cursor',  -- Line used to calculate context. Choices: 'cursor', 'topline'
+  -- Separator between context and content. Should be a single character string, like '-'.
+  -- When separator is set, the context will only show up when there are at least 2 lines above cursorline.
+  separator = nil,
+  zindex = 20, -- The Z-index of the context window
+  on_attach = nil, -- (fun(buf: integer): boolean) return false to disable attaching
+}
 
   local capabilities = require('cmp_nvim_lsp').default_capabilities()
   -- require('lspconfig')['gopls'].setup {

@@ -86,6 +86,7 @@ lfcd () {
 mkcd () { mkdir "$1" && cd "$1" }
 bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files } # add file to files bookmark
 bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs }   # add current dir to dirs bookmark
+wd() { . $HOME/.config/zsh/plugins/wd/wd.sh }
 
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!
@@ -102,5 +103,3 @@ bindkey '^e' edit-command-line
 bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
-
-wd() { . $HOME/.local/wd/wd.sh }

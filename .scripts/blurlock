@@ -11,7 +11,7 @@ playerctl pause
 
 # actual locker
 import -window root /tmp/1.jpg
-convert /tmp/1.jpg -blur 0x20 /tmp/2.png
+convert /tmp/1.jpg -blur 0x20 /tmp/2.jpg
 
 i3lock -i /tmp/2.png
 exit 0

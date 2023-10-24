@@ -12,3 +12,6 @@ maim -u | tee $IMG_PATH | xclip -selection clipboard  -t image/png
 
 # if quiting maim with ESC, delete empty file.
 [ -s $IMG_PATH ] || rm $IMG_PATH
+
+# save screenshot path to file
+echo $IMG_PATH > $XDG_DATA_HOME/lastscreenshot

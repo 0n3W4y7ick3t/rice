@@ -1,2 +1,4 @@
 #!/bin/sh
-xclip -selection clipboard  
+# *** usage ***
+# cat [text file] | clip
+xclip -selection clipboard  $@

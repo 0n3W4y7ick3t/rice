@@ -26,12 +26,12 @@ unsetopt PROMPT_SP
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="st"
-# firefix and chrome are two scripts
-export BROWSER1="firefix"
-export BROWSER2="chrome"
-export APPH="telegram-desktop"
+# two scripts that delete cache
+export BROWSER1="librewolf-clean"
+export BROWSER2="firefox-clean"
+export APPH=""
 export APPJ=""
-export APPK="code" # vscode
+export APPK=""
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

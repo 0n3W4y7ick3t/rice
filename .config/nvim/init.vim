@@ -29,7 +29,7 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-context'
 " Plug 'wellle/context.vim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'nvim-telescope/telescope.nvim',
 Plug 'szw/vim-maximizer'
 Plug 'github/copilot.vim'
 Plug 'mbbill/undotree'
@@ -85,8 +85,12 @@ hi TreesitterContextBottom gui=underline guisp=Grey
 
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
-map <leader>i :VimwikiIndex<CR>
 let g:vimwiki_list = [{'path': '~/.local/share/nvim/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+map <c-w><c-i> :VimwikiIndex<CR>
+map <c-w><c-d> :VimwikiDiaryIndex<CR>
+map <c-w><c-t> :VimwikiMakeDiaryNote<CR>
+map <c-w><c-y> :VimwikiMakeYesterdayDiaryNote<CR>
+map <c-w><c-g> :VimwikiDiaryGenerateLinks<CR>
 
 noremap <F11> :FloatermSend<CR>
 inoremap <F11> <ESC>:FloatermSend<CR>
@@ -208,7 +212,6 @@ noremap <silent> <leader>. :bn<CR> " next buffer
 " with and without input redirect
 noremap <leader>c :w! \| !compiler "%:p"<CR>
 noremap <leader>r :w! \| !compiler-red "%:p"<CR>
-noremap <leader>i :vs "%:p:h/inp"<CR>:w inp<CR> " edit inp file
 " make optioins
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %

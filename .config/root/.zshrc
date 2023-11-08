@@ -3,10 +3,6 @@ export LANG=en_US.UTF-8
 export HIST_STAMPS="yyyy-mm-dd"
 export PATH="$PATH:$HOME/.local/bin"
 export EDITOR="vim"
-# setproxy
-# export all_proxy="127.0.0.1:7890"
-# export http_proxy="127.0.0.1:7890"
-# export https_proxy="127.0.0.1:7890"
 
 unsetopt PROMPT_SP
 export XDG_CONFIG_HOME="$HOME/.config"

@@ -26,31 +26,6 @@ local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, {'n','v'}, '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.formatting(aysnc=true)<CR>', opts)
-  -- Highlight symbol under cursor
-  if client.resolved_capabilities.document_highlight then
-    vim.cmd [[
-    hi! LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
-    hi! LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
-    hi! LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
-    ]]
-    vim.api.nvim_create_augroup('lsp_document_highlight', {
-      clear = false
-    })
-    vim.api.nvim_clear_autocmds({
-      buffer = bufnr,
-      group = 'lsp_document_highlight',
-    })
-    vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-      group = 'lsp_document_highlight',
-      buffer = bufnr,
-      callback = vim.lsp.buf.document_highlight,
-    })
-    vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-      group = 'lsp_document_highlight',
-      buffer = bufnr,
-      callback = vim.lsp.buf.clear_references,
-    })
-  end
 end
 
 -- Update nvim-cmp capabilities and add them to each language server

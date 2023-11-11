@@ -234,10 +234,8 @@ autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 
-autocmd BufWritePre * let currPos = getpos(".")
-" run format tools after saving
-autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag %!clang-format -style=llvm
-autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
+" using lsp to format
+autocmd BufWritePre * lua vim.lsp.buf.format()
 
 " Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
 if &diff

@@ -5,9 +5,7 @@ filetype indent on
 let mapleader = "\<Space>"
 
 command CFG :tabe $MYVIMRC
-command THEME :tabe ~/.config/nvim/themes.vim
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
-autocmd BufWritePost $MYVIMRC silent:LspRestart
 
 " automatically install vim-plug
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -160,11 +158,9 @@ autocmd BufReadPost *
   \ |   exe "normal! g`\""
   \ | endif
 
-command Q :q! " :Q<CR> to quit without saving
 nnoremap <silent> <c-q> :q<CR>
 " :W force save with sudo
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
-nnoremap <silent> <leader>q :q<CR>
 
 " jump between {}
 nnoremap <TAB> %
@@ -252,7 +248,6 @@ endif
 """ Core plugin configuration (lua)
 lua << EOF
 servers = {
-  'pyright',
   'clangd',
   'rust_analyzer',
   'pylyzer',

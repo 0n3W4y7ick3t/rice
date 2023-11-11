@@ -6,7 +6,11 @@ for type, icon in pairs(signs) do
 end
 
 vim.diagnostic.config({
-    virtual_text = {
-        prefix = '●', -- Could be '●', '▎', 'x'
-    }
+  virtual_text = {
+    source = "always",  -- Or "if_many"
+    prefix = '●', -- Could be '●', '▎', 'x'
+  },
+  float = {
+    source = "always",  -- Or "if_many"
+  },
 })

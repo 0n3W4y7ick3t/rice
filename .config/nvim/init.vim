@@ -28,8 +28,9 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-context'
 " Plug 'wellle/context.vim'
 Plug 'nvim-telescope/telescope.nvim',
-Plug 'szw/vim-maximizer'
+" Plug 'zbirenbaum/copilot.lua'
 Plug 'github/copilot.vim'
+Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
 " edit
 Plug 'LunarWatcher/auto-pairs'
@@ -73,12 +74,6 @@ nnoremap <leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <leader><CR> :MaximizerToggle<CR>
 noremap <silent> <leader>u :UndotreeToggle<CR>
 
-" copilot that everybody digs
-imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
-nnoremap <leader>pe :Copilot enable<CR>
-nnoremap <leader>pd :Copilot disable<CR>
-let g:copilot_no_tab_map = v:true
-
 let g:vimspector_enable_mappings = 'HUMAN'
 hi TreesitterContextBottom gui=underline guisp=Grey
 
@@ -90,13 +85,6 @@ map <c-w><c-d> :VimwikiDiaryIndex<CR>
 map <c-w><c-t> :VimwikiMakeDiaryNote<CR>
 map <c-w><c-y> :VimwikiMakeYesterdayDiaryNote<CR>
 map <c-w><c-g> :VimwikiDiaryGenerateLinks<CR>
-
-noremap <F11> :FloatermSend<CR>
-inoremap <F11> <ESC>:FloatermSend<CR>
-let g:floaterm_keymap_toggle = '<F12>'
-let g:floaterm_position = 'bottom'
-let g:floaterm_width = 1.0
-let g:floaterm_height = 0.5
 
 let g:lf_replace_netrw = 1
 let g:lf_command_override = 'lf -command "set hidden"'
@@ -111,8 +99,20 @@ nnoremap <leader>tg <cmd>Telescope live_grep<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
 nnoremap <leader>fg :RG 
+" floaterm
+noremap <leader>fs :FloatermSend<CR>
+let g:floaterm_keymap_toggle = '<leader>ft'
+let g:floaterm_position = 'bottom'
+let g:floaterm_width = 1.0
+let g:floaterm_height = 0.5
 
 noremap <c-s> :VsnipOpenVsplit<CR>
+
+" copilot that everybody digs
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+nnoremap <leader>pe :Copilot enable<CR>
+nnoremap <leader>pd :Copilot disable<CR>
+let g:copilot_no_tab_map = v:true
 
 set completeopt=menu,menuone,noselect
 " *** plugin setting ends ***
@@ -158,7 +158,7 @@ autocmd BufReadPost *
   \ |   exe "normal! g`\""
   \ | endif
 
-nnoremap <silent> <c-q> :q<CR>
+nnoremap <silent> <c-q> :q!<CR>
 " :W force save with sudo
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 
@@ -198,7 +198,6 @@ noremap <c-j> <c-w>j
 noremap <c-k> <c-w>k
 
 " tabs and buffers
-noremap <silent> <leader>t <ESC>:tabe<CR> " new tab
 noremap <silent> <leader>[ <ESC>:tabp<CR> " previous tab
 noremap <silent> <leader>] <ESC>:tabn<CR> " next tab
 noremap <silent> <leader>' :ls<CR> " list buffer
@@ -245,20 +244,18 @@ if &diff
         highlight! link DiffText MatchParen
 endif
 
-""" Core plugin configuration (lua)
 lua << EOF
 servers = {
+  'gopls',
   'clangd',
   'rust_analyzer',
   'pylyzer',
-  'gopls',
 }
 
 require('nvim-cmp-config')
 require('lsp-config')
 require('treesitter-config')
 require('diagnostics')
---  require('telescope-config')
---  require('lualine-config')
---  require('nvim-tree-config')
+require('copilot')
+
 EOF

@@ -1,0 +1,5 @@
+-- require("copilot").setup({
+--   filetypes = {
+--     ["*"] = true,
+--   },
+-- })

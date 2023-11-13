@@ -5,6 +5,7 @@ filetype indent on
 let mapleader = "\<Space>"
 
 command CFG :tabe $MYVIMRC
+command THEME :tabe $HOME/.config/nvim/themes.vim
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
 
 " automatically install vim-plug
@@ -18,6 +19,8 @@ call plug#begin('~/.config/nvim/plugged')
 " enhancement
 Plug 'junegunn/goyo.vim'
 Plug 'jreybert/vimagit'
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'ptzz/lf.vim'
@@ -38,7 +41,6 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-fugitive'
 " debug
 Plug 'puremourning/vimspector'
 " nvim-cmp
@@ -235,7 +237,7 @@ autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 
 " using lsp to format
-autocmd BufWritePre * lua vim.lsp.buf.format()
+autocmd BufWritePre *.go,*.cpp,*.c,*.py,*.rs lua vim.lsp.buf.format()
 
 " Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
 if &diff

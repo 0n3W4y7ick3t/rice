@@ -66,7 +66,7 @@ call plug#end()
 source ~/.config/nvim/themes.vim
 " <leader>b to remove vim backgroud color, make it transparent
 " use ]ob to refresh (dark), supported by pope/vim-unimpaired
-noremap <silent> <leader>b :call Removebg()<CR>
+noremap <silent> <leader>b :call SetHi()<CR>
 " shortcuts for command mode
 source ~/.config/nvim/shortcuts.vim
 
@@ -92,8 +92,6 @@ let g:lf_replace_netrw = 1
 let g:lf_command_override = 'lf -command "set hidden"'
 let g:lf_map_keys = 0
 noremap <silent> <a-f> :Lf<CR>
-
-nnoremap <silent> <leader>g :Goyo<CR>
 
 " finders! telescope and fzf
 nnoremap <leader>tf <cmd>Telescope find_files<cr>

@@ -12,3 +12,5 @@ envdir=$HOME/.local/share/pyenv
 [ -d $envdir/$1 ] || python -m venv $envdir/$1;
 
 . "$envdir/$1/bin/activate"
+
+echo "if the venv is not activated, check if you ran this script by '. pyenv [env name]'"

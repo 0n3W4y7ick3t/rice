@@ -16,6 +16,6 @@ cfu	$HOME/.config/newsboat/urls		# RSS urls for newsboat
 cfl	$HOME/.config/lf/lfrc		# lf (file browser) config
 cfx	$HOME/.config/sxiv/exec/key-handler	# sxiv (image viewer) key/script handler
 
-zsh $HOME/.cache/zshistory
+zht $HOME/.cache/zshistory
 sn  $HOME/.local/snippets
 sdh $HOME/.local/share/sdcv_history

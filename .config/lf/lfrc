@@ -23,7 +23,7 @@ set period 1
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
 set cleaner '~/.config/lf/cleaner'
 set previewer '~/.config/lf/scope'
-set autoquit on
+set autoquit true
 
 # cmds/functions
 cmd open ${{
@@ -113,11 +113,11 @@ map X !$f
 map o &mimeopen "$f"
 map O $mimeopen --ask "$f"
 
-map A rename # at the very end
-map c push A<c-u> # new rename
-map I push A<c-a> # at the very beginning
-map i push A<a-b><a-b><a-f> # before extension
-map a push A<a-b> # after extension
+map i rename      # filename[].ext
+map A push i<a-f> # filename.ext[]
+map c push i<c-u> # [].ext
+map C push i<c-f><c-k> # filename.[]
+
 map B bulkrename
 map b $setbg0 $f
 

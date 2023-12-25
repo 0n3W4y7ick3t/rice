@@ -1,8 +1,24 @@
 [alias]
   lol = log --graph --decorate --pretty=oneline --abbrev-commit
   lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  st = status
+  cm = commit
+  co = checkout
+  br = branch
+  df = diff
+  dc = diff --cached
+  pr = pull --rebase
+  pl = pull
+  ps = push
+  rb = rebase
+  root = rev-parse --show-toplevel
 [color]
   branch = auto
   diff = auto
   interactive = auto
   status = auto
+
+[includeIf "gitdir:~/companyA/"]
+  path = .gitconfig-companyA
+[includeIf "gitdir:~/personal/"]
+  path = .gitconfig-personal

@@ -14,24 +14,24 @@ export LANG=en_US.UTF-8
 export TIME_STYLE='+%y/%m/%d %H:%M:%S'
 export HIST_STAMPS="yyyy-mm-dd"
 
+# nvim theme
+# jellybeans nord gruvbox dracula nightfly everforest catppuccin
+export NVIM_THEME="nightfly"
+
 # Adds `~/.local/bin` to $PATH
 export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
-# setproxy
-# export all_proxy="127.0.0.1:7890"
-# export http_proxy="127.0.0.1:7890"
-# export https_proxy="127.0.0.1:7890"
 
 unsetopt PROMPT_SP
 
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="st"
-# firefix and chrome are two scripts
-export BROWSER1="firefix"
-export BROWSER2="chrome"
-export APPH="telegram-desktop"
+# two scripts that delete cache
+export BROWSER1="librewolf-clean"
+export BROWSER2="firefox-clean"
+export APPH=""
 export APPJ=""
-export APPK="code" # vscode
+export APPK=""
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# dmenu prompt to open a file based on its type
+
+# Get user selection via dmenu from bookmark file.
+IFS=" :"
+chosen=$(cut -d '#' -f1 ~/.share/bookmarks | dmenu -i -l 30 | sed "s/$IFS.*//")
+
+# Exit if none chosen.
+[ -z "$chosen" ] && exit
+
+# open it using a script
+open "$chosen"

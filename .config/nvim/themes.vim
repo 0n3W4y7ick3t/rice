@@ -1,9 +1,10 @@
-
-let $THEME='nightfly'
-" jellybeans nord gruvbox dracula nightfly everforest catppuccin
+let $THEME="nightfly"
 set background=dark
 autocmd BufWritePost ~/.config/nvim/themes.vim :so $MYVIMRC
-autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh
+
+if !has('gui_running')
+  set t_Co=256
+endif
 
 " enable truecolor
 if exists('+termguicolors')
@@ -11,17 +12,26 @@ if exists('+termguicolors')
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
 endif
-" removes vim backgroud color, make it transparent
-function Removebg ()
-    hi Normal guibg=NONE ctermbg=NONE
-    hi NonText guibg=NONE ctermbg=NONE
-    hi LineNr guibg=NONE ctermbg=NONE
+ 
+function SetHi ()
+  " gitgutter
+  hi GitGutterAdd    guifg=#009900 ctermfg=2 guibg=NONE
+  hi GitGutterChange guifg=#bbbb00 ctermfg=3 guibg=NONE
+  hi GitGutterDelete guifg=#ff2222 ctermfg=1 guibg=NONE
+  " removes vim backgroud color, make it transparent
+  hi SignColumn guibg=NONE
+  hi Normal guibg=NONE ctermbg=NONE
+  hi NonText guibg=NONE ctermbg=NONE
+  hi LineNr guibg=NONE ctermbg=NONE
 endfunction
 
+" if using airline
 let g:airline_theme=$THEME
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-" if use catppuccin
-let g:catppuccin_flavour = 'frappe' " frappe, macchiato, mocha
+autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh
+" if using lightline
+" let g:lightline = { 'colorscheme': dracula' }
 colorscheme $THEME
-call Removebg()
+
+call SetHi() " must in the end

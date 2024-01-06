@@ -3,19 +3,24 @@
 # This file runs when a DM logs you into a graphical session.
 # If you use startx/xinit like a Chad, this file will also be sourced.
 
-xrandr --dpi 163 # 4k 27inch
+# xrandr --dpi 163 # 4k 27inch
 # Set DPI. User may want to use a larger number for larger screens.
 setbg0 &         # set the background with the `setbg` script
 remaps &         # run the remaps script, switching caps/esc and more; check it for more info
 
-autostart="picom copyq mpd dunst unclutter clashd"
+autostart="picom copyq mpd dunst unclutter gammastep screen"
 
 for program in $autostart; do
   pidof -s "$program" || "$program" &
 done >/dev/null 2>&1
 
-pkill pipewire && pipewire &
-# export GTK_IM_MODULE=fcitx
-# export QT_IM_MODULE=fcitx
-# export XMODIFIERS=@im=fcitx
+#xrdb -merge ~/.Xresources
+
+pulseaudio --kill; pipewire &
+wireplumber &
+
 wal -R # refresh pywal colors
+ibus-daemon -drx
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus

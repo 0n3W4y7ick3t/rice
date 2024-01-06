@@ -32,7 +32,7 @@ Plug 'nvim-treesitter/nvim-treesitter-context'
 " Plug 'wellle/context.vim'
 Plug 'nvim-telescope/telescope.nvim',
 " Plug 'zbirenbaum/copilot.lua'
-Plug 'github/copilot.vim'
+" Plug 'github/copilot.vim'
 Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
 " edit

@@ -28,6 +28,6 @@ case "$ext" in
   m) octave "$file" ;;
   py) python "$file" < "$dir/inp" ;;
   [rR]md) Rscript -e "rmarkdown::render('$file', quiet=TRUE)" ;;
-  rs) cargo run ;;
+  rs) cargo run || rustc "$file" && "$base" ;;
   *) sed -n '/^#!/s/^#!//p; q' "$file" | xargs -r -I % "$file" ;;
 esac

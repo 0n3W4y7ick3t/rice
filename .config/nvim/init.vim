@@ -42,7 +42,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 " debug
-Plug 'puremourning/vimspector'
+" Plug 'puremourning/vimspector'
 " nvim-cmp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -61,7 +61,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'bluz71/vim-nightfly-guicolors'
 Plug 'dylanaraps/wal.vim'
 " for rust 
-Plug 'simrat39/rust-tools.nvim'
+" Plug 'simrat39/rust-tools.nvim'
+Plug 'mrcjkb/rustaceanvim'
 call plug#end()
 
 " themes and statusline settings
@@ -78,7 +79,7 @@ nnoremap <leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <leader><CR> :MaximizerToggle<CR>
 noremap <silent> <leader>u :UndotreeToggle<CR>
 
-let g:vimspector_enable_mappings = 'HUMAN'
+" let g:vimspector_enable_mappings = 'HUMAN'
 hi TreesitterContextBottom gui=underline guisp=Grey
 
 " Ensure files are read as what I want:
@@ -248,7 +249,7 @@ lua << EOF
 servers = {
   'gopls',
   'clangd',
-  'rust_analyzer',
+  -- 'rust_analyzer',
   'pylyzer',
 }
 
@@ -256,16 +257,16 @@ require('nvim-cmp-config')
 require('lsp-config')
 require('treesitter-config')
 require('diagnostics')
-local rt = require("rust-tools")
-
-rt.setup({
-  server = {
-    on_attach = function(_, bufnr)
-      -- Hover actions
-      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-      -- Code action groups
-      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-    end,
-  },
-})
+--  local rt = require("rust-tools")
+-- 
+--  rt.setup({
+--    server = {
+--      on_attach = function(_, bufnr)
+--        -- Hover actions
+--        vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+--        -- Code action groups
+--        vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+--      end,
+--    },
+--  })
 EOF

@@ -8,7 +8,7 @@
 setbg0 &         # set the background with the `setbg` script
 remaps &         # run the remaps script, switching caps/esc and more; check it for more info
 
-autostart="picom copyq mpd dunst unclutter gammastep screen"
+autostart="picom copyq mpd dunst unclutter gammastep"
 
 for program in $autostart; do
   pidof -s "$program" || "$program" &
@@ -16,8 +16,9 @@ done >/dev/null 2>&1
 
 #xrdb -merge ~/.Xresources
 
-pulseaudio --kill; pipewire &
-wireplumber &
+# pulseaudio --kill; 
+pipewire &
+# wireplumber &
 
 wal -R # refresh pywal colors
 ibus-daemon -drx

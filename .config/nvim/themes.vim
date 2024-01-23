@@ -26,7 +26,7 @@ function SetHi ()
 endfunction
 
 " if using airline
-let g:airline_theme=$THEME
+let g:airline_theme="nightfly"
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 autocmd BufWritePost ~/.config/nvim/themes.vim :AirlineRefresh

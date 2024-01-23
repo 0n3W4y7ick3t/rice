@@ -30,8 +30,8 @@ textype() { \
 case "$ext" in
   # Try to keep these cases in alphabetical order.
   [0-9]) preconv "$file" | refer -PS -e | groff -mandoc -T pdf > "$base".pdf ;;
-  c) cc "$file" -o "$base" && "$base" ;;
-  cpp) g++ "$file" -o "$base" && "$base" ;;
+  c) cc "$file" -std=c2x -o "$base" && "$base" ;;
+  cpp) g++ "$file" -std=c++23 -o "$base" && "$base" ;;
   cs) mcs "$file" && mono "$base".exe ;;
   go) go build -o "$base" "$file" && "$base" ;;
   h) sudo make install ;;

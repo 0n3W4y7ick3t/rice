@@ -6,6 +6,7 @@ envdir=$HOME/.local/share/pyenv
 
 [ -d $envdir ] || mkdir -p $envdir;
 
+# with no arg provided, list all exist virtual envs
 [ -z $1 ] && ls $envdir && exit 0;
 
 # if [env name] not exit, create it.

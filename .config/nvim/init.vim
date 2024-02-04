@@ -111,6 +111,9 @@ let g:floaterm_keymap_toggle = '<leader>ft'
 let g:floaterm_position = 'bottom'
 let g:floaterm_width = 1.0
 let g:floaterm_height = 0.5
+let delimitMate_expand_cr = 2
+let delimitMate_expand_inside_quotes = 1
+
 
 noremap <c-s> :VsnipOpenVsplit<CR>
 

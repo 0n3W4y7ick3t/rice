@@ -47,7 +47,7 @@ cmp.setup({
       end
     end, { "i", "s" }),
 
-    ["<Down>"] = cmp.mapping(function(fallback)
+    ["<c-n>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif vim.fn["vsnip#available"](1) == 1 then
@@ -61,7 +61,7 @@ cmp.setup({
       end
     end, { "i", "s" }),
 
-    ["<Up>"] = cmp.mapping(function()
+    ["<c-p>"] = cmp.mapping(function()
     if cmp.visible() then
       cmp.select_prev_item()
     elseif vim.fn["vsnip#jumpable"](-1) == 1 then

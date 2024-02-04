@@ -29,16 +29,16 @@ Plug 'iamcco/markdown-preview.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-context'
-" Plug 'wellle/context.vim'
 Plug 'nvim-telescope/telescope.nvim',
-" Plug 'zbirenbaum/copilot.lua'
-" Plug 'github/copilot.vim'
 Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
 " edit
-Plug 'LunarWatcher/auto-pairs'
+Plug 'Raimondi/delimitMate'
+Plug 'smoka7/hop.nvim'
+Plug 'gelguy/wilder.nvim'
+Plug 'folke/which-key.nvim'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
+Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 " debug
@@ -62,7 +62,6 @@ Plug 'bluz71/vim-nightfly-guicolors'
 Plug 'folke/tokyonight.nvim'
 Plug 'dylanaraps/wal.vim'
 " for rust 
-" Plug 'simrat39/rust-tools.nvim'
 Plug 'mrcjkb/rustaceanvim'
 call plug#end()
 
@@ -79,6 +78,9 @@ source ~/.config/nvim/shortcuts.vim
 nnoremap <leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <leader><CR> :MaximizerToggle<CR>
 noremap <silent> <leader>u :UndotreeToggle<CR>
+noremap <silent> H :HopWord<CR>
+inoremap <silent> HH <ESC>:HopWord<CR>
+call wilder#setup({'modes': [':', '/', '?']})
 
 " let g:vimspector_enable_mappings = 'HUMAN'
 hi TreesitterContextBottom gui=underline guisp=Grey
@@ -190,11 +192,6 @@ autocmd BufRead,BufNewfile *.py,*conf noremap <leader>\ ^2x$
 autocmd BufRead,BufNewfile *.vim noremap <leader>/ I" <ESC>
 autocmd BufRead,BufNewfile *.vim noremap <leader>\ ^2x$
 
-" split: horizontal, vertical
-noremap <silent> <leader>h :new<CR>
-noremap <silent> <leader>v :vnew<CR>
-noremap <leader>n :vs
-
 " panel navigation
 noremap <c-h> <c-w>h
 noremap <c-l> <c-w>l
@@ -237,7 +234,6 @@ nnoremap S :%s//g<Left><Left>
 autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
-
 " using lsp to format
 autocmd BufWritePre *.go,*.cpp,*.c,*.py,*.rs lua vim.lsp.buf.format()
 
@@ -247,6 +243,11 @@ if &diff
 endif
 
 lua << EOF
+require'hop'.setup {}
+
+local wk = require("which-key")
+wk.register(mappings, opts)
+
 servers = {
   'gopls',
   'clangd',

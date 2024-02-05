@@ -87,7 +87,17 @@ hi TreesitterContextBottom gui=underline guisp=Grey
 
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
-let g:vimwiki_list = [{'path': '~/.local/share/nvim/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_list = [{
+  \ 'auto_export': 1,
+  \ 'path': "$VIMWIKI_DIR/contents",
+  \ 'path_html': "$VIMWIKI_DIR/_site",
+  \ 'template_path': "$VIMWIKI_DIR/templates",
+  \ 'template_default': 'markdown',
+  \ 'template_ext':'.html',
+  \ 'custom_wiki2html': "$VIMWIKI_DIR/wiki2html",
+  \ 'syntax': 'markdown',
+  \ 'ext': '.md',
+\}]
 
 let g:lf_replace_netrw = 1
 let g:lf_command_override = 'lf -command "set hidden"'

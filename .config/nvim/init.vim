@@ -190,7 +190,6 @@ noremap <c-k> <c-w>k
 " tabs and buffers
 noremap <silent> <leader>[ <ESC>:tabp<CR> " previous tab
 noremap <silent> <leader>] <ESC>:tabn<CR> " next tab
-noremap <silent> <leader>' :ls<CR> " list buffer
 noremap <silent> <leader>, :bp<CR> " previous buffer
 noremap <silent> <leader>. :bn<CR> " next buffer
    
@@ -198,8 +197,6 @@ noremap <silent> <leader>. :bn<CR> " next buffer
 " with and without input redirect
 noremap <leader>sc :w! \| !nvim-compiler "%:p"<CR>
 noremap <leader>sr :w! \| !nvim-compiler-red "%:p"<CR>
-" script to open a new terminal in current buffer's path
-noremap <silent> <leader>st :w! \| !nvim-newterm "%:p"<CR> 
 " make optioins
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %

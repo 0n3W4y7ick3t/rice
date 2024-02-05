@@ -14,10 +14,6 @@ if exists('+termguicolors')
 endif
  
 function SetHi ()
-  " gitgutter
-  hi GitGutterAdd    guifg=#009900 ctermfg=2 guibg=NONE
-  hi GitGutterChange guifg=#bbbb00 ctermfg=3 guibg=NONE
-  hi GitGutterDelete guifg=#ff2222 ctermfg=1 guibg=NONE
   " removes vim backgroud color, make it transparent
   hi SignColumn guibg=NONE
   hi Normal guibg=NONE ctermbg=NONE
@@ -56,7 +52,10 @@ require('lualine').setup {
     lualine_c = {'filename'},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
-    lualine_z = {'location'}
+    lualine_z = {
+      'location',
+      { 'datetime', style='%H:%M'},
+    }
   },
   inactive_sections = {
     lualine_a = {},

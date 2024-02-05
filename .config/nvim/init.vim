@@ -53,7 +53,7 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
-Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
+Plug '0n3W4y7ick3t/cmp-nvim-lsp-signature-help'
 " statusline
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'nvim-tree/nvim-web-devicons'

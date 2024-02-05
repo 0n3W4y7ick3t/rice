@@ -1,0 +1,10 @@
+#!/bin/bash 
+# usage: 
+# $0 path/file
+
+file=$(readlink -f "$1")
+dir=${file%/*}
+cd $dir || exit -1;
+echo $dir > /tmp/yes
+$TERMINAL
+

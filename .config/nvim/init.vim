@@ -35,7 +35,7 @@ Plug 'mbbill/undotree'
 " edit
 Plug 'Raimondi/delimitMate'
 Plug 'smoka7/hop.nvim'
-Plug 'gelguy/wilder.nvim'
+Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'folke/which-key.nvim'
 Plug 'tpope/vim-commentary'
 Plug 'machakann/vim-sandwich'
@@ -114,14 +114,7 @@ let g:floaterm_height = 0.5
 let delimitMate_expand_cr = 2
 let delimitMate_expand_inside_quotes = 1
 
-
 noremap <c-s> :VsnipOpenVsplit<CR>
-
-" copilot that everybody digs
-imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
-nnoremap <leader>pe :Copilot enable<CR>
-nnoremap <leader>pd :Copilot disable<CR>
-let g:copilot_no_tab_map = v:true
 
 set completeopt=menu,menuone,noselect
 " *** plugin setting ends ***
@@ -207,11 +200,13 @@ noremap <silent> <leader>] <ESC>:tabn<CR> " next tab
 noremap <silent> <leader>' :ls<CR> " list buffer
 noremap <silent> <leader>, :bp<CR> " previous buffer
 noremap <silent> <leader>. :bn<CR> " next buffer
-
+   
 " script to compile and run single source code file,
 " with and without input redirect
-noremap <leader>c :w! \| !compiler "%:p"<CR>
-noremap <leader>r :w! \| !compiler-red "%:p"<CR>
+noremap <leader>sc :w! \| !nvim-compiler "%:p"<CR>
+noremap <leader>sr :w! \| !nvim-compiler-red "%:p"<CR>
+" script to open a new terminal in current buffer's path
+noremap <silent> <leader>st :w! \| !nvim-newterm "%:p"<CR> 
 " make optioins
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %

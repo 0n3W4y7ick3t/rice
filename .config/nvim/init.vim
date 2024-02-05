@@ -20,7 +20,7 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'junegunn/goyo.vim'
 Plug 'jreybert/vimagit'
 Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
+Plug 'lewis6991/gitsigns.nvim'
 Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'ptzz/lf.vim'
@@ -88,11 +88,6 @@ hi TreesitterContextBottom gui=underline guisp=Grey
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 let g:vimwiki_list = [{'path': '~/.local/share/nvim/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
-map <c-w><c-i> :VimwikiIndex<CR>
-map <c-w><c-d> :VimwikiDiaryIndex<CR>
-map <c-w><c-t> :VimwikiMakeDiaryNote<CR>
-map <c-w><c-y> :VimwikiMakeYesterdayDiaryNote<CR>
-map <c-w><c-g> :VimwikiDiaryGenerateLinks<CR>
 
 let g:lf_replace_netrw = 1
 let g:lf_command_override = 'lf -command "set hidden"'
@@ -100,14 +95,15 @@ let g:lf_map_keys = 0
 noremap <silent> <a-f> :Lf<CR>
 
 " finders! telescope and fzf
-nnoremap <leader>tf <cmd>Telescope find_files<cr>
-nnoremap <leader>tg <cmd>Telescope live_grep<cr>
-nnoremap <leader>tb <cmd>Telescope buffers<cr>
-nnoremap <leader>th <cmd>Telescope help_tags<cr>
-nnoremap <leader>fg :RG 
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fo <cmd>Telescope oldfiles<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>fr :RG 
 " floaterm
-noremap <leader>fs :FloatermSend<CR>
-let g:floaterm_keymap_toggle = '<leader>ft'
+noremap <leader>ts :FloatermSend<CR>
+let g:floaterm_keymap_toggle = '<leader>tt'
 let g:floaterm_position = 'bottom'
 let g:floaterm_width = 1.0
 let g:floaterm_height = 0.5
@@ -171,22 +167,9 @@ vnoremap <TAB> o
 " quick semicolon
 nnoremap <leader>; A;<Esc>
 " add space before and after a char
-noremap <leader>s i<space><ESC>la<space><ESC>
+noremap <leader>ss i<space><ESC>la<space><ESC>
 " remove search highlights
 nnoremap <silent> ,/ :nohlsearch<CR>
-
-" //
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <leader>/ I// <ESC>$
-autocmd BufRead,BufNewfile *.cpp,*.cxx,*.h,*.go,*.java,*.js noremap <leader>\ ^3x$
-" /* */
-autocmd BufRead,BufNewfile *.c noremap <leader>/ I/* <ESC>A */<ESC>hhh
-autocmd BufRead,BufNewfile *.c noremap <leader>\ ^3x$xxx
-" #
-autocmd BufRead,BufNewfile *.py,*conf noremap <leader>/ I# <ESC>
-autocmd BufRead,BufNewfile *.py,*conf noremap <leader>\ ^2x$
-" "
-autocmd BufRead,BufNewfile *.vim noremap <leader>/ I" <ESC>
-autocmd BufRead,BufNewfile *.vim noremap <leader>\ ^2x$
 
 " panel navigation
 noremap <c-h> <c-w>h
@@ -237,25 +220,18 @@ autocmd BufWritePre *.go,*.cpp,*.c,*.py,*.rs lua vim.lsp.buf.format()
 
 " Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
 if &diff
-        highlight! link DiffText MatchParen
+  highlight! link DiffText MatchParen
 endif
+
 
 lua << EOF
 require'hop'.setup {}
-
-local wk = require("which-key")
-wk.register(mappings, opts)
-
-servers = {
-  'gopls',
-  'clangd',
-  -- 'rust_analyzer',
-  'pylyzer',
-}
 
 require('nvim-cmp-config')
 require('lsp-config')
 require('treesitter-config')
 require('diagnostics')
-require("rustaceanvim")
+require('rustaceanvim')
+require('git-signs')
+require('mappings')
 EOF

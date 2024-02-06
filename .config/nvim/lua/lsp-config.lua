@@ -36,7 +36,16 @@ require 'lspconfig'.lua_ls.setup {
               -- "${3rd}/luv/library"
               -- "${3rd}/busted/library",
             }
-          }
+          },
+          format = {
+            enable = true,
+            -- Put format options here
+            -- NOTE: the value should be String!
+            defaultConfig = {
+              indent_style = "space",
+              indent_size = "2",
+            }
+          },
         }
       })
 

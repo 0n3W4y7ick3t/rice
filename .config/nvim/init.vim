@@ -34,6 +34,7 @@ Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
+Plug 'HiPhish/rainbow-delimiters.nvim'
 " edit
 Plug 'Raimondi/delimitMate'
 Plug 'smoka7/hop.nvim'

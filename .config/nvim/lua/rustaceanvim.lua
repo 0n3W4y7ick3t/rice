@@ -1,6 +1,6 @@
 -- rustaceanvim.lua: set up rustaceanvim plugin
 
-require('lsp-mappings') 
+require('lsp-mappings')
 
 vim.g.rustaceanvim = {
   -- Plugin configuration

@@ -51,6 +51,7 @@ Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lua'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
@@ -226,8 +227,6 @@ nnoremap S :%s//g<Left><Left>
 autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
-" using lsp to format
-autocmd BufWritePre *.go,*.cpp,*.c,*.py,*.rs lua vim.lsp.buf.format()
 
 lua << EOF
 require'hop'.setup {}

@@ -5,6 +5,7 @@ filetype indent on
 let mapleader = "\<Space>"
 
 command CFG :tabe $MYVIMRC
+command KEY :tabe $HOME/.config/nvim/lua/mappings.lua
 command THEME :tabe $HOME/.config/nvim/themes.vim
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
 
@@ -111,12 +112,15 @@ nnoremap <leader>fo <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fr :RG 
-" floaterm
-noremap <leader>ts :FloatermSend<CR>
-let g:floaterm_keymap_toggle = '<leader>tt'
+" terminals
+tnoremap ,, <c-\><c-n> " exit terminal mode
+noremap ,n :term<CR>   " new terminal 
+noremap ,s :FloatermSend<CR>
+let g:floaterm_keymap_toggle = ',t'
 let g:floaterm_position = 'bottom'
 let g:floaterm_width = 1.0
 let g:floaterm_height = 0.5
+" pairs
 let delimitMate_expand_cr = 2
 let delimitMate_expand_inside_quotes = 1
 
@@ -224,12 +228,6 @@ autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 " using lsp to format
 autocmd BufWritePre *.go,*.cpp,*.c,*.py,*.rs lua vim.lsp.buf.format()
-
-" Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
-if &diff
-  highlight! link DiffText MatchParen
-endif
-
 
 lua << EOF
 require'hop'.setup {}

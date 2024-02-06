@@ -30,7 +30,7 @@ Plug 'iamcco/markdown-preview.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-context'
-Plug 'nvim-telescope/telescope.nvim',
+Plug 'nvim-telescope/telescope.nvim'
 Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
 " edit

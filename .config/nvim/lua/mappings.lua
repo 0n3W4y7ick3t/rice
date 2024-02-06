@@ -25,4 +25,10 @@ wk.register({
     -- "," = "prev buffer",
     -- "." = "next buffer",
   },
+  [","] = {
+    name = "+terminals",
+    s = "Floaterm send",
+    t = "Floaterm toggle",
+    n = "new terminal window",
+  }
 })

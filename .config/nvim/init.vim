@@ -38,7 +38,7 @@ Plug 'Raimondi/delimitMate'
 Plug 'smoka7/hop.nvim'
 Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'folke/which-key.nvim'
-Plug 'tpope/vim-commentary'
+Plug 'numToStr/Comment.nvim'
 Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
@@ -228,6 +228,7 @@ autocmd BufRead,BufNewFile *.tex set filetype=tex
 
 lua << EOF
 require'hop'.setup {}
+require'Comment'.setup()
 
 require('nvim-cmp-config')
 require('lsp-config')

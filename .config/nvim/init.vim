@@ -124,10 +124,7 @@ let g:floaterm_height = 0.5
 " pairs
 let delimitMate_expand_cr = 2
 let delimitMate_expand_inside_quotes = 1
-
 noremap <c-s> :VsnipOpenVsplit<CR>
-
-set completeopt=menu,menuone,noselect
 " *** plugin setting ends ***
 
 " *** others ***
@@ -138,6 +135,7 @@ autocmd BufRead *.go :set noet
 autocmd FileType * setlocal formatoptions-=cro
 autocmd FocusLost * redraw!
 
+set completeopt=menu,menuone,noselect
 set noswapfile nobk nowb " disable swap and backup file
 set autoread
 set mousehide

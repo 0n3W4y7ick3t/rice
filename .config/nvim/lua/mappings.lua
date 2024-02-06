@@ -9,7 +9,8 @@ wk.register({
       o = "TS old files",
       b = "TS search buffers",
       h = "TS help tags",
-      r = "RG ripgrep"
+      r = "RG ripgrep",
+      m = "lsp format",
     },
     u = "undo tree toggle",
     m = "markdown preview",

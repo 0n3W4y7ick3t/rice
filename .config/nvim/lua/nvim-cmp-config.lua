@@ -16,14 +16,21 @@ cmp.setup({
     end,
   },
 
+  view = {
+    -- make candidate with highest score appear near cursor, 
+    -- instead of being at the top all the time
+    entries = { name = 'custom', selection_order = 'near_cursor' }
+  },
+
   mapping = {
     ['<C-f>'] = cmp.mapping.scroll_docs(-4),
     ['<C-b>'] = cmp.mapping.scroll_docs(4),
+
     ['<C-e>'] = cmp.mapping.abort(),
-    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-m>'] = cmp.mapping.complete(),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
-      select = false,
+      select = true,
     },
     ["<Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
@@ -46,29 +53,6 @@ cmp.setup({
         feedkey("<Plug>(vsnip-jump-prev)", "")
       end
     end, { "i", "s" }),
-
-    ["<c-n>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif vim.fn["vsnip#available"](1) == 1 then
-        feedkey("<Plug>(vsnip-expand-or-jump)", "")
-      elseif vim.fn["vsnip#jumpable"](-1) == 1 then
-        feedkey("<Plug>(vsnip-jump-next)", "")
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
-      end
-    end, { "i", "s" }),
-
-    ["<c-p>"] = cmp.mapping(function()
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif vim.fn["vsnip#jumpable"](-1) == 1 then
-        feedkey("<Plug>(vsnip-jump-prev)", "")
-      end
-    end, { "i", "s" }),
-
   },
 
   sources = cmp.config.sources({
@@ -91,10 +75,3 @@ cmp.setup.filetype('gitcommit', {
   })
 })
 
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline({ '/', '?' }, {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = {
-    { name = 'buffer' }
-  }
-})

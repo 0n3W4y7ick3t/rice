@@ -35,6 +35,7 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'szw/vim-maximizer'
 Plug 'mbbill/undotree'
 Plug 'HiPhish/rainbow-delimiters.nvim'
+Plug 'rmagatti/auto-session'
 " edit
 Plug 'Raimondi/delimitMate'
 Plug 'smoka7/hop.nvim'
@@ -82,7 +83,7 @@ source ~/.config/nvim/shortcuts.vim
 nnoremap <leader>m <Plug>MarkdownPreviewToggle
 noremap <silent> <leader><CR> :MaximizerToggle<CR>
 noremap <silent> <leader>u :UndotreeToggle<CR>
-noremap <silent> H :HopWord<CR>
+noremap <silent> HH :HopWord<CR>
 inoremap <silent> HH <ESC>:HopWord<CR>
 call wilder#setup({'modes': [':', '/', '?']})
 
@@ -148,7 +149,9 @@ set wrap
 set linebreak
 set history=1000
 set numberwidth=1
+nnoremap <F2> :set invpaste paste?<CR>
 set pastetoggle=<F2>
+set showmode
 set sb spr " split
 set encoding=utf-8
 set wildmode=longest,list,full
@@ -230,7 +233,8 @@ autocmd BufRead,BufNewFile *.tex set filetype=tex
 
 lua << EOF
 require'hop'.setup {}
-require'Comment'.setup()
+require'Comment'.setup{}
+require'auto-session'.setup {}
 
 require('nvim-cmp-config')
 require('lsp-config')

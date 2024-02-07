@@ -126,6 +126,7 @@ require 'nvim-treesitter.configs'.setup {
         -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
         ["]]"] = { query = "@function.outer", desc = "Next function start" },
         ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
+        ["]p"] = { query = "@parameter.inner", desc = "Next parameter" },
       },
       -- goto_next_end = {
       --   ["]M"] = "@function.outer",
@@ -136,6 +137,7 @@ require 'nvim-treesitter.configs'.setup {
         --   ["[["] = "@class.outer",
         ["[["] = { query = "@function.outer", desc = "Prev function start" },
         ["[z"] = { query = "@fold", query_group = "folds", desc = "Prev fold" },
+        ["[p"] = { query = "@parameter.inner", desc = "Prev parameter" },
       },
       -- goto_previous_end = {
       --   ["[M"] = "@function.outer",

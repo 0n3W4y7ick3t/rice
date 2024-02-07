@@ -71,18 +71,18 @@ require 'nvim-treesitter.configs'.setup {
 
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
-        ["if"] = { query = "@function.inner", desc = "Select inner part of a function" },
-        ["af"] = { query = "@function.outer", desc = "Select outer part of a function" },
-        ["iP"] = { query = "@parameter.inner", desc = "Select inner part of a parameter" },
-        ["aP"] = { query = "@parameter.outer", desc = "Select outer part of a parameter" },
-        ["ic"] = { query = "@comment.inner", desc = "Select inner part of a comment" },
-        ["ac"] = { query = "@comment.outer", desc = "Select outer part of a comment" },
-        ["iC"] = { query = "@class.inner", desc = "Select inner part of a class" },
-        ["aC"] = { query = "@class.outer", desc = "Select outer part of a class" },
+        ["if"] = { query = "@function.inner", desc = "Inner part of a function" },
+        ["af"] = { query = "@function.outer", desc = "Outer part of a function" },
+        ["iP"] = { query = "@parameter.inner", desc = "Inner part of a parameter" },
+        ["aP"] = { query = "@parameter.outer", desc = "Outer part of a parameter" },
+        ["ic"] = { query = "@comment.inner", desc = "Inner part of a comment" },
+        ["ac"] = { query = "@comment.outer", desc = "Outer part of a comment" },
+        ["iC"] = { query = "@class.inner", desc = "Inner part of a class" },
+        ["aC"] = { query = "@class.outer", desc = "Outer part of a class" },
         -- You can also use captures from other query groups like `locals.scm`
         -- in scope and out scope are the same
-        ["as"] = { query = "@scope", query_group = "locals", desc = "Select language scope" },
-        ["is"] = { query = "@scope", query_group = "locals", desc = "Select language scope" },
+        ["as"] = { query = "@scope", query_group = "locals", desc = "language scope" },
+        ["is"] = { query = "@scope", query_group = "locals", desc = "language scope" },
       },
       -- You can choose the select mode (default is charwise 'v')
       --

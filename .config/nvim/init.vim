@@ -18,6 +18,7 @@ endif
 
 call plug#begin('~/.config/nvim/plugged')
 " enhancement
+Plug 'stevearc/aerial.nvim'
 Plug 'junegunn/goyo.vim'
 Plug 'jreybert/vimagit'
 Plug 'tpope/vim-fugitive'
@@ -46,7 +47,9 @@ Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 " debug
-" Plug 'puremourning/vimspector'
+Plug 'mfussenegger/nvim-dap'
+Plug 'rcarriga/nvim-dap-ui'
+Plug 'theHamsta/nvim-dap-virtual-text'
 " nvim-cmp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -115,6 +118,7 @@ nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fo <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>fa <cmd>Telescope aerial<cr>
 nnoremap <leader>fr :RG 
 " terminals
 tnoremap ,, <c-\><c-n> " exit terminal mode
@@ -127,7 +131,6 @@ let g:floaterm_height = 0.5
 " pairs
 let delimitMate_expand_cr = 2
 let delimitMate_expand_inside_quotes = 1
-noremap <c-s> :VsnipOpenVsplit<CR>
 " *** plugin setting ends ***
 
 " *** others ***
@@ -184,8 +187,6 @@ nnoremap <TAB> %
 vnoremap <TAB> o
 " quick semicolon
 nnoremap <leader>; A;<Esc>
-" add space before and after a char
-noremap <leader>ss i<space><ESC>la<space><ESC>
 " remove search highlights
 nnoremap <silent> ,/ :nohlsearch<CR>
 
@@ -205,20 +206,13 @@ noremap <silent> <leader>. :bn<CR> " next buffer
 " with and without input redirect
 noremap <leader>sc :w! \| !nvim-compiler "%:p"<CR>
 noremap <leader>sr :w! \| !nvim-compiler-red "%:p"<CR>
+noremap <leader>sv :VsnipOpenVsplit<CR>
+noremap <leader>sy :VsnipYank<CR>
 " make optioins
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %
 autocmd FileType sh setlocal makeprg=%
 autocmd FileType go setlocal makeprg=go\ build\ -o\ %<\ %
-" use F3 to make
-noremap <F3> <ESC> :w <CR> :make <CR>
-inoremap <F3> <ESC> :w <CR> :make <CR>
-" F4 to run executable
-noremap <F4> <ESC> :!./%<
-inoremap <F4> <ESC> :!./%<
-" F5 to run executable with input file 'inp'
-noremap <F5> <ESC> :!./%< < inp<CR>
-inoremap <F5> <ESC> :!./%< < inp<CR>
 
 " Some basics:
 nnoremap c "_c
@@ -232,15 +226,20 @@ autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 
 lua << EOF
-require'hop'.setup {}
-require'Comment'.setup{}
-require'auto-session'.setup {}
+require('hop').setup {}
+require('Comment').setup{}
+require('auto-session').setup {}
+require('nvim-dap-virtual-text').setup()
+require('dapui').setup()
+require('telescope').load_extension('aerial')
 
-require('nvim-cmp-config')
-require('lsp-config')
-require('treesitter-config')
-require('diagnostics')
-require('rustaceanvim')
-require('git-signs')
-require('mappings')
+require'nvim-cmp-config'
+require'lsp-config'
+require'treesitter-config'
+require'diagnostics'
+require'rustaceanvim'
+require'git-signs'
+require'mappings'
+require'dap-config'
+require'outline'
 EOF

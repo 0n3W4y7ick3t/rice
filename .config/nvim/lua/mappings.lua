@@ -18,7 +18,6 @@ wk.register({
       name = "+scripts",
       c = "compiler",
       r = "compiler with stdin",
-      t = "open buffer path in terminal",
     },
     -- "[" = "prev tab",
     -- "]" = "next tab",

@@ -2,9 +2,14 @@
 require('lsp-mappings')
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local servers = {
-  'gopls',
+  'bashls',
   'clangd',
+  'gopls',
+  -- the only way I found this work is to use pip to install pylyzer,
+  -- and use that SAME venv to code.
   'pylyzer',
+  'marksman',
+  'zls',
 }
 
 -- Update nvim-cmp capabilities and add them to each language server
@@ -12,12 +17,14 @@ for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
     capabilities = capabilities,
     on_attach = my_attach,
+    single_file_support = true,
   }
 end
 
 require 'lspconfig'.lua_ls.setup {
   capabilities = capabilities,
   on_attach = my_attach,
+  single_file_support = true,
   on_init = function(client)
     local path = client.workspace_folders[1].name
     if not vim.loop.fs_stat(path .. '/.luarc.json') and not vim.loop.fs_stat(path .. '/.luarc.jsonc') then

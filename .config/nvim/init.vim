@@ -90,11 +90,10 @@ noremap <silent> HH :HopWord<CR>
 inoremap <silent> HH <ESC>:HopWord<CR>
 call wilder#setup({'modes': [':', '/', '?']})
 
-" let g:vimspector_enable_mappings = 'HUMAN'
 hi TreesitterContextBottom gui=underline guisp=Grey
 
 " Ensure files are read as what I want:
-let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
+let g:vimwiki_ext2syntax = {}
 let g:vimwiki_list = [{
   \ 'auto_export': 1,
   \ 'path': "$VIMWIKI_DIR/contents",
@@ -104,7 +103,7 @@ let g:vimwiki_list = [{
   \ 'template_ext':'.html',
   \ 'custom_wiki2html': "$VIMWIKI_DIR/wiki2html",
   \ 'syntax': 'markdown',
-  \ 'ext': '.md',
+  \ 'ext': '.viki',
 \}]
 
 let g:lf_replace_netrw = 1

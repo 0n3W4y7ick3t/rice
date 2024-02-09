@@ -84,6 +84,7 @@ source ~/.config/nvim/shortcuts.vim
 " *** plugin settings ***
 " lua plugins are configured in the bottom
 nnoremap <leader>m <Plug>MarkdownPreviewToggle
+let g:mkdp_browser = 'firefox'
 noremap <silent> <leader><CR> :MaximizerToggle<CR>
 noremap <silent> <leader>u :UndotreeToggle<CR>
 noremap <silent> HH :HopWord<CR>

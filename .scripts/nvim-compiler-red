@@ -22,12 +22,8 @@ cd "$dir" || exit 1
 case "$ext" in
   c) cc "$file" -std=c2x -o "$base" && "$base" < "$dir/inp" ;;
   cpp) g++ "$file" -std=c++23 -o "$base" && "$base" < "$dir/inp" ;;
-  cs) mcs "$file" && mono "$base".exe ;;
   go) go build -o "$base" "$file" && "$base" < "$dir/inp" ;;
-  java) javac -d classes "$file" && java -cp "$dir/classes" "${base##*/}" < "$dir/inp" ;;
-  m) octave "$file" ;;
   py) python "$file" < "$dir/inp" ;;
-  [rR]md) Rscript -e "rmarkdown::render('$file', quiet=TRUE)" ;;
-  rs) cargo run || rustc "$file" && "$base" ;;
-  *) sed -n '/^#!/s/^#!//p; q' "$file" | xargs -r -I % "$file" ;;
+  rs) cargo run || rustc "$file" && "$base" < "$dir/inp" ;;
+  zig) zig build-exe "$file" && "$base" < "$dir/inp" ;;
 esac

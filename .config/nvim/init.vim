@@ -120,8 +120,9 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fa <cmd>Telescope aerial<cr>
 nnoremap <leader>fr :RG 
 " terminals
-tnoremap ,, <c-\><c-n> " exit terminal mode
-noremap ,n :term<CR>   " new terminal 
+noremap ,n :sp term://%:p:h//zsh<CR>i
+tnoremap ,, <c-\><c-n><c-w>w
+noremap ,, <c-w>w
 noremap ,s :FloatermSend<CR>
 let g:floaterm_keymap_toggle = ',t'
 let g:floaterm_position = 'bottom'

@@ -131,8 +131,9 @@ wk.register({
   },
   [","] = {
     name = "+terminals",
-    s = "Floaterm send",
-    t = "Floaterm toggle",
-    n = "new terminal window",
+    [","] = "focus back",
+    n = "new terminal in current buffer directory",
+    s = "floaterm send",
+    t = "floaterm toggle",
   },
 })

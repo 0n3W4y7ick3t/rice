@@ -17,7 +17,7 @@ cmp.setup({
   },
 
   view = {
-    -- make candidate with highest score appear near cursor, 
+    -- make candidate with highest score appear near cursor,
     -- instead of being at the top all the time
     entries = { name = 'custom', selection_order = 'near_cursor' }
   },
@@ -27,7 +27,7 @@ cmp.setup({
     ['<C-b>'] = cmp.mapping.scroll_docs(4),
 
     ['<C-e>'] = cmp.mapping.abort(),
-    ['<C-m>'] = cmp.mapping.complete(),
+    ['<C-y>'] = cmp.mapping.complete({ 'i', 's' }),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
@@ -74,4 +74,3 @@ cmp.setup.filetype('gitcommit', {
     { name = 'buffer' },
   })
 })
-

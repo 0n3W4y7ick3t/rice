@@ -1,4 +1,5 @@
 vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>") -- Call the setup function to change the default behavior
+vim.keymap.set("n", "<leader>o", "<cmd>AerialOpen float<CR>") -- Call the setup function to change the default behavior
 require("aerial").setup({
   -- Priority list of preferred backends for aerial.
   -- This can be a filetype map (see :help aerial-filetype-map)
@@ -9,7 +10,7 @@ require("aerial").setup({
     -- They can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
     -- min_width and max_width can be a list of mixed types.
     -- max_width = {40, 0.2} means "the lesser of 40 columns or 20% of total"
-    max_width = { 40, 0.2 },
+    max_width = { 40, 0.3 },
     width = nil,
     min_width = 10,
 
@@ -124,7 +125,7 @@ require("aerial").setup({
   highlight_closest = true,
 
   -- Highlight the symbol in the source buffer when cursor is in the aerial win
-  highlight_on_hover = false,
+  highlight_on_hover = true,
 
   -- When jumping to a symbol, highlight the line for this many ms.
   -- Set to false to disable
@@ -176,7 +177,7 @@ require("aerial").setup({
   -- Use symbol tree for folding. Set to true or false to enable/disable
   -- Set to "auto" to manage folds if your previous foldmethod was 'manual'
   -- This can be a filetype map (see :help aerial-filetype-map)
-  manage_folds = false,
+  manage_folds = true,
 
   -- When you fold code with za, zo, or zc, update the aerial tree as well.
   -- Only works when manage_folds = true

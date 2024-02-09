@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# needed if there are multiple instances of the window manager.
-
-tree="$(pstree -ps $$)"
-tree="${tree#*dwm(}"
-wmpid="${tree%%)*}"
-
-kill -HUP "$wmpid"

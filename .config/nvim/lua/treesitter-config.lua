@@ -71,14 +71,14 @@ require 'nvim-treesitter.configs'.setup {
 
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
-        ["if"] = { query = "@function.inner", desc = "Inner part of a function" },
-        ["af"] = { query = "@function.outer", desc = "Outer part of a function" },
-        ["iP"] = { query = "@parameter.inner", desc = "Inner part of a parameter" },
-        ["aP"] = { query = "@parameter.outer", desc = "Outer part of a parameter" },
-        ["ic"] = { query = "@comment.inner", desc = "Inner part of a comment" },
-        ["ac"] = { query = "@comment.outer", desc = "Outer part of a comment" },
-        ["iC"] = { query = "@class.inner", desc = "Inner part of a class" },
-        ["aC"] = { query = "@class.outer", desc = "Outer part of a class" },
+        ["if"] = { query = "@function.inner", desc = "inner part of a function" },
+        ["af"] = { query = "@function.outer", desc = "outer part of a function" },
+        ["iP"] = { query = "@parameter.inner", desc = "inner part of a parameter" },
+        ["aP"] = { query = "@parameter.outer", desc = "outer part of a parameter" },
+        ["ic"] = { query = "@comment.inner", desc = "inner part of a comment" },
+        ["ac"] = { query = "@comment.outer", desc = "outer part of a comment" },
+        ["iC"] = { query = "@class.inner", desc = "inner part of a class" },
+        ["aC"] = { query = "@class.outer", desc = "outer part of a class" },
         -- You can also use captures from other query groups like `locals.scm`
         -- in scope and out scope are the same
         ["as"] = { query = "@scope", query_group = "locals", desc = "language scope" },
@@ -124,9 +124,9 @@ require 'nvim-treesitter.configs'.setup {
         --
         -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
         -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
-        ["]]"] = { query = "@function.outer", desc = "Next function start" },
-        ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
-        ["]p"] = { query = "@parameter.inner", desc = "Next parameter" },
+        ["]]"] = { query = "@function.outer"},
+        ["]z"] = { query = "@fold", query_group = "folds"},
+        ["]p"] = { query = "@parameter.inner"},
       },
       -- goto_next_end = {
       --   ["]M"] = "@function.outer",
@@ -135,9 +135,9 @@ require 'nvim-treesitter.configs'.setup {
       goto_previous_start = {
         --   ["[m"] = "@function.outer",
         --   ["[["] = "@class.outer",
-        ["[["] = { query = "@function.outer", desc = "Prev function start" },
-        ["[z"] = { query = "@fold", query_group = "folds", desc = "Prev fold" },
-        ["[p"] = { query = "@parameter.inner", desc = "Prev parameter" },
+        ["[["] = { query = "@function.outer"},
+        ["[z"] = { query = "@fold", query_group = "folds"},
+        ["[p"] = { query = "@parameter.inner"},
       },
       -- goto_previous_end = {
       --   ["[M"] = "@function.outer",
@@ -147,10 +147,10 @@ require 'nvim-treesitter.configs'.setup {
       -- Use if you want more granular movements
       -- Make it even more gradual by adding multiple queries and regex.
       goto_next = {
-        ["]d"] = { query = "@conditional.outer", desc = "Next conditional" },
+        ["]i"] = { query = "@conditional.outer"},
       },
       goto_previous = {
-        ["[d"] = { query = "@conditional.outer", desc = "Prev conditional" },
+        ["[i"] = { query = "@conditional.outer"},
       }
     },
   },

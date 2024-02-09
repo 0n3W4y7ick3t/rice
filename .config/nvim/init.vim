@@ -5,7 +5,7 @@ filetype indent on
 let mapleader = "\<Space>"
 
 command CFG :tabe $MYVIMRC
-command KEY :tabe $HOME/.config/nvim/lua/mappings.lua
+command KEY :vs $HOME/.config/nvim/lua/mappings.lua
 command THEME :tabe $HOME/.config/nvim/themes.vim
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
 
@@ -203,10 +203,11 @@ noremap <silent> <leader>. :bn<CR> " next buffer
    
 " script to compile and run single source code file,
 " with and without input redirect
-noremap <leader>sc :w! \| !nvim-compiler "%:p"<CR>
-noremap <leader>sr :w! \| !nvim-compiler-red "%:p"<CR>
+noremap <leader>rc :w! \| !nvim-compiler "%:p"<CR>
+noremap <leader>rr :w! \| !nvim-compiler-red "%:p"<CR>
 noremap <leader>sv :VsnipOpenVsplit<CR>
 noremap <leader>sy :VsnipYank<CR>
+command FMT :lua vim.lsp.buf.format({aysnc=true})<CR>
 " make optioins
 autocmd FileType cpp setlocal makeprg=g\+\+\ %\ \-g\ \-std\=c\+\+17\ \-Wall
 autocmd FileType python setlocal makeprg=python3\ %

@@ -9,7 +9,7 @@ function my_attach(client, bufnr)
   end
 
   map('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', 'diagnostic open float')
-  map('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', 'diagnostic setloclist')
+  map('n', '<space>q', '<cmd>Telescope diagnostics<CR>', 'diagnostic telescope')
   map('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', 'diagnostic prev')
   map('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', 'diagnostic next')
 

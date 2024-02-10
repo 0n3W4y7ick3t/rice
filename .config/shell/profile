@@ -1,37 +1,22 @@
 #!/bin/zsh
-
 # profile file. Runs on login. Environmental variables are set here.
 
-# export JAVA_HOME=/usr/lib/jvm/default
-# export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
-
-# export PATH=$JAVA_HOME/bin:/usr/local/cuda/bin:$HOME/.bin:$PATH
-export PATH=$HOME/.scripts:$PATH
 export MAKEFLAGS="-j $(grep processor /proc/cpuinfo | wc -l)"
-
-# common options
 export LANG=en_US.UTF-8
 export TIME_STYLE='+%y/%m/%d %H:%M:%S'
 export HIST_STAMPS="yyyy-mm-dd"
-
-# nvim theme
-# jellybeans nord gruvbox dracula nightfly everforest catppuccin
-export NVIM_THEME="nightfly"
-
-# Adds `~/.local/bin` to $PATH
-export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
 
 unsetopt PROMPT_SP
 
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="st"
-# two scripts that delete cache
-export BROWSER1="librewolf-clean"
-export BROWSER2="firefox-clean"
+export BROWSER="firefox"
+export BROWSER1="firefox"
+export BROWSER2="chromium"
 export APPH=""
 export APPJ=""
-export APPK=""
+export APPK="code"
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -50,6 +35,7 @@ export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export GOPATH="$XDG_DATA_HOME/go"
+export VIMWIKI_DIR="$XDG_DATA_HOME/nvim/vimwiki"
 
 # Other program settings:
 export DICS="/usr/share/stardict/dic/"
@@ -68,6 +54,9 @@ export QT_QPA_PLATFORMTHEME="gtk2"         # Have QT use gtk2 theme.
 export MOZ_USE_XINPUT2="1"                 # Mozilla smooth scrolling/touchpads.
 export AWT_TOOLKIT="MToolkit wmname LG3D"  # May have to install wmname
 export _JAVA_AWT_WM_NONREPARENTING=1       # Fix for Java applications in dwm
+
+# Adds `~/.local/bin` to $PATH
+export PATH=$PATH:$HOME/.scripts:${$(find ~/.local/bin -type d -printf %p:)%%:}:$CARGO_HOME/bin:$GOPATH/bin
 
 [ ! -f $XDG_CONFIG_HOME/shell/shortcutrc ] && shortcuts >/dev/null 2>&1 &
 

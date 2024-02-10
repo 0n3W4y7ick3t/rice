@@ -4,10 +4,13 @@ filetype plugin on
 filetype indent on
 let mapleader = "\<Space>"
 
-command CFG :tabe $MYVIMRC
-command KEY :vs $HOME/.config/nvim/lua/mappings.lua
-command THEME :tabe $HOME/.config/nvim/themes.vim
+noremap <leader>cf :tabe $MYVIMRC<CR>
+noremap <leader>cm :vs $HOME/.config/nvim/lua/mappings.lua<CR>
+noremap <leader>ct :tabe $HOME/.config/nvim/themes.vim<CR>
+
 autocmd BufWritePost $MYVIMRC :so $MYVIMRC
+" automatically generates shortcuts after saving bookmark files
+autocmd BufWritePost $HOME/.config/shell/bm-* :silent! !shortcuts
 
 " automatically install vim-plug
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -96,13 +99,12 @@ hi TreesitterContextBottom gui=underline guisp=Grey
 " Ensure files are read as what I want:
 let g:vimwiki_ext2syntax = {}
 let g:vimwiki_list = [{
-  \ 'auto_export': 1,
+  \ 'auto_export': 0,
   \ 'path': "$VIMWIKI_DIR/contents",
   \ 'path_html': "$VIMWIKI_DIR/_site",
   \ 'template_path': "$VIMWIKI_DIR/templates",
   \ 'template_default': 'markdown',
   \ 'template_ext':'.html',
-  \ 'custom_wiki2html': "$VIMWIKI_DIR/wiki2html",
   \ 'syntax': 'markdown',
   \ 'ext': '.viki',
 \}]

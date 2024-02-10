@@ -1,4 +1,4 @@
-let $THEME="nightfly"
+let $THEME="tokyonight"
 set background=dark
 autocmd BufWritePost ~/.config/nvim/themes.vim :so $MYVIMRC
 
@@ -14,20 +14,19 @@ if exists('+termguicolors')
     set pumblend=40
 endif
  
-function SetHi ()
-  " removes vim backgroud color, make it transparent
-  hi SignColumn guibg=NONE
-  hi Normal guibg=NONE ctermbg=NONE
-  hi NonText guibg=NONE ctermbg=NONE
-  hi LineNr guibg=NONE ctermbg=NONE
-endfunction
-
-colorscheme $THEME
-
-call SetHi() " must in the end
-
-" lualine setting
 lua << EOF
+-- tokyonight theme specials
+require("tokyonight").setup {
+  transparent = true,
+  lualine_bold = true,
+  style = "storm",
+  styles = {
+    sidebars = "transparent",
+    floats = "transparent",
+  }
+}
+
+-- lualine setting
 require('lualine').setup {
   options = {
     icons_enabled = true,
@@ -80,3 +79,20 @@ require('lualine').setup {
   extensions = {}
 }
 EOF
+
+colorscheme $THEME
+
+" tokyonight set backgroud to transparent already
+" function SetHi ()
+"   " removes vim backgroud color, make it transparent
+"   hi SignColumn guibg=NONE
+"   hi Normal guibg=NONE ctermbg=NONE
+"   hi NonText guibg=NONE ctermbg=NONE
+"   hi LineNr guibg=NONE ctermbg=NONE
+" endfunction
+"
+" " <leader>b to remove vim backgroud color, make it transparent
+" " use ]ob to refresh (dark), supported by pope/vim-unimpaired
+" noremap <silent> <leader>b :call SetHi()<CR>
+
+" call SetHi() " must in the end

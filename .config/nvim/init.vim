@@ -71,16 +71,10 @@ Plug 'nvim-tree/nvim-web-devicons'
 " colorscheme
 Plug 'bluz71/vim-nightfly-guicolors'
 Plug 'folke/tokyonight.nvim'
-Plug 'dylanaraps/wal.vim'
 " for rust 
 Plug 'mrcjkb/rustaceanvim'
 call plug#end()
 
-" themes and statusline settings
-source ~/.config/nvim/themes.vim
-" <leader>b to remove vim backgroud color, make it transparent
-" use ]ob to refresh (dark), supported by pope/vim-unimpaired
-noremap <silent> <leader>b :call SetHi()<CR>
 " shortcuts for command mode
 source ~/.config/nvim/shortcuts.vim
 
@@ -247,3 +241,6 @@ require'mappings'
 require'dap-config'
 require'outline'
 EOF
+
+" themes and statusline settings
+source ~/.config/nvim/themes.vim

@@ -21,6 +21,7 @@ endif
 
 call plug#begin('~/.config/nvim/plugged')
 " enhancement
+Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'stevearc/aerial.nvim'
 Plug 'junegunn/goyo.vim'
 Plug 'jreybert/vimagit'
@@ -129,6 +130,8 @@ let g:floaterm_height = 0.5
 let delimitMate_expand_cr = 2
 let delimitMate_expand_inside_quotes = 1
 " *** plugin setting ends ***
+nnoremap Q :bd<CR>
+nnoremap W :w<CR>
 
 " *** others ***
 set ai et ts=2 sw=2

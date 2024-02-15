@@ -84,7 +84,7 @@ require('lualine').setup {
     lualine_y = {'progress' },
     lualine_z = {
       'location',
-      { 'datetime', style='%H:%M'},
+      { 'datetime', style='%b %d %I:%M%p %a'},
     }
   },
   inactive_sections = {
@@ -138,6 +138,11 @@ hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_ex
 EOF
 
 colorscheme $THEME
+
+" show current line number as bold highlighted
+set cursorline
+hi CursorLineNr cterm=bold gui=bold
+set cursorlineopt=number
 
 " tokyonight set backgroud to transparent already
 " function SetHi ()

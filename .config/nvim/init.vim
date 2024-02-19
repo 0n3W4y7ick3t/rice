@@ -225,6 +225,8 @@ nnoremap S :%s//g<Left><Left>
 autocmd VimLeave *.tex !texclear %
 autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
+" disable annoying diagnostic for .env files
+autocmd BufEnter *.env lua vim.diagnostic.disable(0)
 
 lua << EOF
 require('hop').setup {}

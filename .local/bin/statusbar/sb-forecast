@@ -12,7 +12,7 @@ unset http_proxy
 unset https_proxy
 unset all_proxy
 weatherreport="$XDG_DATA_HOME/weatherreport"
-getforecast() { curl -sf "wttr.in/$LOCATION" > "$weatherreport" || exit 1 ;}
+getforecast() { timeout --signal=1 2s curl -sf "wttr.in/$LOCATION" > "$weatherreport" || exit 1 ;}
 
 # Some very particular and terse stream manipulation. We get the maximum
 # precipitation chance and the daily high and low from the downloaded file and

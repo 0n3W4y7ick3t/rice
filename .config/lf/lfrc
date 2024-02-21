@@ -33,14 +33,13 @@ cmd open ${{
     text/*|application/json|inode/x-empty) $EDITOR $fx;;
     image/x-xcf) setsid -f gimp $f >/dev/null 2>&1 ;;
     image/svg+xml) display -- $f ;;
-    image/*) rotdir $f | grep -i "\.\(png\|jpg\|jpeg\|gif\|webp\|tif\|ico\)\(_large\)*$" |
-      setsid -f sxiv -aio 2>/dev/null |
-      while read -r file; do
+    image/*) rotdir $f | grep -i "\.\(png\|jpg\|jpeg\|gif\|webp\|avif\|tif\|ico\)\(_large\)*$" |
+      setsid -f nsxiv -aio 2>/dev/null | while read -r file; do
         [ -z "$file" ] && continue
         lf -remote "send select \"$file\""
         lf -remote "send toggle"
       done &
-    ;;
+      ;;
     audio/*) mpv --audio-display=no $f ;;
     video/*|application/vnd.rn-realmedia) setsid -f mpv $f -quiet >/dev/null 2>&1 ;;
     application/pdf|application/vnd*|application/epub*) setsid -f zathura $fx >/dev/null 2>&1 ;;
@@ -49,7 +48,7 @@ cmd open ${{
     esac
 }}
 
-cmd mkdir $mkdir -p "$(echo $* | tr ' ' '\ ')"
+cmd mkdir $mkdir -p "$@"
 
 cmd extract ${{
   clear; tput cup $(($(tput lines)/3)); tput bold
@@ -57,7 +56,22 @@ cmd extract ${{
   printf "%s\n\t" "$fx"
   printf "extract?[y/N]"
   read ans
-  [ $ans = "y" ] && aunpack $fx
+  [ $ans = "y" ] && {
+    case $fx in
+      *.tar.bz2)   tar xjf $fx     ;;
+      *.tar.gz)    tar xzf $fx     ;;
+      *.bz2)       bunzip2 $fx     ;;
+      *.rar)       unrar e $fx     ;;
+      *.gz)        gunzip $fx      ;;
+      *.tar)       tar xf $fx      ;;
+      *.tbz2)      tar xjf $fx     ;;
+      *.tgz)       tar xzf $fx     ;;
+      *.zip)       unzip $fx       ;;
+      *.Z)         uncompress $fx  ;;
+      *.7z)        7z x $fx        ;;
+      *.tar.xz)    tar xf $fx      ;;
+    esac
+  }
 }}
 
 cmd delete ${{
@@ -92,7 +106,27 @@ cmd copyto ${{
 }}
 
 cmd setbg "$1"
-cmd bulkrename $vidir
+
+cmd bulkrename ${{
+    tmpfile_old="$(mktemp)"
+    tmpfile_new="$(mktemp)"
+
+    [ -n "$fs" ] && fs=$(basename -a $fs) || fs=$(ls)
+
+    echo "$fs" > "$tmpfile_old"
+    echo "$fs" > "$tmpfile_new"
+    $EDITOR "$tmpfile_new"
+
+    [ "$(wc -l < "$tmpfile_old")" -eq "$(wc -l < "$tmpfile_new")" ] || { rm -f "$tmpfile_old" "$tmpfile_new"; exit 1; }
+
+    paste "$tmpfile_old" "$tmpfile_new" | while IFS="$(printf '\t')" read -r src dst
+    do
+        [ "$src" = "$dst" ] || [ -e "$dst" ] || mv -- "$src" "$dst"
+    done
+
+    rm -f "$tmpfile_old" "$tmpfile_new"
+    lf -remote "send $id unselect"
+}}
 
 # Bindings
 map <c-f> $lf -remote "send $id select '$(fzf)'"
@@ -113,10 +147,13 @@ map X !$f
 map o &mimeopen "$f"
 map O $mimeopen --ask "$f"
 
-map i rename      # filename[].ext
-map A push i<a-f> # filename.ext[]
-map c push i<c-u> # [].ext
-map C push i<c-f><c-k> # filename.[]
+# renames               # file.foo.ext
+map i :rename           # file.foo[].ext
+map I :rename; cmd-home # []file.foo.ext
+map A :rename; cmd-end  # file.foo.ext[]
+map a push i<c-f><c-k>  # file.foo.[]
+map c push i<c-u>       # [].ext
+# A<c-u> to do whole rename
 
 map B bulkrename
 map b $setbg0 $f

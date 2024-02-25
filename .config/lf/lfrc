@@ -156,7 +156,7 @@ map c push i<c-u>       # [].ext
 # A<c-u> to do whole rename
 
 map B bulkrename
-map b $setbg0 $f
+map b $setbg $f
 
 map <c-e> down
 map <c-y> up

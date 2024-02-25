@@ -1,2 +1,2 @@
 #!/bin/sh
-sudo mount -o noatime,uid=1000,gid=1000,fmask=133,dmask=022 UUID="F70050BAF1042ABA" /home/HDD
+sudo mount -o noatime,uid=1000,gid=1000,fmask=133,dmask=022 UUID="F70050BAF1042ABA" /mnt/HDD

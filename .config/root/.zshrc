@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 export HIST_STAMPS="yyyy-mm-dd"
 export PATH="$PATH:$HOME/.local/bin"
-export EDITOR="nvim"
+export EDITOR="vim"
 
 unsetopt PROMPT_SP
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -73,14 +73,25 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
+# Use lf to switch directories and bind it to ctrl-o
+lfcd () {
+    tmp="$(mktemp -uq)"
+    trap 'rm -f $tmp >/dev/null 2>&1' HUP INT QUIT TERM PWR EXIT
+    lf -last-dir-path="$tmp" "$@"
+    if [ -f "$tmp" ]; then
+        dir="$(cat "$tmp")"
+        [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
+    fi
+}
+
 mkcd () { mkdir "$1" && cd "$1" }
 bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files && shortcuts} # add file to files bookmark
 bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }   # add current dir to dirs bookmark
 
-bindkey -s '^v' '^unvim\n'
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
-
-bindkey '^[[P' delete-char
+bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
+bindkey -s '^v' '^unvim\n'                     # gimee neovim!
+bindkey -s '^n' '^uneofetch\n'                 # typical arch users be like...
 
 # Edit line in vim with ctrl-e:
 autoload edit-command-line; zle -N edit-command-line

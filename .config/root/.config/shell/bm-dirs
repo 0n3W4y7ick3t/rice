@@ -1,0 +1,5 @@
+cf /root/.config
+lb /root/.local/bin
+boot /boot
+tmp /tmp
+src /usr/src/linux

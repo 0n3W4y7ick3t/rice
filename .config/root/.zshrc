@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 export HIST_STAMPS="yyyy-mm-dd"
 export PATH="$PATH:$HOME/.local/bin"
-export EDITOR="vim"
+export EDITOR="nvim"
 
 unsetopt PROMPT_SP
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -33,7 +33,8 @@ SAVEHIST=10000000
 HISTFILE="$XDG_CACHE_HOME/zshistory"
 
 # Load aliases
-[ -f "$XDG_CONFIG_HOME/aliasrc" ] && source "$XDG_CONFIG_HOME/aliasrc"
+[ -f "$XDG_CONFIG_HOME/shell/aliasrc" ] && source "$XDG_CONFIG_HOME/shell/aliasrc"
+[ -f "$XDG_CONFIG_HOME/shell/shortcutrc" ] && source "$XDG_CONFIG_HOME/shell/shortcutrc"
 
 # Basic auto/tab complete:
 autoload -U compinit
@@ -73,6 +74,8 @@ echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 mkcd () { mkdir "$1" && cd "$1" }
+bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files && shortcuts} # add file to files bookmark
+bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }   # add current dir to dirs bookmark
 
 bindkey -s '^v' '^unvim\n'
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf

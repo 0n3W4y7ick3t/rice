@@ -3,8 +3,6 @@
 
 # *** Install powerlevel10k theme and plugins if not present  ***
 # You can remove these lines after they are installed.
-[ -d $XDG_CONFIG_HOME/zsh/plugins/wd ] || \
-  git clone https://github.com/mfaerevaag/wd $XDG_CONFIG_HOME/zsh/plugins/wd
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
@@ -87,7 +85,6 @@ lfcd () {
 mkcd () { mkdir "$1" && cd "$1" }
 bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files && shortcuts} # add file to files bookmark
 bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }   # add current dir to dirs bookmark
-wd() { . $HOME/.config/zsh/plugins/wd/wd.sh }
 
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!

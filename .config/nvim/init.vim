@@ -72,7 +72,7 @@ Plug 'nvim-tree/nvim-web-devicons'
 " colorscheme
 Plug 'bluz71/vim-nightfly-guicolors'
 Plug 'folke/tokyonight.nvim'
-" for rust 
+" for rust
 Plug 'mrcjkb/rustaceanvim'
 call plug#end()
 
@@ -116,7 +116,7 @@ nnoremap <leader>fo <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fa <cmd>Telescope aerial<cr>
-nnoremap <leader>fr :RG 
+nnoremap <leader>fr :RG
 " terminals
 noremap ,n :sp term://%:p:h//zsh<CR>i
 tnoremap ,, <c-\><c-n><c-w>w
@@ -162,10 +162,6 @@ set hls ic scs is " search
 set vb t_vb=
 set iskeyword+=:
 set shellslash
-" Works if your vim has clipboard feature, make yp manupilate with system clipboard.
-" If `vim --version` gives -clipboard, or :echo has('clipboard') gives 0,
-" that means your vim does not support this, consider compile it from source.
-" (I think neovim often has this build in by default)
 set clipboard^=unnamedplus
 " Or, use this fallback(X11, xclip) to make works.
 " vnoremap <silent> <leader>y :w !xclip -in -selection clipboard<CR><ESC>
@@ -183,7 +179,7 @@ cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 
 " jump between {}
 nnoremap <TAB> %
-" " jump between selected boundrys in visual mode
+" jump between selected boundrys in visual mode
 vnoremap <TAB> o
 " quick semicolon
 nnoremap <leader>; A;<Esc>
@@ -201,7 +197,7 @@ noremap <silent> <leader>[ <ESC>:tabp<CR> " previous tab
 noremap <silent> <leader>] <ESC>:tabn<CR> " next tab
 noremap <silent> <leader>, :bp<CR> " previous buffer
 noremap <silent> <leader>. :bn<CR> " next buffer
-   
+
 " script to compile and run single source code file,
 " with and without input redirect
 noremap <leader>rc :w! \| !nvim-compiler "%:p"<CR>
@@ -227,13 +223,21 @@ autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
 autocmd BufRead,BufNewFile *.tex set filetype=tex
 " disable annoying diagnostic for .env files
 autocmd BufEnter *.env lua vim.diagnostic.disable(0)
+" Automatically deletes all trailing whitespace and newlines at end of file on save,
+" reset cursor position
+autocmd BufWritePre * let currPos = getpos(".")
+autocmd BufWritePre * %s/\s\+$//e
+autocmd BufWritePre * %s/\n\+\%$//e
+autocmd BufWritePre *.[ch] %s/\%$/\r/e " add trailing newline for ANSI C standard
+" autocmd BufWritePre *neomutt* %s/^--$/-- /e " dash-dash-space signature delimiter in emails
+autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
 
 lua << EOF
-require('hop').setup {}
-require('Comment').setup{}
-require('auto-session').setup {}
-require('nvim-dap-virtual-text').setup()
+require('hop').setup()
 require('dapui').setup()
+require('Comment').setup()
+require('auto-session').setup()
+require('nvim-dap-virtual-text').setup()
 require('telescope').load_extension('aerial')
 
 require'nvim-cmp-config'

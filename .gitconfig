@@ -1,22 +1,31 @@
 [alias]
   lol = log --graph --decorate --pretty=oneline --abbrev-commit
   lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  ll =  log --oneline
+  la = log -1 HEAD --stat
   st = status
-  cm = commit
+  cm = commit -m
+  cf = config -l
   co = checkout
   br = branch
   df = diff
   dc = diff --cached
+  dv = difftool -t vimdiff -y
   pr = pull --rebase
   pl = pull
   ps = push
   rb = rebase
-  root = rev-parse --show-toplevel
+  rv = remote -v
+  gr = "!f() { git rev-list --all | xargs git grep $@ | fzf; }; f"
+  ro = rev-parse --show-toplevel # print git root directory
 [color]
   branch = auto
   diff = auto
   interactive = auto
   status = auto
+
+[merge]
+  conflictstyle = diff3
 
 [includeIf "gitdir:~/companyA/"]
   path = .gitconfig-companyA

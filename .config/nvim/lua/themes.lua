@@ -1,20 +1,3 @@
-let $THEME="tokyonight"
-set background=dark
-autocmd BufWritePost ~/.config/nvim/themes.vim :so $MYVIMRC
-
-if !has('gui_running')
-  set t_Co=256
-endif
-
-" enable truecolor
-if exists('+termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-    set pumblend=40
-endif
- 
-lua << EOF
 -- tokyonight theme specials
 require("tokyonight").setup {
   on_highlights = function(hl, c)
@@ -135,26 +118,3 @@ vim.g.rainbow_delimiters = { highlight = highlight }
 require("ibl").setup { scope = { highlight = highlight } }
 
 hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
-EOF
-
-colorscheme $THEME
-
-" show current line number as bold highlighted
-set cursorline
-hi CursorLineNr cterm=bold gui=bold
-set cursorlineopt=number
-
-" tokyonight set backgroud to transparent already
-" function SetHi ()
-"   " removes vim backgroud color, make it transparent
-"   hi SignColumn guibg=NONE
-"   hi Normal guibg=NONE ctermbg=NONE
-"   hi NonText guibg=NONE ctermbg=NONE
-"   hi LineNr guibg=NONE ctermbg=NONE
-" endfunction
-"
-" " <leader>b to remove vim backgroud color, make it transparent
-" " use ]ob to refresh (dark), supported by pope/vim-unimpaired
-" noremap <silent> <leader>b :call SetHi()<CR>
-
-" call SetHi() " must in the end

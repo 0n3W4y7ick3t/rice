@@ -1,27 +1,27 @@
 -- lsp-config.lua: set up lsp plugin
-require('lsp-mappings')
+require 'lsp-mappings' -- import my_attach function
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local servers = {
   'bashls',
   'clangd',
   'gopls',
-  -- the only way I found this work is to use pip to install pylyzer,
-  -- and use that SAME venv to code.
-  'pylyzer',
+  'pylyzer', --
   'marksman',
   'zls',
 }
 
+local lspconfig = require('lspconfig')
 -- Update nvim-cmp capabilities and add them to each language server
 for _, lsp in ipairs(servers) do
-  require('lspconfig')[lsp].setup {
+  lspconfig[lsp].setup {
     capabilities = capabilities,
     on_attach = my_attach,
     single_file_support = true,
   }
 end
 
-require 'lspconfig'.lua_ls.setup {
+require("neodev").setup {}
+lspconfig.lua_ls.setup {
   capabilities = capabilities,
   on_attach = my_attach,
   single_file_support = true,
@@ -30,6 +30,10 @@ require 'lspconfig'.lua_ls.setup {
     if not vim.loop.fs_stat(path .. '/.luarc.json') and not vim.loop.fs_stat(path .. '/.luarc.jsonc') then
       client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
         Lua = {
+          diagnostics = {
+            -- Get the language server to recognize the `vim` global
+            globals = { 'vim' },
+          },
           runtime = {
             -- Tell the language server which version of Lua you're using
             -- (most likely LuaJIT in the case of Neovim)

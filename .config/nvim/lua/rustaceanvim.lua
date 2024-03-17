@@ -1,7 +1,5 @@
 -- rustaceanvim.lua: set up rustaceanvim plugin
-
 require('lsp-mappings')
-
 vim.g.rustaceanvim = {
   -- Plugin configuration
   tools = {

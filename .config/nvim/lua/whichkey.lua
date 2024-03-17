@@ -3,16 +3,22 @@ local wk = require('which-key')
 wk.register({
   ['<leader>'] = {
     a = { '<cmd>AerialToggle!<CR>', 'toggle aerial outline' },
+    b = {
+      name = '+ buffers',
+      p = {'pin/unpin buffer'},
+      c = {'close all unpined buffers'},
+    },
     o = { '<cmd>AerialOpen float<CR>', 'toggle aerial float' },
     c = {
-      name = '+configs',
+      name = '+ configs',
       f = { ':tabe $MYVIMRC<cr>', 'init.vim' },
       m = { ':vs $HOME/.config/nvim/lua/whichkey.lua<cr>', 'mappings' },
       n = { ':vs $HOME/.config/nvim/lua/neovim.lua<cr>', 'neovim options' },
+      p = { ':vs $HOME/.config/nvim/lua/plugins.lua<cr>', 'plugins' },
       t = { ':tabe $HOME/.config/nvim/lua/themes.lua<cr>', 'themes' },
     },
     d = {
-      name = '+debug',
+      name = '+ debug',
       b = 'breakpoint with message',
       d = 'continue',
       f = 'frames',
@@ -30,7 +36,7 @@ wk.register({
     },
     e = 'diagnostic float info',
     f = {
-      name = '+finders! telescope and fzf',
+      name = '+ finders! telescope and fzf',
       -- map('n', '<leader>fr', )
       a = { ':Telescope aerial<cr>', 'TS search aerial' },
       b = { ':Telescope current_buffer_fuzzy_find<cr>', 'TS search current buffer' },
@@ -45,7 +51,7 @@ wk.register({
       r = { ':RG ', 'RG ripgrep', silent = false },
     },
     g = {
-      name = '+goto',
+      name = '+ goto',
       C = 'go to context',
       D = 'go to declaration',
       d = 'go to definition',
@@ -54,15 +60,15 @@ wk.register({
       t = 'go to type definition',
     },
     h = {
-      name = '+hunk options',
+      name = '+ hunk options',
       t = {
-        name = '+toggle',
+        name = '+ toggle',
         b = 'toggle line blame',
         d = 'toggle deleted',
       },
     },
     l = {
-      name = '+lsp options',
+      name = '+ lsp options',
       a = 'lsp code actions',
       f = 'lsp format',
       r = 'lsp rename',
@@ -72,31 +78,31 @@ wk.register({
     q = 'diagnostic telescope',
     u = { ':UndotreeToggle<cr>', 'undo tree toggle' },
     r = {
-      name = '+run',
+      name = '+ run',
       -- script to compile and run single source code file,
       -- with and without input redirect
       c = { ':w! \\| !nvim-compiler "%:p"<cr>', 'compiler' },
       r = { ':w! \\| !nvim-compiler-red "%:p"<cr>', 'compiler < inp' },
     },
     s = {
-      name = '+snippets',
+      name = '+ snippets',
       v = { ':VsnipOpenVsplit<cr>', 'vsnip vsplit edit' },
       y = { ':VsnipYank<cr>', 'vsnip yank' },
     },
     w = {
-      name = '+wiki, workspace',
+      name = '+ wiki, workspace',
       i = 'VimWiki diary index',
       s = 'VimWiki select',
       t = 'VimWiki table index',
       w = 'VimWiki index',
       k = {
-        name = '+workspace',
+        name = '+ workspace',
         a = 'add',
         l = 'list',
         r = 'remove',
       },
       ['<space>'] = {
-        name = '+wiki util',
+        name = '+ wiki util',
         i    = 'DiaryGenerateLinks',
         m    = 'MakeTomorrowDiaryNote',
         t    = 'TabMakeDiaryNote',
@@ -114,7 +120,7 @@ wk.register({
     ['<cr>'] = { ':MaximizerToggle<cr>', "toggle maximize" },
   },
   ['['] = {
-    name = '+prev',
+    name = '+ prev',
     ['%'] = 'prev unmatched group',
     ['('] = 'prev (',
     ['<'] = 'prev <',
@@ -134,7 +140,7 @@ wk.register({
     z = 'prev fold',
   },
   [']'] = {
-    name = '+next',
+    name = '+ next',
     ['%'] = 'next unmatched group',
     ['('] = 'next (',
     ['<'] = 'next <',
@@ -155,7 +161,7 @@ wk.register({
   },
   [','] = {
     -- terminals
-    name = '+terminals',
+    name = '+ terminals',
     ['/'] = { ':nohlsearch<cr>', "disable hl search" },
     f = 'floaterm(cwd)',
     t = { ':ToggleTerm<cr>', 'toggleterm' },

@@ -5,8 +5,8 @@ wk.register({
     a = { '<cmd>AerialToggle!<CR>', 'toggle aerial outline' },
     b = {
       name = '+ buffers',
-      p = {'pin/unpin buffer'},
-      c = {'close all unpined buffers'},
+      p = { 'pin/unpin buffer' },
+      c = { 'close all unpined buffers' },
     },
     o = { '<cmd>AerialOpen float<CR>', 'toggle aerial float' },
     c = {
@@ -47,7 +47,7 @@ wk.register({
       l = { ':Telescope buffers<cr>', 'TS search buffer list' },
       o = { ':Telescope oldfiles<cr>', 'TS old files' },
       s = { ':Telescope grep_string<cr>', 'TS grep string' },
-      t = { ':Telescope tags<cr>', 'TS tags' },
+      t = { ':TodoTelescope<cr>', 'TS Todos' },
       r = { ':RG ', 'RG ripgrep', silent = false },
     },
     g = {
@@ -134,6 +134,9 @@ wk.register({
     c = 'prev hunk',
     d = 'prev diagnostic',
     e = 'move line up',
+    f = 'prev FIX/BUG/ERROR',
+    t = 'prev TODO/WARN/HACK',
+    o = 'prev OPT/TEST',
     i = 'prev conditional',
     n = 'prev conflict',
     p = 'prev parameter',
@@ -154,6 +157,9 @@ wk.register({
     c = 'next hunk',
     d = 'next diagnostic',
     e = 'move line down',
+    f = 'next FIX/BUG/ERROR',
+    t = 'next TODO/WARN/HACK',
+    o = 'next OPT/TEST',
     i = 'next conditional',
     n = 'next conflict',
     p = 'next parameter',
@@ -194,6 +200,17 @@ end
 
 vim.api.nvim_set_keymap('n', ',g', '<cmd>lua _lazygit_toggle()<CR>', { noremap = true, silent = true })
 
+local todo = require("todo-comments")
+vim.keymap.set("n", "[t", function() todo.jump_prev({ keywords = { "TODO", "HACK", "WARN" } }) end)
+vim.keymap.set("n", "]t", function() todo.jump_next({ keywords = { "TODO", "HACK", "WARN" } }) end)
+vim.keymap.set("n", "[o", function() todo.jump_prev({ keywords = { "TEST", "OPT" } }) end)
+vim.keymap.set("n", "]o", function() todo.jump_next({ keywords = { "TEST", "OPT" } }) end)
+vim.keymap.set("n", "[f", function()
+  todo.jump_prev({ keywords = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" } })
+end)
+vim.keymap.set("n", "]f", function()
+  todo.jump_next({ keywords = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" } })
+end)
 
 local map = vim.keymap.set
 local nmap = function(key, mapping) -- most of the keymap

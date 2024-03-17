@@ -116,6 +116,38 @@ require("lazy").setup({
   'mbbill/undotree',
   { 'folke/neodev.nvim',     opts = {} },
   {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      keywords = {
+        FIX = {
+          icon = "", -- icon used for the sign, and in search results
+          color = "error", -- can be a hex color, or a named color
+          alt = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" },
+          -- signs = false, -- configure signs for some keywords individually
+        },
+        TODO = { icon = "", color = "info" },
+        HACK = { icon = "󱡝", color = "warning" },
+        WARN = { icon = "", color = "warning" },
+        PERF = { icon = "󰾆", alt = { "OPT", "PERFORMANCE", "OPTIMIZE" } },
+        NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
+        TEST = { icon = "󰙨", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+      },
+      search = {
+        command = "rg",
+        args = {
+          "--color=never",
+          "--no-heading",
+          "--with-filename",
+          "--line-number",
+          "--column",
+          "--hidden", -- also search under hidden folders
+        },
+        pattern = [[\b(KEYWORDS):]], -- ripgrep regex
+      },
+    }
+  },
+  {
     "folke/which-key.nvim",
     event = "VeryLazy",
     init = function()

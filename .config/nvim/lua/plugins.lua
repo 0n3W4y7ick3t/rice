@@ -65,6 +65,7 @@ require("lazy").setup({
         vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
         vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
       end
+
       vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
     end
   },
@@ -83,7 +84,7 @@ require("lazy").setup({
     event = "VeryLazy",
     keys = {
       { "<leader>bp", "<cmd>BufferLineTogglePin<CR>",            desc = "Toggle Buffer Pin" },
-      { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Unpinned Buffers" },
+      { "<leader>bc", "<cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Unpinned Buffers" },
     },
     opts = {
       options = {
@@ -121,13 +122,8 @@ require("lazy").setup({
       vim.o.timeout = true
       vim.o.timeoutlen = 300
     end,
-    opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
+    opts = {}
   },
-  -- edit
   {
     'Raimondi/delimitMate', -- pairs
     init = function()
@@ -153,7 +149,6 @@ require("lazy").setup({
   'HiPhish/rainbow-delimiters.nvim',
   'tpope/vim-unimpaired',
   'tpope/vim-repeat',
-  -- debug
   {
     'mfussenegger/nvim-dap',
     dependencies = {
@@ -161,7 +156,6 @@ require("lazy").setup({
       { 'rcarriga/nvim-dap-ui',            opts = {} },
     },
   },
-  -- nvim-cmp
   {
     "neovim/nvim-lspconfig",
     dependencies = {
@@ -187,7 +181,6 @@ require("lazy").setup({
       '0n3W4y7ick3t/cmp-nvim-lsp-signature-help',
     },
   },
-  -- themes
   'nvim-lualine/lualine.nvim',
   { 'nvim-tree/nvim-web-devicons',   lazy = true },
   { 'bluz71/vim-nightfly-guicolors', lazy = false },
@@ -196,19 +189,5 @@ require("lazy").setup({
   {
     'mrcjkb/rustaceanvim',
     ft = "rust" -- just for rust
-  },
-  {
-    "jose-elias-alvarez/null-ls.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      local null_ls = require("null-ls")
-      null_ls.setup({
-        sources = {
-          null_ls.builtins.diagnostics.ruff,
-          null_ls.builtins.formatting.black,
-          null_ls.builtins.completion.spell,
-        }
-      })
-    end
   },
 })

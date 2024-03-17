@@ -21,7 +21,8 @@ require('mason').setup()
 local mason_lspconfig = require 'mason-lspconfig'
 mason_lspconfig.setup {
   ensure_installed = {},
-  automatic_installation = true,
+  -- I manage these with the system
+  automatic_installation = { exclude = { 'clangd', 'gopls', 'rust_analyzer', 'zls' } }
 }
 
 -- Update nvim-cmp capabilities and add them to each language server

@@ -155,8 +155,7 @@ wk.register({
     [','] = 'focus back',
     ['/'] = { ':nohlsearch<cr>', "disable hilight search" },
     n = { ':sp term://%:p:h//zsh<cr>i', 'new term in current buffer directory' },
-    s = 'floaterm send',
-    t = 'floaterm toggle',
+    t = { ':ToggleTerm<cr>', 'toggleterm' },
   },
 })
 

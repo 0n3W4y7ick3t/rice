@@ -44,9 +44,17 @@ require("lazy").setup({
       vim.g.lf_replace_netrw = 1
       vim.g.lf_command_override = 'lf -command "set hidden"'
       vim.g.lf_map_keys = 0
-      vim.keymap.set('n', '<a-f>', ':lf<cr>', { noremap = true, silent = true })
-    end
+      vim.keymap.set('n', '<a-f>', ':Lf<cr>', { noremap = true, silent = true })
+    end,
   },
+  -- {
+  --   "akinsho/toggleterm.nvim",
+  --   event = "VeryLazy",
+  --   version = "*",
+  --   opts = {
+  --     size = 10,
+  --   }
+  -- },
   {
     'voldikss/vim-floaterm',
     init = function()
@@ -58,6 +66,22 @@ require("lazy").setup({
     end
   },
   {
+    "akinsho/bufferline.nvim",
+    version = "v3.*",
+    event = "VeryLazy",
+    keys = {
+      { "<leader>bp", "<cmd>BufferLineTogglePin<CR>",            desc = "Toggle Buffer Pin" },
+      { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Unpinned Buffers" },
+    },
+    opts = {
+      options = {
+        diagnostics = "nvim_lsp",
+        numbers = "buffer_id",
+        always_show_bufferline = false
+      }
+    }
+  },
+  {
     'iamcco/markdown-preview.nvim', -- markdown preview
     init = function()
       vim.keymap.set('n', '<leader>m', ':MarkdownPreviewToggle<cr>', { noremap = true, silent = true })
@@ -66,6 +90,9 @@ require("lazy").setup({
   'nvim-lua/plenary.nvim',
   {
     'nvim-treesitter/nvim-treesitter',
+    build = function()
+      require("nvim-treesitter.install").update({ with_sync = true })
+    end,
     dependencies = {
       'nvim-treesitter/nvim-treesitter-context',
       'nvim-treesitter/nvim-treesitter-textobjects',
@@ -123,7 +150,13 @@ require("lazy").setup({
     },
   },
   -- nvim-cmp
-  'neovim/nvim-lspconfig',
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim"
+    },
+  },
   {
     "hrsh7th/nvim-cmp",
     -- load cmp on InsertEnter
@@ -147,6 +180,23 @@ require("lazy").setup({
   { 'nvim-tree/nvim-web-devicons',   lazy = true },
   { 'bluz71/vim-nightfly-guicolors', lazy = false },
   { 'folke/tokyonight.nvim',         lazy = false },
-  -- just for rust
-  { 'mrcjkb/rustaceanvim',           ft = "rust" }
+
+  {
+    'mrcjkb/rustaceanvim',
+    ft = "rust" -- just for rust
+  },
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      local null_ls = require("null-ls")
+      null_ls.setup({
+        sources = {
+          null_ls.builtins.diagnostics.ruff,
+          null_ls.builtins.formatting.black,
+          null_ls.builtins.completion.spell,
+        }
+      })
+    end
+  },
 })

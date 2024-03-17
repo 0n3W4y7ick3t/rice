@@ -33,11 +33,15 @@ wk.register({
       name = '+finders! telescope and fzf',
       -- map('n', '<leader>fr', )
       a = { ':Telescope aerial<cr>', 'TS search aerial' },
-      b = { ':Telescope buffers<cr>', 'TS search buffers' },
+      b = { ':Telescope current_buffer_fuzzy_find<cr>', 'TS search current buffer' },
+      B = { ':Telescope builtin<cr>', 'TS all builtins' },
       f = { ':Telescope find_files<cr>', 'TS search files' },
       g = { ':Telescope live_grep<cr>', 'TS live grep' },
       h = { ':Telescope help_tags<cr>', 'TS help tags' },
+      l = { ':Telescope buffers<cr>', 'TS search buffer list' },
       o = { ':Telescope oldfiles<cr>', 'TS old files' },
+      s = { ':Telescope grep_string<cr>', 'TS grep string' },
+      t = { ':Telescope tags<cr>', 'TS tags' },
       r = { ':RG ', 'RG ripgrep', silent = false },
     },
     g = {
@@ -152,12 +156,38 @@ wk.register({
   [','] = {
     -- terminals
     name = '+terminals',
-    [','] = 'focus back',
-    ['/'] = { ':nohlsearch<cr>', "disable hilight search" },
-    n = { ':sp term://%:p:h//zsh<cr>i', 'new term in current buffer directory' },
+    ['/'] = { ':nohlsearch<cr>', "disable hl search" },
+    f = 'floaterm(cwd)',
     t = { ':ToggleTerm<cr>', 'toggleterm' },
+    g = 'lazygit in ToggleTerm',
   },
 })
+
+-- use ToggleTerm to open lazygit
+local lazygit = require('toggleterm.terminal').Terminal:new({
+  cmd = "lazygit",
+  dir = "git_dir",
+  direction = "float",
+  float_opts = {
+    border = "double",
+  },
+  -- function to run on opening the terminal
+  on_open = function(term)
+    vim.cmd("startinsert!")
+    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+  end,
+  -- function to run on closing the terminal
+  on_close = function(_)
+    vim.cmd("startinsert!")
+  end,
+})
+
+function _lazygit_toggle()
+  lazygit:toggle()
+end
+
+vim.api.nvim_set_keymap('n', ',g', '<cmd>lua _lazygit_toggle()<CR>', { noremap = true, silent = true })
+
 
 local map = vim.keymap.set
 local nmap = function(key, mapping) -- most of the keymap

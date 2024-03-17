@@ -3,15 +3,15 @@ function my_attach(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  local function map(mode, l, r, explain)
+  local function nmap(l, r, explain)
     local opts = { noremap = true, silent = true, desc = explain }
-    vim.api.nvim_set_keymap(mode, l, r, opts)
+    vim.api.nvim_set_keymap('n', l, r, opts)
   end
 
-  map('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', 'diagnostic open float')
-  map('n', '<space>q', '<cmd>Telescope diagnostics<CR>', 'diagnostic telescope')
-  map('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', 'diagnostic prev')
-  map('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', 'diagnostic next')
+  nmap('<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', 'diagnostic open float')
+  nmap('<space>q', '<cmd>Telescope diagnostics<CR>', 'diagnostic telescope')
+  nmap('[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', 'diagnostic prev')
+  nmap(']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', 'diagnostic next')
 
   ----
   local function buf_map(mode, l, r, explain)

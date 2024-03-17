@@ -1,5 +1,4 @@
-vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>") -- Call the setup function to change the default behavior
-vim.keymap.set("n", "<leader>o", "<cmd>AerialOpen float<CR>") -- Call the setup function to change the default behavior
+require('telescope').load_extension('aerial')
 require("aerial").setup({
   -- Priority list of preferred backends for aerial.
   -- This can be a filetype map (see :help aerial-filetype-map)
@@ -46,8 +45,7 @@ require("aerial").setup({
   --   unsupported   - close aerial when attaching to a buffer that has no symbol source
   close_automatic_events = {},
 
-  -- Keymaps in aerial window. Can be any value that `vim.keymap.set` accepts OR a table of keymap
-  -- options with a `callback` (e.g. { callback = function() ... end, desc = "", nowait = true })
+  -- Keymaps in aerial window. Can be any value that `vim.keymap.set` accepts OR a table of keymap options with a `callback` (e.g. { callback = function() ... end, desc = "", nowait = true })
   -- Additionally, if it is a string that matches "actions.<name>",
   -- it will use the mapping at require("aerial.actions").<name>
   -- Set to `false` to remove a keymap

@@ -18,15 +18,16 @@ wk.register({
       t = { ':tabe $HOME/.config/nvim/lua/themes.lua<cr>', 'themes' },
     },
     d = {
-      name = '+ debug, <leader>d is not needed for <fn>',
+      name = '+ debug',
       b = 'breakpoint with message',
-      f = 'frames',
-      h = 'hover',
+      f = 'show frames',
       l = 'run last',
-      o = 'repl open',
+      r = 'repl toggle',
       p = 'preview',
-      s = 'scopes',
-      ['-'] = 'F5-F10:',
+      s = 'show scopes',
+      q = 'quit debug',
+      ['-'] = 'F4-F10, <leader>d is not needed:',
+      ['<F4>'] = 'run to cursor',
       ['<F5>'] = 'start/continue debug',
       ['<F6>'] = 'breakpoint toggle',
       ['<F7>'] = 'step over',
@@ -73,16 +74,14 @@ wk.register({
       f = 'lsp format',
       r = 'lsp rename',
     },
-
-    m = 'markdown preview',
     q = 'diagnostic telescope',
     u = { ':UndotreeToggle<cr>', 'undo tree toggle' },
     r = {
       name = '+ run',
       -- script to compile and run single source code file,
       -- with and without input redirect
-      c = { ':w! \\| !nvim-compiler "%:p"<cr>', 'compiler' },
-      r = { ':w! \\| !nvim-compiler-red "%:p"<cr>', 'compiler < inp' },
+      c = { ':w! | !nvim-compiler "%:p"<cr>', 'compiler' },
+      r = { ':w! | !nvim-compiler-red "%:p"<cr>', 'compiler < inp' },
     },
     s = {
       name = '+ snippets',
@@ -175,42 +174,17 @@ wk.register({
   },
 })
 
--- use ToggleTerm to open lazygit
-local lazygit = require('toggleterm.terminal').Terminal:new({
-  cmd = "lazygit",
-  dir = "git_dir",
-  direction = "float",
-  float_opts = {
-    border = "double",
-  },
-  -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd("startinsert!")
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-  -- function to run on closing the terminal
-  on_close = function(_)
-    vim.cmd("startinsert!")
-  end,
-})
-
-function _lazygit_toggle()
-  lazygit:toggle()
+-- move between terminals and buffers
+function _G.set_terminal_keymaps()
+  local opts = { buffer = 0 }
+  vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+  vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+  vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
+  vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
+  vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+  vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
 end
-
-vim.api.nvim_set_keymap('n', ',g', '<cmd>lua _lazygit_toggle()<CR>', { noremap = true, silent = true })
-
-local todo = require("todo-comments")
-vim.keymap.set("n", "[t", function() todo.jump_prev({ keywords = { "TODO", "HACK", "WARN" } }) end)
-vim.keymap.set("n", "]t", function() todo.jump_next({ keywords = { "TODO", "HACK", "WARN" } }) end)
-vim.keymap.set("n", "[o", function() todo.jump_prev({ keywords = { "TEST", "OPT" } }) end)
-vim.keymap.set("n", "]o", function() todo.jump_next({ keywords = { "TEST", "OPT" } }) end)
-vim.keymap.set("n", "[f", function()
-  todo.jump_prev({ keywords = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" } })
-end)
-vim.keymap.set("n", "]f", function()
-  todo.jump_next({ keywords = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" } })
-end)
+vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
 local map = vim.keymap.set
 local nmap = function(key, mapping) -- most of the keymap

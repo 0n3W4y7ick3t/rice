@@ -9,6 +9,5 @@ require 'diagnostics'
 require 'rustaceanvim'
 require 'git-signs'
 require 'whichkey' -- keymapping and doc
-require 'dap-config'
 require 'outline'
 require 'themes'

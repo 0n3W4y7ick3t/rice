@@ -1,35 +1,39 @@
 -- automatically install lazyvim, the plugin manager
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
     lazypath,
   })
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
+local nmap = function(key, cmd, desc)
+  vim.keymap.set('n', key, cmd, { desc = desc, noremap = true, silent = true })
+end
+
+require('lazy').setup({
   'lukas-reineke/indent-blankline.nvim',
   'stevearc/aerial.nvim',
-  'junegunn/goyo.vim',
   'jreybert/vimagit',
   'tpope/vim-fugitive',
   'lewis6991/gitsigns.nvim',
   'junegunn/fzf.vim',
   {
     'vimwiki/vimwiki',
-    init = function()
+    ft = 'vimwiki',
+    config = function()
       vim.cmd([[
         let g:vimwiki_ext2syntax = {}
         let g:vimwiki_list = [{
         \ 'auto_export': 0,
-        \ 'path': "$VIMWIKI_DIR/contents",
-        \ 'path_html': "$VIMWIKI_DIR/_site",
-        \ 'template_path': "$VIMWIKI_DIR/templates",
+        \ 'path': '$VIMWIKI_DIR/contents',
+        \ 'path_html': '$VIMWIKI_DIR/_site',
+        \ 'template_path': '$VIMWIKI_DIR/templates',
         \ 'template_default': 'markdown',
         \ 'template_ext':'.html',
         \ 'syntax': 'markdown',
@@ -42,31 +46,38 @@ require("lazy").setup({
     'ptzz/lf.vim',
     init = function()
       vim.g.lf_replace_netrw = 1
-      vim.g.lf_command_override = 'lf -command "set hidden"'
+      vim.g.lf_command_override = 'lf -command "set hidden "'
       vim.g.lf_map_keys = 0
-      vim.keymap.set('n', '<a-f>', ':Lf<cr>', { noremap = true, silent = true })
+      nmap('<a-f>', ':Lf<cr>')
     end,
   },
   {
-    "akinsho/toggleterm.nvim",
-    event = "VeryLazy",
-    version = "*",
+    'akinsho/toggleterm.nvim',
+    event = 'VeryLazy',
+    version = '*',
     opts = {
       size = 16,
     },
-    init = function()
-      function _G.set_terminal_keymaps()
-        local opts = { buffer = 0 }
-        -- move between terminals and buffers
-        vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
-        vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
-        vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
-        vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
-        vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
-        vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
-      end
-
-      vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+    config = function()
+      -- use ToggleTerm to open lazygit
+      local lazygit = require('toggleterm.terminal').Terminal:new({
+        cmd = 'lazygit',
+        dir = 'git_dir',
+        direction = 'float',
+        float_opts = {
+          border = 'double',
+        },
+        -- function to run on opening the terminal
+        on_open = function(term)
+          vim.cmd('startinsert!')
+          vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 'q', '<cmd>close<CR>', { noremap = true, silent = true })
+        end,
+        -- function to run on closing the terminal
+        on_close = function(_)
+          vim.cmd('startinsert!')
+        end,
+      })
+      nmap(',g', function() lazygit:toggle() end)
     end
   },
   {
@@ -79,32 +90,33 @@ require("lazy").setup({
     end
   },
   {
-    "akinsho/bufferline.nvim",
-    version = "v3.*",
-    event = "VeryLazy",
+    'akinsho/bufferline.nvim',
+    version = 'v3.*',
+    event = 'VeryLazy',
     keys = {
-      { "<leader>bp", "<cmd>BufferLineTogglePin<CR>",            desc = "Toggle Buffer Pin" },
-      { "<leader>bc", "<cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Unpinned Buffers" },
+      { '<leader>bp', '<cmd>BufferLineTogglePin<CR>',            desc = 'Toggle Buffer Pin' },
+      { '<leader>bc', '<cmd>BufferLineGroupClose ungrouped<CR>', desc = 'Close Unpinned Buffers' },
     },
     opts = {
       options = {
-        diagnostics = "nvim_lsp",
-        numbers = "buffer_id",
+        diagnostics = 'nvim_lsp',
+        numbers = 'buffer_id',
         always_show_bufferline = false
       }
     }
   },
   {
     'iamcco/markdown-preview.nvim', -- markdown preview
-    init = function()
-      vim.keymap.set('n', '<leader>m', ':MarkdownPreviewToggle<cr>', { noremap = true, silent = true })
+    ft = { 'markdown', 'vimwiki' },
+    config = function()
+      nmap('<leader>m', ':MarkdownPreviewToggle<cr>', 'markdown preview toggle')
     end
   },
   'nvim-lua/plenary.nvim',
   {
     'nvim-treesitter/nvim-treesitter',
     build = function()
-      require("nvim-treesitter.install").update({ with_sync = true })
+      require('nvim-treesitter.install').update({ with_sync = true })
     end,
     dependencies = {
       'nvim-treesitter/nvim-treesitter-context',
@@ -114,42 +126,102 @@ require("lazy").setup({
   'nvim-telescope/telescope.nvim',
   'szw/vim-maximizer',
   'mbbill/undotree',
-  { 'folke/neodev.nvim',     opts = {} },
   {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    'folke/neodev.nvim',
+    opts = {},
+    ft = 'lua',
+    config = function()
+      require('neodev').setup {}
+      -- HACK: setup lua lsp at the same time
+      local cap = vim.lsp.protocol.make_client_capabilities()
+      local capabilities = require('cmp_nvim_lsp').default_capabilities(cap)
+      local lspconfig = require('lspconfig')
+      lspconfig.lua_ls.setup {
+        capabilities = capabilities,
+        on_attach = my_attach,
+        single_file_support = true,
+        on_init = function(client)
+          local path = client.workspace_folders[1].name
+          if not vim.loop.fs_stat(path .. '/.luarc.json') and not vim.loop.fs_stat(path .. '/.luarc.jsonc') then
+            client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
+              Lua = {
+                diagnostics = {
+                  -- Get the language server to recognize the `vim` global
+                  globals = { 'vim' },
+                },
+                runtime = {
+                  version = 'LuaJIT'
+                },
+                -- Make the server aware of Neovim runtime files
+                workspace = {
+                  checkThirdParty = false,
+                  library = {
+                    vim.env.VIMRUNTIME
+                    -- '${3rd}/luv/library'
+                    -- '${3rd}/busted/library',
+                  }
+                },
+                format = {
+                  enable = true,
+                  defaultConfig = {
+                    indent_style = 'space',
+                    indent_size = '2', -- should be string
+                  }
+                },
+              }
+            })
+
+            client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+          end
+          return true
+        end
+      }
+    end
+  },
+  {
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       keywords = {
         FIX = {
-          icon = "", -- icon used for the sign, and in search results
-          color = "error", -- can be a hex color, or a named color
-          alt = { "FIXME", "FIXIT", "BUG", "ISSUE", "ERROR", "ERR" },
+          icon = '', -- icon used for the sign, and in search results
+          color = 'error', -- can be a hex color, or a named color
+          alt = { 'FIXME', 'FIXIT', 'BUG', 'ISSUE', 'ERROR', 'ERR' },
           -- signs = false, -- configure signs for some keywords individually
         },
-        TODO = { icon = "", color = "info" },
-        HACK = { icon = "󱡝", color = "warning" },
-        WARN = { icon = "", color = "warning" },
-        PERF = { icon = "󰾆", alt = { "OPT", "PERFORMANCE", "OPTIMIZE" } },
-        NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
-        TEST = { icon = "󰙨", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+        TODO = { icon = '', color = 'info' },
+        HACK = { icon = '󱡝', color = 'warning' },
+        WARN = { icon = '', color = 'warning' },
+        PERF = { icon = '󰾆', alt = { 'OPT', 'PERFORMANCE', 'OPTIMIZE' } },
+        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
+        TEST = { icon = '󰙨', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
       },
       search = {
-        command = "rg",
+        command = 'rg',
         args = {
-          "--color=never",
-          "--no-heading",
-          "--with-filename",
-          "--line-number",
-          "--column",
-          "--hidden",                -- also search under hidden folders
+          '--color=never',
+          '--no-heading',
+          '--with-filename',
+          '--line-number',
+          '--column',
+          '--hidden',                -- also search under hidden folders
         },
         pattern = [[\b(KEYWORDS):]], -- ripgrep regex
       },
-    }
+    },
+    config = function()
+      local todo = require('todo-comments')
+      nmap('[t', function() todo.jump_prev({ keywords = { 'TODO', 'HACK', 'WARN' } }) end)
+      nmap(']t', function() todo.jump_next({ keywords = { 'TODO', 'HACK', 'WARN' } }) end)
+      nmap('[o', function() todo.jump_prev({ keywords = { 'TEST', 'OPT' } }) end)
+      nmap(']o', function() todo.jump_next({ keywords = { 'TEST', 'OPT' } }) end)
+      nmap('[f', function() todo.jump_prev({ keywords = { 'FIXME', 'FIXIT', 'BUG', 'ISSUE', 'ERROR', 'ERR' } }) end)
+      nmap(']f', function() todo.jump_next({ keywords = { 'FIXME', 'FIXIT', 'BUG', 'ISSUE', 'ERROR', 'ERR' } }) end)
+    end
   },
   {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
+    'folke/which-key.nvim',
+    event = 'VeryLazy',
     init = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
@@ -165,10 +237,11 @@ require("lazy").setup({
   },
   {
     'smoka7/hop.nvim',
-    version = "*",
+    version = '*',
     opts = {},
     init = function()
-      vim.keymap.set({ 'n', 'i' }, 'HH', '<ESC>:HopWord<cr>', { noremap = true, silent = true })
+      nmap('HH', ':HopWord<cr>')
+      vim.keymap.set('i', 'HH', '<ESC>:HopWord<cr>', { noremap = true, silent = true })
     end
   },
   {
@@ -183,75 +256,95 @@ require("lazy").setup({
   'tpope/vim-repeat',
   {
     'mfussenegger/nvim-dap',
+    lazy = true,
     ft = { 'go', 'c', 'cpp', 'rust', 'python' },
     dependencies = {
       { 'theHamsta/nvim-dap-virtual-text', opts = {} },
       { 'rcarriga/nvim-dap-ui',            opts = {} },
     },
-    init = function()
-      vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
-      vim.keymap.set('n', '<F10>', function() require('dapui').toggle() end) -- open dapui
+    config = function()
+      local dap = require('dap')
+      dap.adapters.lldb = {
+        type = 'executable',
+        command = '/usr/bin/lldb-vscode', -- adjust as needed, must be absolute path
+        name = 'lldb'
+      }
 
-      vim.keymap.set('n', '<F6>', function() require('dap').toggle_breakpoint() end, { desc = "breakpoint toggle" })
-      vim.keymap.set('n', '<leader>b', function()
-        require('dap').set_breakpoint(nil, nil, vim.fn.input('breakpoint with message: '))
-      end, { desc = "breakpoint with message" })
-      vim.keymap.set('n', '<F7>', function() require('dap').step_over() end)
-      vim.keymap.set('n', '<F8>', function() require('dap').step_into() end)
-      vim.keymap.set('n', '<F9>', function() require('dap').step_out() end)
-      vim.keymap.set('n', '<Leader>do', function() require('dap').repl.open() end)
-      vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
-      vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
-        require('dap.ui.widgets').hover()
-      end)
+      -- c, cpp, rust
+      dap.configurations.cpp = {
+        {
+          name = 'Launch',
+          type = 'lldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+          args = {},
+          runInTerminal = false,
+        },
+      }
+      dap.configurations.c = dap.configurations.cpp
+      dap.configurations.rust = dap.configurations.cpp
 
-      vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
-        require('dap.ui.widgets').preview()
-      end)
-
-      vim.keymap.set('n', '<Leader>df', function()
-        local widgets = require('dap.ui.widgets')
-        widgets.centered_float(widgets.frames)
-      end)
-
-      vim.keymap.set('n', '<Leader>ds', function()
-        local widgets = require('dap.ui.widgets')
-        widgets.centered_float(widgets.scopes)
-      end)
+      nmap('<F4>', function() dap.run_to_cursor() end)
+      nmap('<F5>', function() dap.continue() end) -- start
+      nmap('<F6>', function() dap.toggle_breakpoint() end)
+      nmap('<F7>', function() dap.step_over() end)
+      nmap('<F8>', function() dap.step_into() end)
+      nmap('<F9>', function() dap.step_out() end)
+      nmap('<F10>', function() require('dapui').toggle() end) -- tui
+      nmap('<leader>db', function() dap.set_breakpoint(nil, nil, vim.fn.input('breakpoint with message: ')) end)
+      nmap('<Leader>dr', function() dap.repl.toggle() end)
+      nmap('<Leader>dl', function() dap.run_last() end)
+      nmap('<Leader>dq', function() dap.terminate() end)
+      local widgets = require('dap.ui.widgets')
+      nmap('<Leader>dp', function() widgets.preview() end)
+      nmap('<Leader>df', function() widgets.centered_float(widgets.frames) end)
+      nmap('<Leader>ds', function() widgets.centered_float(widgets.scopes) end)
     end
   },
   {
     'mfussenegger/nvim-dap-python',
     ft = 'python',
     dependencies = { 'mfussenegger/nvim-dap' },
-    init = function()
-      local default = os.getenv("PYTHON_VENV_DIR")
+    config = function()
+      local dapy = require('dap-python')
+      local default = os.getenv('PYTHON_VENV_DIR')
+
       if default then
-        require('dap-python').setup(default .. '/debugpy/bin/python')
+        dapy.setup(default .. '/debugpy/bin/python')
       else
-        require('dap-python').setup(os.getenv("HOME") .. '/.local/share/pyenv/debugpy/bin/python')
+        dapy.setup(os.getenv('HOME') .. '/.local/share/pyenv/debugpy/bin/python')
       end
+      nmap('<leader>dm', function() dapy.test_method() end, 'python test method')
+      nmap('<leader>dc', function() dapy.test_class() end, 'python test class')
+      vim.keymap.set('v', '<leader>dv', function() dapy.debug_selection() end,
+        { desc = 'python test visual selection', noremap = true, silent = true })
     end
   },
   {
     'leoluz/nvim-dap-go',
     ft = 'go', -- just for go, need dlv installed
     dependencies = { 'mfussenegger/nvim-dap' },
-    init = function()
-      require('dap-go').setup()
+    config = function()
+      local dapgo = require('dap-go')
+      dapgo.setup()
+      nmap('<Leader>dt', function() dapgo.debug_test() end, 'golang debug test')
     end
   },
   {
-    "neovim/nvim-lspconfig",
+    'neovim/nvim-lspconfig',
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim"
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim'
     },
   },
   {
-    "hrsh7th/nvim-cmp",
+    'hrsh7th/nvim-cmp',
     -- load cmp on InsertEnter
-    event = "InsertEnter",
+    event = 'InsertEnter',
     -- these dependencies will only be loaded when cmp loads
     -- dependencies are always lazy-loaded unless specified otherwise
     dependencies = {
@@ -273,6 +366,6 @@ require("lazy").setup({
 
   {
     'mrcjkb/rustaceanvim',
-    ft = "rust" -- just for rust
+    ft = 'rust' -- just for rust
   },
 })

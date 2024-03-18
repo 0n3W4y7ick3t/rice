@@ -141,7 +141,7 @@ require("lazy").setup({
           "--with-filename",
           "--line-number",
           "--column",
-          "--hidden", -- also search under hidden folders
+          "--hidden",                -- also search under hidden folders
         },
         pattern = [[\b(KEYWORDS):]], -- ripgrep regex
       },
@@ -183,10 +183,63 @@ require("lazy").setup({
   'tpope/vim-repeat',
   {
     'mfussenegger/nvim-dap',
+    ft = { 'go', 'c', 'cpp', 'rust', 'python' },
     dependencies = {
       { 'theHamsta/nvim-dap-virtual-text', opts = {} },
       { 'rcarriga/nvim-dap-ui',            opts = {} },
     },
+    init = function()
+      vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
+      vim.keymap.set('n', '<F10>', function() require('dapui').toggle() end) -- open dapui
+
+      vim.keymap.set('n', '<F6>', function() require('dap').toggle_breakpoint() end, { desc = "breakpoint toggle" })
+      vim.keymap.set('n', '<leader>b', function()
+        require('dap').set_breakpoint(nil, nil, vim.fn.input('breakpoint with message: '))
+      end, { desc = "breakpoint with message" })
+      vim.keymap.set('n', '<F7>', function() require('dap').step_over() end)
+      vim.keymap.set('n', '<F8>', function() require('dap').step_into() end)
+      vim.keymap.set('n', '<F9>', function() require('dap').step_out() end)
+      vim.keymap.set('n', '<Leader>do', function() require('dap').repl.open() end)
+      vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+      vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
+        require('dap.ui.widgets').hover()
+      end)
+
+      vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
+        require('dap.ui.widgets').preview()
+      end)
+
+      vim.keymap.set('n', '<Leader>df', function()
+        local widgets = require('dap.ui.widgets')
+        widgets.centered_float(widgets.frames)
+      end)
+
+      vim.keymap.set('n', '<Leader>ds', function()
+        local widgets = require('dap.ui.widgets')
+        widgets.centered_float(widgets.scopes)
+      end)
+    end
+  },
+  {
+    'mfussenegger/nvim-dap-python',
+    ft = 'python',
+    dependencies = { 'mfussenegger/nvim-dap' },
+    init = function()
+      local default = os.getenv("PYTHON_VENV_DIR")
+      if default then
+        require('dap-python').setup(default .. '/debugpy/bin/python')
+      else
+        require('dap-python').setup(os.getenv("HOME") .. '/.local/share/pyenv/debugpy/bin/python')
+      end
+    end
+  },
+  {
+    'leoluz/nvim-dap-go',
+    ft = 'go', -- just for go, need dlv installed
+    dependencies = { 'mfussenegger/nvim-dap' },
+    init = function()
+      require('dap-go').setup()
+    end
   },
   {
     "neovim/nvim-lspconfig",

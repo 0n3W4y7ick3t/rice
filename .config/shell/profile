@@ -36,6 +36,7 @@ export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export GOPATH="$XDG_DATA_HOME/go"
 export VIMWIKI_DIR="$XDG_DATA_HOME/nvim/vimwiki"
+export PYTHON_VENV_DIR=$HOME/.local/share/pyenv
 # export BLOG_DIR="$HOME/foo/blog"
 # export IMGUR_CLIENT_ID="foo"
 

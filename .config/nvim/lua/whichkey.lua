@@ -11,11 +11,12 @@ wk.register({
     o = { '<cmd>AerialOpen float<CR>', 'toggle aerial float' },
     c = {
       name = '+ configs',
-      f = { ':tabe $MYVIMRC<cr>', 'init.vim' },
+      f = { ':vs $MYVIMRC<cr>', 'init.lua' },
       m = { ':vs $HOME/.config/nvim/lua/whichkey.lua<cr>', 'mappings' },
-      n = { ':vs $HOME/.config/nvim/lua/neovim.lua<cr>', 'neovim options' },
+      o = { ':vs $HOME/.config/nvim/lua/neovim.lua<cr>', 'options' },
       p = { ':vs $HOME/.config/nvim/lua/plugins.lua<cr>', 'plugins' },
-      t = { ':tabe $HOME/.config/nvim/lua/themes.lua<cr>', 'themes' },
+      t = { ':vs $HOME/.config/nvim/lua/themes.lua<cr>', 'themes' },
+      s = { ':vs $HOME/.config/nvim/lua/snippets.lua<cr>', 'snippets' },
     },
     d = {
       name = '+ debug',
@@ -85,8 +86,8 @@ wk.register({
     },
     s = {
       name = '+ snippets',
-      v = { ':VsnipOpenVsplit<cr>', 'vsnip vsplit edit' },
       y = { ':VsnipYank<cr>', 'vsnip yank' },
+      e = { ':lua require("luasnip.loaders").edit_snippet_files()<cr>', 'edit snippet for current type' },
     },
     w = {
       name = '+ wiki, workspace',
@@ -184,6 +185,7 @@ function _G.set_terminal_keymaps()
   vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
   vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
 end
+
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
 local map = vim.keymap.set

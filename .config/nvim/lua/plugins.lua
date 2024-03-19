@@ -346,6 +346,24 @@ require('lazy').setup({
     },
   },
   {
+    'L3MON4D3/LuaSnip',
+    version = "v2.*",
+    -- optional
+    -- build = "make install_jsregexp",
+    config = function()
+      require("luasnip.loaders.from_lua").load({
+        paths = { "~/.config/nvim/snippets", "~/.snippets" }
+      })
+      local ls = require 'luasnip'
+      -- use c-n to chose between choices when available
+      vim.keymap.set({ "i", "s" }, "<c-n>", function()
+        if ls.choice_active() then
+          ls.change_choice(1)
+        end
+      end, { silent = true, desc = 'change choices' })
+    end
+  },
+  {
     'hrsh7th/nvim-cmp',
     -- load cmp on InsertEnter
     event = 'InsertEnter',
@@ -357,9 +375,7 @@ require('lazy').setup({
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-cmdline',
       'hrsh7th/cmp-nvim-lua',
-      'hrsh7th/cmp-vsnip',
-      'hrsh7th/vim-vsnip',
-      'hrsh7th/vim-vsnip-integ',
+      'saadparwaiz1/cmp_luasnip',
       '0n3W4y7ick3t/cmp-nvim-lsp-signature-help',
     },
   },

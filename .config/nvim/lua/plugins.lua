@@ -260,7 +260,11 @@ require('lazy').setup({
     ft = { 'go', 'c', 'cpp', 'rust', 'python' },
     dependencies = {
       { 'theHamsta/nvim-dap-virtual-text', opts = {} },
-      { 'rcarriga/nvim-dap-ui',            opts = {} },
+      {
+        'rcarriga/nvim-dap-ui',
+        opts = {},
+        dependencies = { 'nvim-neotest/nvim-nio' }
+      },
     },
     config = function()
       local dap = require('dap')

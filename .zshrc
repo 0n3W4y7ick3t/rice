@@ -1,9 +1,6 @@
 ###             *** Leon Akashiya's zshrc ***             ###
 ### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
-# *** Install powerlevel10k theme and plugins if not present  ***
-# You can remove these lines after they are installed.
-[ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
   git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions
@@ -11,8 +8,7 @@
   git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting
 
 # Set theme
-# autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
-source $XDG_CONFIG_HOME/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
+ autoload -U colors && colors && PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
 # Enable plugins
 source $XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 source $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/null
@@ -93,7 +89,6 @@ bindkey -s '^a' '^ubc -lq\n'                   # caculator
 bindkey -s '^g' '^ulazygit\n'                  # lazier everyday!
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
 bindkey -s '^r' '!!\n'                         # redo last command
-bindkey -s '^k' '^ucode . &> /dev/null &\n'    # nahaha
 
 # Edit line in vim with ctrl-e:
 autoload edit-command-line; zle -N edit-command-line

@@ -1,3 +1,0 @@
-#!/bin/sh
-err=$(imgur "$(cat "$XDG_DATA_HOME"/lastscreenshot)") || notify-send "$err" && exit 1;
-notify-send "uploaded"

@@ -1,4 +1,0 @@
-#!/bin/sh
-# for posting a blog
-cd "$BLOG_DIR" && hugo new content posts/"$1".md;
-$EDITOR content/posts/"$1".md

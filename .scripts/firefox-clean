@@ -1,2 +1,0 @@
-#!/bin/sh
-/usr/bin/firefox "$@" && rm -rf $XDG_CACHE_HOME/mozilla/firefox

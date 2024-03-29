@@ -27,7 +27,6 @@
 [merge]
   conflictstyle = diff3
 
-[includeIf "gitdir:~/companyA/"]
-  path = .gitconfig-companyA
-[includeIf "gitdir:~/personal/"]
-  path = .gitconfig-personal
+[user]
+  name = Foo
+  email = bar

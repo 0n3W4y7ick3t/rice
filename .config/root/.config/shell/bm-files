@@ -1,5 +1,0 @@
-bf	$HOME/.config/shell/bm-files	# This file, a list of bookmarked files
-bd	$HOME/.config/shell/bm-dirs		# A list of bookmarked directories similar to this file
-cfz	$HOME/.zshrc						# zsh (shell) config
-cfv	$HOME/.config/nvim/init.vim		# vim/neovim config
-cfa	$HOME/.config/shell/aliasrc		# aliases used by zsh (and potentially other shells)

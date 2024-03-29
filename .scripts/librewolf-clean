@@ -1,3 +1,0 @@
-#!/bin/sh
-/usr/bin/librewolf "$@" && rm -rf $XDG_CACHE_HOME/librewolf
-

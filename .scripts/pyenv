@@ -15,7 +15,7 @@ VENV_DIR=${PYTHON_VENV_DIR:="$HOME/.local/share/pyenv"}
 source "$VENV_DIR/$1/bin/activate"
 alias venvdir="cd $VENV_DIR/$1"
 
-echo "[*] swicthed to python venv $1,"
+echo "[*] swicthed to python venv '$1',"
 echo "[*] use 'venvdir' to cd into it, use 'deactivate' to leave"
 echo "[*] if the venv is not activated, check if you ran this script by"
 echo "[*] '. pyenv [env name]'"

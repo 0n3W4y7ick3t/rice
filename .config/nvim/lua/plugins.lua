@@ -230,9 +230,11 @@ require('lazy').setup({
   },
   {
     'Raimondi/delimitMate', -- pairs
-    init = function()
-      vim.delimitMate_expand_cr = 2
-      vim.delimitMate_expand_inside_quotes = 1
+    config = function()
+      vim.cmd([[
+        let delimitMate_expand_cr = 2
+        let delimitMate_expand_inside_quotes = 1
+      ]])
     end
   },
   {

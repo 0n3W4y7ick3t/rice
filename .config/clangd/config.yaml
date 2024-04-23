@@ -1,0 +1,6 @@
+CompileFlags:
+  Add: ["--std=c++2a"]
+  Compiler: clang++
+CompileFlags:
+  Add: ["--std=c2x"]
+  Compiler: clang

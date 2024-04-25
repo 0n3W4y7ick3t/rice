@@ -33,7 +33,7 @@ function my_attach(_, bufnr)
   buf_map('n', '<space>wkr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', 'remove_workspace_folder')
   buf_map('n', '<space>wkl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', 'print workspace')
   buf_map('n', '<space>lr', '<cmd>lua vim.lsp.buf.rename()<CR>', 'lsp rename')
-  buf_map('n', '<space>lf', '<cmd>lua vim.lsp.buf.format({aysnc=true})<CR>', 'lsp format')
+  -- buf_map('n', '<space>lf', '<cmd>lua vim.lsp.buf.format({aysnc=true})<CR>', 'lsp format')
   buf_map('n', '<space>la', '<cmd>lua vim.lsp.buf.code_action()<CR>', 'code actions')
   buf_map('v', '<space>la', '<cmd>lua vim.lsp.buf.code_action()<CR>', 'code actions')
 end

@@ -202,7 +202,7 @@ require('lazy').setup({
           '--with-filename',
           '--line-number',
           '--column',
-          '--hidden',            -- also search under hidden folders
+          '--hidden',                -- also search under hidden folders
         },
         pattern = [[\b(KEYWORDS):]], -- ripgrep regex
       },
@@ -382,6 +382,53 @@ require('lazy').setup({
         }
       end
     end
+  },
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        -- Customize or remove this keymap to your liking
+        "<leader>lf",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true })
+        end,
+        mode = "",
+      },
+    },
+    -- Everything in opts will be passed to setup()
+    opts = {
+      -- Define your formatters
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "black" },
+        javascript = { { "prettierd", "prettier" } },
+      },
+      -- Set up format-on-save
+      -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
+      -- Customize formatters
+      formatters = {
+        shfmt = {
+          prepend_args = { "-i", "2" },
+        },
+      },
+    },
+    init = function()
+      -- If you want the formatexpr, here is the place to set it
+      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+      -- see https://github.com/stevearc/conform.nvim/blob/master/doc/advanced_topics.md#injected-language-formatting-code-blocks
+      require("conform").formatters.injected = {
+        -- Set the options field
+        options = {
+          -- Set individual option values
+          ignore_errors = true,
+          lang_to_formatters = {
+            json = { "jq" },
+          },
+        },
+      }
+    end,
   },
   {
     'hrsh7th/nvim-cmp',

@@ -14,7 +14,7 @@ require 'treesitter-context'.setup {
 }
 
 require 'nvim-treesitter.configs'.setup {
-  ensure_installed = { "c", "cpp", "python", "go", "bash", "lua", "vim", "vimdoc", "query", "markdown", "javascript" },
+  ensure_installed = { "c", "cpp", "python", "go", "bash", "lua", "vim", "vimdoc", "query", "markdown", "rust" },
   sync_install = false,
   auto_install = false,
 

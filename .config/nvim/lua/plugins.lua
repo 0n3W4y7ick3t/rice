@@ -372,7 +372,6 @@ require('lazy').setup({
         'ruff_lsp',
         'pyright',
         'marksman',
-        'rust_analyzer',
         'zls',
       }
       -- Update nvim-cmp capabilities and add them to each language server

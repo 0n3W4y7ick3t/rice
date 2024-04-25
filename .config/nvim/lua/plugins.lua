@@ -115,9 +115,7 @@ require('lazy').setup({
   'nvim-lua/plenary.nvim',
   {
     'nvim-treesitter/nvim-treesitter',
-    build = function()
-      require('nvim-treesitter.install').update({ with_sync = true })
-    end,
+    build = ":TSUpdate",
     dependencies = {
       'nvim-treesitter/nvim-treesitter-context',
       'nvim-treesitter/nvim-treesitter-textobjects',

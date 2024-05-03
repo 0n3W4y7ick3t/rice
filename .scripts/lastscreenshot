@@ -1,2 +1,2 @@
-#!/bin/sh 
-sxiv "`cat $XDG_DATA_HOME/lastscreenshot`"
+#!/bin/sh
+$IMG_VIEWER "$(cat "$XDG_DATA_HOME"/lastscreenshot)"

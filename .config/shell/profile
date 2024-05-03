@@ -11,9 +11,8 @@ unsetopt PROMPT_SP
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="st"
+export IMG_VIEWER="nsxiv"
 export BROWSER="firefox"
-export BROWSER1="firefox"
-export BROWSER2="chromium"
 export APPH=""
 export APPJ=""
 export APPK="code"
@@ -38,6 +37,7 @@ export GOPATH="$XDG_DATA_HOME/go"
 export VIMWIKI_DIR="$XDG_DATA_HOME/nvim/vimwiki"
 export PYTHON_VENV_DIR=$HOME/.local/share/pyenv
 # export BLOG_DIR="$HOME/foo/blog"
+# for script uploadlast to upload lastd screenshot file to imgur
 # export IMGUR_CLIENT_ID="foo"
 
 # Other program settings:

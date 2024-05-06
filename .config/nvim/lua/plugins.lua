@@ -273,12 +273,21 @@ require('lazy').setup({
         command = '/usr/bin/lldb-vscode', -- adjust as needed, must be absolute path
         name = 'lldb'
       }
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = "${port}",
+        executable = {
+          -- CHANGE THIS to your path!
+          command = 'codelldb',
+          args = { "--port", "${port}" },
+        }
+      }
 
       -- c, cpp, rust
       dap.configurations.cpp = {
         {
           name = 'Launch',
-          type = 'lldb',
+          type = 'codelldb',
           request = 'launch',
           program = function()
             return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')

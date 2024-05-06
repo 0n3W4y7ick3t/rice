@@ -1,6 +1,9 @@
 CompileFlags:
-  Add: ["--std=c++2a"]
-  Compiler: clang++
+  Add: ["--std=c++23"]
+If:
+  PathMatch: [.*\.cpp, .*\.cxx, .*\.hpp]
+
 CompileFlags:
-  Add: ["--std=c2x"]
-  Compiler: clang
+  Add: ["--std=c11"]
+If:
+  PathMatch: [.*\.c, .*\.h]

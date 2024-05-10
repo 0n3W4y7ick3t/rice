@@ -1,0 +1,32 @@
+{
+  "solve": {
+    "prefix": ["solve"],
+    "body": [
+      "/**",
+      " * @author ${VIM:\\$USER}",
+      " * @date $CURRENT_MONTH_NAME_SHORT $CURRENT_DATE, $CURRENT_YEAR at $CURRENT_HOUR:$CURRENT_MINUTE:$CURRENT_SECOND",
+      " * @tag $1",
+      " * @problem $2",
+      " * @link $3",
+      " */",
+      "#include <ios>",
+      "#include <iostream>",
+      "#include <vector>",
+      "",
+      "int main(void) {",
+      "\tstd::ios_base::sync_with_stdio(false);",
+      "\t$0",
+      "\treturn 0;",
+      "}"
+    ],
+    "description": "common problem sovling skeleton for cpp"
+  },
+  "endl": {
+    "prefix": ["endl"],
+    "body": ["std::endl;"]
+  },
+  "cout << format": {
+    "prefix": ["format", "cformat", "cout"],
+    "body": ["std::cout << std::format(\"${1:format_str}\")${0:;}"]
+  }
+}

@@ -1,9 +1,9 @@
 CompileFlags:
-  Add: ["--std=c++23"]
+  Add: ["--std=c++2c", "--stdlib=libc++"]
 If:
-  PathMatch: [.*\.cpp, .*\.cxx, .*\.hpp]
+  PathMatch: [.*\.cpp, .*\.cxx, .*\.hpp, .*\.hxx]
 
 CompileFlags:
-  Add: ["--std=c11"]
+  Add: ["--std=c23"]
 If:
   PathMatch: [.*\.c, .*\.h]

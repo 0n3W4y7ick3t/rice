@@ -35,6 +35,8 @@ HISTFILE="$XDG_CACHE_HOME/zshistory"
 # Load aliases
 [ -f "$XDG_CONFIG_HOME/shell/aliasrc" ] && source "$XDG_CONFIG_HOME/shell/aliasrc"
 [ -f "$XDG_CONFIG_HOME/shell/shortcutrc" ] && source "$XDG_CONFIG_HOME/shell/shortcutrc"
+[ -f "$XDG_CONFIG_HOME/shell/zshnameddirrc" ] && source "$XDG_CONFIG_HOME/shell/zshnameddirrc"
+[ -f "$XDG_CONFIG_HOME/shell/envaliasrc" ] && source "$XDG_CONFIG_HOME/shell/envaliasrc"
 
 # Basic auto/tab complete:
 autoload -U compinit

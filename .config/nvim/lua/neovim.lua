@@ -41,6 +41,8 @@ set shellslash
 set clipboard^=unnamedplus
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 ]])
+vim.o.scrolloff = 8
+vim.o.sidescrolloff = 8
 
 -- autocommands
 -- disable annoying diagnostic for env files

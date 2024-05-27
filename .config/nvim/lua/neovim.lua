@@ -38,6 +38,7 @@ set hls ic scs is " search
 set vb t_vb=
 set iskeyword+=:
 set shellslash
+set foldmethod=manual
 set clipboard^=unnamedplus
 cabbrev W execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 ]])

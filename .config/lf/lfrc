@@ -131,14 +131,14 @@ cmd bulkrename ${{
 # Bindings
 map <c-f> $lf -remote "send $id select '$(fzf)'"
 map J $lf -remote "send $id cd $(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' $XDG_CONFIG_HOME/shell/bm-dirs | fzf)"
-
+map H cd ~
 map g top
 map D delete
 map E extract
 map C copyto
 map M moveto
-map <c-n> push :mkdir<space>
-map <a-n> push $touch<space>
+map <c-n> push :mkdir<space>""<left>
+map <a-n> push $touch<space>""<left>
 map <c-r> reload
 map <c-s> set hidden!
 map <enter> shell
@@ -157,6 +157,7 @@ map c push i<c-u>       # [].ext
 
 map B bulkrename
 map b $setbg $f
+map S $nsxiv -t "$(pwd)" # thumbnail mode in sxiv
 
 map <c-e> down
 map <c-y> up

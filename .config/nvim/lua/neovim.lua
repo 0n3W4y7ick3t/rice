@@ -29,6 +29,9 @@ set linebreak
 set history=1000
 set numberwidth=1
 nnoremap <F2> :set invpaste paste?<cr>
+" ugly trick, some terminal can't differenciate <c-i> and <tab>
+nnoremap <c-[> <c-i>
+nnoremap <c-]> <c-o>
 set pastetoggle=<F2>
 set showmode
 set sb spr " split
@@ -49,7 +52,7 @@ vim.o.sidescrolloff = 8
 -- disable annoying diagnostic for env files
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*.env",
-  callback = function() vim.diagnostic.disable(0) end,
+  callback = function() vim.diagnostic.enable(false) end,
 })
 -- automatically deletes all trailing whitespace and newlines at end of file
 -- on save, reset cursor position

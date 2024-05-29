@@ -44,6 +44,15 @@ require('lazy').setup({
   },
   {
     'ptzz/lf.vim',
+    dependencies = {
+      'voldikss/vim-floaterm',
+      init = function()
+        vim.g.floaterm_keymap_toggle = ',f'
+        vim.g.floaterm_position = 'bottom'
+        vim.g.floaterm_width = 0.99
+        vim.g.floaterm_height = 0.6
+      end
+    },
     init = function()
       vim.g.lf_replace_netrw = 1
       vim.g.lf_command_override = 'lf -command "set hidden "'
@@ -55,11 +64,21 @@ require('lazy').setup({
     'akinsho/toggleterm.nvim',
     event = 'VeryLazy',
     version = '*',
-    opts = {
-      size = 16,
-    },
     config = function()
-      -- use ToggleTerm to open lazygit
+      -- toggleterm setup
+      require("toggleterm").setup {
+        size = function(term)
+          if term.direction == "horizontal" then
+            return 15
+          elseif term.direction == "vertical" then
+            return vim.o.columns * 0.4
+          end
+        end,
+        -- use [num]open_mapping to open the num-th terminal
+        open_mapping = [[<c-\>]],
+      }
+
+      -- custom term: lazygit
       local lazygit = require('toggleterm.terminal').Terminal:new({
         cmd = 'lazygit',
         dir = 'git_dir',
@@ -78,15 +97,6 @@ require('lazy').setup({
         end,
       })
       nmap(',g', function() lazygit:toggle() end)
-    end
-  },
-  {
-    'voldikss/vim-floaterm',
-    init = function()
-      vim.g.floaterm_keymap_toggle = ',f'
-      vim.g.floaterm_position = 'bottom'
-      vim.g.floaterm_width = 0.99
-      vim.g.floaterm_height = 0.6
     end
   },
   {

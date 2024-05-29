@@ -169,7 +169,6 @@ wk.register({
     name = '+ terminals',
     ['/'] = { ':nohlsearch<cr>', "disable hl search" },
     f = 'floaterm(cwd)',
-    t = { ':ToggleTerm<cr>', 'toggleterm' },
     g = 'lazygit in ToggleTerm',
   },
 })

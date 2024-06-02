@@ -29,7 +29,7 @@ textype() { \
 
 case "$ext" in
   # Try to keep these cases in alphabetical order.
-  c) clang "$file" -std=c23 -o "$base" && "$base" ;;
+  c) clang "$file" -std=c2x -o "$base" && "$base" ;;
   cpp) clang++ "$file" -std=c++2c -stdlib=libc++ -o "$base" && "$base" ;;
   go) go build -o "$base" "$file" && "$base" ;;
   h) sudo make install ;;

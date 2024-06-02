@@ -20,7 +20,7 @@ ext="${file##*.}"
 cd "$dir" || exit 1
 
 case "$ext" in
-  c) clang "$file" -std=c23 -o "$base" && "$base" < "$dir/inp" ;;
+  c) clang "$file" -std=c2x -o "$base" && "$base" < "$dir/inp" ;;
   cpp) clang++ "$file" -std=c++2c -stdlib=libc++ -o "$base" && "$base" < "$dir/inp" ;;
   go) go build -o "$base" "$file" && "$base" < "$dir/inp" ;;
   py) python "$file" < "$dir/inp" ;;

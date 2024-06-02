@@ -36,6 +36,7 @@ export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export GOPATH="$XDG_DATA_HOME/go"
 export VIMWIKI_DIR="$XDG_DATA_HOME/nvim/vimwiki"
 export PYTHON_VENV_DIR=$HOME/.local/share/pyenv
+export CM_LAUNCHER=dmenu
 # export BLOG_DIR="$HOME/foo/blog"
 # for script uploadlast to upload lastd screenshot file to imgur
 # export IMGUR_CLIENT_ID="foo"

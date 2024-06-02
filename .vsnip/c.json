@@ -8,6 +8,7 @@
       " * @tag $1",
       " * @problem $2",
       " * @link $3",
+      " * @result ${4:WIP}",
       " */",
       "#include <stdio.h>",
       "#include <stdlib.h>",

@@ -15,7 +15,7 @@
       "",
       "int main(void) {",
       "\t$0",
-      "\treturn 0;",
+      "\treturn EXIT_SUCCESS;",
       "}"
     ],
     "description": "common problem sovling skeleton for c"

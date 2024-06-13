@@ -380,7 +380,6 @@ require('lazy').setup({
       local capabilities = require('cmp_nvim_lsp').default_capabilities(cap)
       local servers = {
         'bashls',
-        'clangd',
         'cmake',
         'dockerls',
         'gopls',
@@ -400,6 +399,20 @@ require('lazy').setup({
           single_file_support = true,
         }
       end
+      -- clangd has its special setting
+      lspconfig.clangd.setup {
+        capabilities = capabilities,
+        on_attach = my_attach,
+        single_file_support = true,
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--clang-tidy",
+          "--completion-style=detailed",
+          "--function-arg-placeholders=false", -- disable annoying arguments placing
+          "--fallback-style=llvm",
+        },
+      }
     end
   },
   {

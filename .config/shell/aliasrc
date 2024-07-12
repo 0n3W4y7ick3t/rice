@@ -14,7 +14,8 @@ alias \
   ka="killall" \
   lg="lazygit" \
   magit="nvim -c MagitOnly" \
-  nf="neofetch" \
+  ff="fastfetch" \
+  ff-private="fastfetch --load-config ~/.config/fastfetch/private.jsonc" \
   o="xdg-open" \
   p="pacman" \
   shred="shred -zf" \

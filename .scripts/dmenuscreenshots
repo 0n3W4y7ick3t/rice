@@ -27,7 +27,7 @@ active() {
   maim -u -i $(xdotool getactivewindow) -B | tee $IMG_PATH | xclip -selection clipboard  -t image/png
 }
 
-rectangle() {
+rect() {
   IMG_PATH=$IMG_FOLDER/pic-select-"$(date '+%y%m%d-%H%M-%S').png"
   # maim select mod, copy to clipboard and save screenshot to IMG_PATH
   # -u flag hides cursor

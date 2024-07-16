@@ -90,7 +90,7 @@ bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!
 bindkey -s '^p' '^uclipmenu\n'                 # clipboard manager
-bindkey -s '^n' '^uneofetch\n'                 # typical arch users be like...
+bindkey -s '^n' '^ufastfetch\n'                 # typical arch users be like...
 bindkey -s '^a' '^ubc -lq\n'                   # caculator
 bindkey -s '^g' '^ulazygit\n'                  # lazier everyday!
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf

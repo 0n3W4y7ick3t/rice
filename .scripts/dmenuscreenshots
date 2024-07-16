@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# Usage:
+# `$0`: Ask for screenshot type via dmenu
+# `$0 full`: take full screenshot
+# `$0 select`: select by mouse
+# `$0 active`: the active window
+# `$0 copy`: select by mouse, copy only
+# `$0 upload`: upload lastscreenshot to imgur, yank the image link to clipboard
+# `$0 show`: show lastscreenshot with $IMG_VIEWER
+
+IMG_FOLDER=$HOME/pictures/screenshots
+IMG_PATH=""
+
+full() {
+  IMG_PATH=$IMG_FOLDER/pic-full-"$(date '+%y%m%d-%H%M-%S').png"
+  # maim default fullscreen mod, copy to clipboard and save screenshot to IMG_PATH
+  # -u flag hides cursor
+  maim -u | tee $IMG_PATH | xclip -selection clipboard  -t image/png
+}
+
+active() {
+  IMG_PATH=$IMG_FOLDER/pic-window-"$(date '+%y%m%d-%H%M-%S').png"
+  # take a screenshot of active window, copy to clipboard and save screenshot to IMG_PATH
+  # -B makes maim also captures the background
+  # -u flag hides cursor
+  maim -u -i $(xdotool getactivewindow) -B | tee $IMG_PATH | xclip -selection clipboard  -t image/png
+}
+
+rectangle() {
+  IMG_PATH=$IMG_FOLDER/pic-select-"$(date '+%y%m%d-%H%M-%S').png"
+  # maim select mod, copy to clipboard and save screenshot to IMG_PATH
+  # -u flag hides cursor
+  maim -u -s | tee $IMG_PATH | xclip -selection clipboard  -t image/png
+}
+
+copy() {
+  IMG_PATH=/tmp/maim-tmp-"$(date '+%y%m%d-%H%M-%S').png"
+  # maim select mod, copy to clipboard and save to /tmp
+  # -u flag hides cursor
+  maim -u -s | tee $IMG_PATH | xclip -selection clipboard  -t image/png
+}
+
+upload() {
+  last="$(cat "$XDG_DATA_HOME"/lastscreenshot)"
+  err=$(imgur "$last") || notify-send "$err" && exit 1;
+  notify-send "uploaded"
+}
+
+show() {
+  $IMG_VIEWER "$(cat "$XDG_DATA_HOME"/lastscreenshot)"
+}
+
+prompt() { \
+  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\ncopy(s)\\nshowlast(a)\\nupload(a)" | dmenu -i -p "Select screenshot styles or actions:")
+  case "$choice" in
+    full*) full;;
+    act*) active;;
+    rec* | sel*) rect;;
+    copy*) copy;;
+    upload*) upload && exit 0;;
+    show*) show && exit 0;;
+  esac
+}
+
+# pause brower media, playerctl needed
+playerctl pause
+
+case "$1" in
+  full) full;;
+  act*) active;;
+  rec* | sel*) rect;;
+  copy) copy;;
+  upload) upload && exit 0;;
+  show*) show && exit 0;;
+  *) prompt;;
+esac
+
+# if quiting maim with ESC, delete empty file.
+[ -s $IMG_PATH ] || (rm $IMG_PATH && exit 1)
+
+# save screenshot path to file
+echo $IMG_PATH > $XDG_DATA_HOME/lastscreenshot

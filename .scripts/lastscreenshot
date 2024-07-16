@@ -1,2 +1,0 @@
-#!/bin/sh
-$IMG_VIEWER "$(cat "$XDG_DATA_HOME"/lastscreenshot)"

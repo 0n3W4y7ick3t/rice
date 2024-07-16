@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Usage:
 # `$0`: Ask for screenshot type via dmenu
@@ -14,6 +14,7 @@ IMG_PATH=""
 
 full() {
   IMG_PATH=$IMG_FOLDER/pic-full-"$(date '+%y%m%d-%H%M-%S').png"
+  sleep 0.1 # prevent the dmenu ui from being included in the screenshot
   # maim default fullscreen mod, copy to clipboard and save screenshot to IMG_PATH
   # -u flag hides cursor
   maim -u | tee $IMG_PATH | xclip -selection clipboard  -t image/png

@@ -42,6 +42,7 @@ export CM_LAUNCHER=dmenu
 # export IMGUR_CLIENT_ID="foo"
 
 # Other program settings:
+export GTK_THEME=Arc:dark # https://github.com/jnsh/arc-theme
 export DICS="/usr/share/stardict/dic/"
 export SUDO_ASKPASS="$HOME/.scripts/dmenupass"
 export FZF_DEFAULT_OPTS="--layout=reverse --height 40%"

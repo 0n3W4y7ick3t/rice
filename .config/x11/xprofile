@@ -3,8 +3,9 @@
 # This file runs when a DM logs you into a graphical session.
 # If you use startx/xinit like a Chad, this file will also be sourced.
 
-# xrandr --dpi 163 # 4k 27inch
 # Set DPI. User may want to use a larger number for larger screens.
+# 4k 27inch
+echo "Xft.dpi: 150" | xrdb -override -
 setbg0 &         # set the background with the `setbg` script
 remaps &         # run the remaps script, switching caps/esc and more; check it for more info
 
@@ -13,8 +14,6 @@ autostart="picom clipmenud mpd dunst unclutter gammastep"
 for program in $autostart; do
   pidof -s "$program" || "$program" &
 done >/dev/null 2>&1
-
-#xrdb -merge ~/.Xresources
 
 # pulseaudio --kill;
 pipewire &

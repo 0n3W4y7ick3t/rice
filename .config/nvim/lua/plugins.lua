@@ -42,6 +42,7 @@ require('lazy').setup({
       ]])
     end
   },
+  { 'wakatime/vim-wakatime', lazy = false },
   {
     'ptzz/lf.vim',
     dependencies = {

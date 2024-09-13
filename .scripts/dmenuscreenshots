@@ -53,13 +53,14 @@ show() {
 }
 
 prompt() { \
-  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\ncopy(s)\\nshowlast(a)\\nupload(a)" | dmenu -i -p "Select screenshot styles or actions:")
+  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\ncopy(s)\\nshowlast(a)\\nupload(a)\\nflameshot" | dmenu -i -p "Select screenshot styles or actions:")
   case "$choice" in
     full*) full;;
     act*) active;;
     rec* | sel*) rect;;
     copy*) copy;;
     upload*) upload && exit 0;;
+    flame*) flameshot gui;;
     show*) show && exit 0;;
   esac
 }
@@ -74,6 +75,7 @@ case "$1" in
   copy) copy;;
   upload) upload && exit 0;;
   show*) show && exit 0;;
+  flame*) flameshot gui;;
   *) prompt;;
 esac
 

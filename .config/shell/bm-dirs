@@ -2,10 +2,6 @@
 ho   $HOME
 cf   $HOME/.config
 sc   $HOME/.scripts
-dl   $HOME/Downloads
-mm   $HOME/Music
-pp   $HOME/Pictures
-vv   $HOME/Videos
 dt   $HOME/.local/share
 lb   $HOME/.local/bin
 cac  $HOME/.cache
@@ -13,3 +9,7 @@ mn   /mnt
 # src  $HOME/code
 # dev  $HOME/code/dev
 # gt   $HOME/code/git
+# dl   $HOME/downloads
+# mm   $HOME/music
+# pp   $HOME/pictures
+# vv   $HOME/videos

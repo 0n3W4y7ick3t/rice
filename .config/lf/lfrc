@@ -169,6 +169,12 @@ cmd on-cd &{{
 # also run at startup
 on-cd
 
+# cd into git repo's root
+cmd gitroot ${{
+    groot=$(git rev-parse --show-toplevel)
+    [[ -z $groot ]] | lf -remote "send $id cd \"$groot\""
+}}
+
 # Bindings
 source "~/.config/lf/shortcutrc"
 
@@ -193,6 +199,7 @@ map <c-n> push :mkdir<space>""<left>
 map <a-n> push $touch<space>""<left>
 map <c-r> reload
 map <c-s> set hidden!
+map <a-g> gitroot
 map <enter> shell
 map x $$f
 map X !$f

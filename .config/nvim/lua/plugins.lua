@@ -52,17 +52,25 @@ require('lazy').setup({
 
       require("lf").setup({
         escape_quit = false,
+        default_action = "drop",
+        default_actions = {
+          ["<C-t>"] = "tabedit",
+          ["<C-x>"] = "split",
+          ["<C-v>"] = "vsplit",
+          ["<C-o>"] = "tab drop",
+          ["<C-e>"] = "edit",
+        },
         border = "rounded",
       })
 
       vim.keymap.set("n", "<a-f>", "<Cmd>Lf<CR>")
 
-      vim.api.nvim_create_autocmd( {"User"} ,{
-          pattern = "LfTermEnter",
-          callback = function(a)
-            vim.api.nvim_buf_set_keymap(a.buf, "t", "q", "q", { nowait = true })
-          end,
-        }
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "LfTermEnter",
+        callback = function(a)
+          vim.api.nvim_buf_set_keymap(a.buf, "t", "q", "q", { nowait = true })
+        end,
+      }
       )
     end,
     requires = { "toggleterm.nvim" }

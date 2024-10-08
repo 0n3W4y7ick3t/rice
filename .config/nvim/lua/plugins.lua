@@ -44,22 +44,28 @@ require('lazy').setup({
   },
   { 'wakatime/vim-wakatime', lazy = false },
   {
-    'ptzz/lf.vim',
-    dependencies = {
-      'voldikss/vim-floaterm',
-      init = function()
-        vim.g.floaterm_keymap_toggle = ',f'
-        vim.g.floaterm_position = 'bottom'
-        vim.g.floaterm_width = 0.99
-        vim.g.floaterm_height = 0.6
-      end
-    },
-    init = function()
-      vim.g.lf_replace_netrw = 1
-      vim.g.lf_command_override = 'lf -command "set hidden "'
-      vim.g.lf_map_keys = 0
-      nmap('<a-f>', ':Lf<cr>')
+    "lmburns/lf.nvim",
+    lazy = false,
+    config = function()
+      -- This feature will not work if the plugin is lazy-loaded
+      vim.g.lf_netrw = 1
+
+      require("lf").setup({
+        escape_quit = false,
+        border = "rounded",
+      })
+
+      vim.keymap.set("n", "<a-f>", "<Cmd>Lf<CR>")
+
+      vim.api.nvim_create_autocmd( {"User"} ,{
+          pattern = "LfTermEnter",
+          callback = function(a)
+            vim.api.nvim_buf_set_keymap(a.buf, "t", "q", "q", { nowait = true })
+          end,
+        }
+      )
     end,
+    requires = { "toggleterm.nvim" }
   },
   {
     'akinsho/toggleterm.nvim',
@@ -386,7 +392,7 @@ require('lazy').setup({
         'gopls',
         'golangci_lint_ls',
         'lua_ls',
-        'ruff_lsp',
+        -- 'ruff_lsp',
         -- 'basedpyright',
         'marksman',
         'zls',
@@ -415,18 +421,33 @@ require('lazy').setup({
         },
       }
 
+      lspconfig.ruff_lsp.setup {
+        init_options = {
+          settings = {
+            -- Any extra CLI arguments for `ruff` go here.
+            args = {},
+          }
+        },
+        on_attach = function(client, bufnr)
+          if client.name == 'ruff_lsp' then
+            -- Disable hover in favor of Pyright
+            client.server_capabilities.hoverProvider = false
+          end
+        end
+      }
+
       lspconfig.pylsp.setup {
         on_attach = my_attach,
         settings = {
           pylsp = {
             plugins = {
               -- formatter options
-              black = { enabled = true },
-              autopep8 = { enabled = false },
+              black = { enabled = false },
+              autopep8 = { enabled = true },
               yapf = { enabled = false },
               -- linter options
-              pylint = { enabled = true, executable = "pylint" },
-              pyflakes = { enabled = false },
+              -- pylint = { enabled = true, executable = "pylint" },
+              pyflakes = { enabled = true },
               pycodestyle = { enabled = false },
               -- type checker
               pylsp_mypy = { enabled = true },

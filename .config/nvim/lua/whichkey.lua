@@ -64,6 +64,7 @@ wk.add({
   {
     { "<leader>g",  group = " goto" },
     { "<leader>gC", desc = "go to context" },
+    { "<leader>gg", desc = "go to github/gitlab" },
     { "<leader>gD", desc = "go to declaration" },
     { "<leader>gI", desc = "go to implementation" },
     { "<leader>gd", desc = "go to definition" },
@@ -191,6 +192,7 @@ nmap('W', ':w<cr>')
 nmap('<c-q>', ':q!<cr>') -- force quit
 nmap(',,', '<c-w>w')
 map('t', ',,', '<c-\\><c-n><c-w>w', mute)
+nmap('<leader>gg', ':!git visit<cr>')
 -- jump between {}
 nmap('<tab>', '%')
 -- jump between selected boundrys in visual mode

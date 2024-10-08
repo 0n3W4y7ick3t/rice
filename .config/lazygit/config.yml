@@ -1,2 +1,10 @@
 os:
   openLink: $BROWSER {{link}}
+
+customCommands:
+- key: '<c-o>'
+  context: 'status'
+  command: 'git visit' # see https://github.com/0n3W4y7ick3t/rice/blob/main/.gitconfig
+- key: '<c-g>'
+  context: 'commits'
+  command: 'gh browse -- "{{.SelectedLocalCommit.Hash}}"'

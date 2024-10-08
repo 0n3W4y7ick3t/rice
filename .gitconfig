@@ -18,6 +18,12 @@
   rv = remote -v
   gr = "!f() { git rev-list --all | xargs git grep $@ | fzf; }; f"
   ro = rev-parse --show-toplevel # print git root directory
+  # echo the remote origin url(https)
+  url = "!f() { git remote -v | head -1 | cut -d @ -f 2 | cut -d ' ' -f 1 | sed 's/:/\\//' | sed 's/.git$//' | sed s'/^/https:\\/\\//' | xargs echo; }; f"
+  # open repo's remote url in $BROWSER
+  # github-cli can do this too but just for github
+  visit = "!f() { $BROWSER `git url`; }; f"
+
 [color]
   branch = auto
   diff = auto

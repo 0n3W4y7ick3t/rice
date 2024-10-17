@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# media_control - A script to control media playback for MPC, Playerctl, and MPV
+# media_control - A script to control media playback for MPC and Playerctl
 # It toggles/next/prev current playing source or last played source
 # The last played source is managed in /tmp/last_played
 #
@@ -15,7 +15,6 @@ LAST_PLAYED_FILE="/tmp/last_played"
 
 # Returns "source#title" if playing
 check_playing_media() {
-    MPV_SOCKET_DIR="/tmp/mpvSockets"
 
     # Check if MPD is playing
     if mpc status | grep -q '\[playing\]'; then
@@ -24,19 +23,8 @@ check_playing_media() {
     # Check if playerctl is playing (e.g., Chrome/YouTube)
     elif playerctl status 2>/dev/null | grep -q 'Playing'; then
         echo "playerctl#$(playerctl metadata --format '{{title}}')"
-
-    # Check if mpv is playing by looking for the socket file
     else
-        MPV_PID=$(pgrep -n mpv)
-        MPV_SOCKET="${MPV_SOCKET_DIR}/${MPV_PID}"
-
-        if [[ -n "$MPV_PID" && -S "$MPV_SOCKET" ]]; then
-            STATUS=$(echo '{ "command": ["get_property", "pause"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
-            if [[ "$STATUS" == "false" ]]; then
-                TITLE=$(echo '{ "command": ["get_property", "media-title"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
-                [[ -n "$TITLE" ]] && echo "mpv#$TITLE"
-            fi
-        fi
+        echo ""
     fi
 }
 
@@ -71,17 +59,6 @@ toggle_play() {
         playerctl#*)
             playerctl play-pause > /dev/null
             ;;
-        mpv#*)
-            MPV_PID=$(pgrep -n mpv)
-            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
-            STATUS=$(echo '{ "command": ["get_property", "pause"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
-
-            if [[ $STATUS == "true" ]]; then
-                echo '{ "command": ["set_property", "pause", false] }' | socat - "$MPV_SOCKET" > /dev/null
-            else
-                echo '{ "command": ["set_property", "pause", true] }' | socat - "$MPV_SOCKET" > /dev/null
-            fi
-            ;;
         *)
             mpc toggle > /dev/null # defaults to mpc
             ;;
@@ -100,11 +77,6 @@ next_track() {
         playerctl#*)
             playerctl next > /dev/null
             ;;
-        mpv#*)
-            MPV_PID=$(pgrep -n mpv)
-            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
-            echo '{ "command": ["playlist-next"] }' | socat - "$MPV_SOCKET" > /dev/null
-            ;;
         *)
             mpc next > /dev/null # defaults to mpc
             ;;
@@ -122,11 +94,6 @@ previous_track() {
             ;;
         playerctl#*)
             playerctl previous > /dev/null
-            ;;
-        mpv#*)
-            MPV_PID=$(pgrep -n mpv)
-            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
-            echo '{ "command": ["playlist-prev"] }' | socat - "$MPV_SOCKET" > /dev/null
             ;;
         *)
             mpc prev > /dev/null # defaults to mpc

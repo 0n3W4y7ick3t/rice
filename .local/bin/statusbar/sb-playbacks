@@ -2,7 +2,7 @@
 
 # sb-playbacks - A script to integrate with dwmblocks for displaying media playbacks
 #
-# This script uses media_control to fetch the current media status from MPC, MPD, or Playerctl
+# This script uses playback-control to fetch the current media status from MPC, MPD, or Playerctl
 # and allows interaction through mouse clicks.
 
 # Filter function to process from pipe
@@ -11,21 +11,21 @@ filter() {
   echo "$test" | sed "s/(paused) /⏸ /g"
 }
 
-# Start sb-media-watcher(watches playback changes) in the background if it's not already running
-pidof -x sb-media-watcher >/dev/null 2>&1 || sb-media-watcher >/dev/null 2>&1 &
+# Start sb-playbacks-watcher(watches playback changes) in the background if it's not already running
+pidof -x sb-playbacks-watcher >/dev/null 2>&1 || sb-playbacks-watcher >/dev/null 2>&1 &
 
 case $BLOCK_BUTTON in
     1)
         # Left click: Show current media status
-        media_control | filter
+        playback-control | filter
         # Open ncmpcpp, because bringing up mpv/chrome is not a good idea...
         setsid -f "$TERMINAL" -e ncmpcpp ;;
     2)
         # Middle click: Toggle play/pause
-        media_control toggle | filter ;;
+        playback-control toggle | filter ;;
     3)
         # Right click: Show help notification
-        media_control | filter
+        playback-control | filter
         notify-send "🎵 Music module" "\
 - Shows the currently playing song.
 - ⏸ indicates when paused.
@@ -34,15 +34,15 @@ case $BLOCK_BUTTON in
 - Scroll up/down changes tracks.";;
     4)
         # Scroll up: Previous track
-        media_control prev | filter ;;
+        playback-control prev | filter ;;
     5)
         # Scroll down: Next track
-        media_control next | filter ;;
+        playback-control next | filter ;;
     6)
         # Click 6: Edit this script
-        media_control | filter
+        playback-control | filter
         "$TERMINAL" -e "$EDITOR" "$0" ;;
     *)
         # Default action: Show current media status
-        media_control | filter ;;
+        playback-control | filter ;;
 esac

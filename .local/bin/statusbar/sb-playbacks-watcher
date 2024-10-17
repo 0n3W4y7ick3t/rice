@@ -1,43 +1,26 @@
 #!/bin/sh
 
-# sb-media-watcher - A script to monitor media playback changes for mpc and playerctl.
-
-LOG_FILE="/tmp/media_watcher.log"
+# sb-playbacks-watcher - A script to monitor media playback changes for mpc and playerctl.
 
 # Function to monitor mpc events
 monitor_mpc() {
-    echo "Monitoring MPC..." >> "$LOG_FILE"
     while true; do
         mpc idle player >/dev/null
-        echo "MPC state changed." >> "$LOG_FILE"
-        kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")"
+        kill -45 "$(pidof dwmblocks)"
     done
 }
 
 # Function to monitor playerctl events
 monitor_playerctl() {
-    echo "Monitoring Playerctl..." >> "$LOG_FILE"
     playerctl metadata --follow --format '{{title}}' | while read -r current_title; do
         if [ -n "$current_title" ]; then
-            echo "Playerctl state changed: $current_title" >> "$LOG_FILE"
-            kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")"
+            kill -45 "$(pidof dwmblocks)"
         fi
     done &
 
     # Listen for play/pause state changes
     playerctl status --follow | while read -r status; do
-        case "$status" in
-            "Playing")
-                echo "Playerctl is now playing." >> "$LOG_FILE"
-                ;;
-            "Paused")
-                echo "Playerctl is now paused." >> "$LOG_FILE"
-                ;;
-            "Stopped")
-                echo "Playerctl is now stopped." >> "$LOG_FILE"
-                ;;
-        esac
-        kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")"
+        kill -45 "$(pidof dwmblocks)"
     done
 }
 
@@ -55,7 +38,7 @@ while : ; do
     wait -n "$MPC_PID" "$PLAYERCTL_PID"
 
     # Refresh dwmblocks when either player changes state
-    kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")"
+    kill -45 "$(pidof dwmblocks)"
 
     # Kill the other process if one exits
     kill "$MPC_PID" 2>/dev/null

@@ -1,14 +1,14 @@
 #!/bin/sh
 
-# media_control - A script to control media playback for MPC and Playerctl
+# playback-control - A script to control media playback for MPC and Playerctl
 # It toggles/next/prev current playing source or last played source
 # The last played source is managed in /tmp/last_played
 #
 # Usage:
-#   ./media_control                  # Print currently playing media or last played one
-#   ./media_control toggle           # Toggle play/pause
-#   ./media_control next             # Play the next track
-#   ./media_control prev             # Play the previous track
+#   ./playback-control                  # Print currently playing media or last played one
+#   ./playback-control toggle           # Toggle play/pause
+#   ./playback-control next             # Play the next track
+#   ./playback-control prev             # Play the previous track
 
 LAST_PLAYED_FILE="/tmp/last_played"
 [[ -f "$LAST_PLAYED_FILE" ]] || touch "$LAST_PLAYED_FILE"

@@ -1,17 +1,17 @@
 #!/bin/sh
 
 # media_control - A script to control media playback for MPC, Playerctl, and MPV
-# it toggle/next/prev current playing source or last paused source
-# the last paused source is managed in /tmp/media_paused
+# It toggles/next/prev current playing source or last played source
+# The last played source is managed in /tmp/last_played
 #
 # Usage:
-#   ./media_control                  # Print currently playing media or last paused one
+#   ./media_control                  # Print currently playing media or last played one
 #   ./media_control toggle           # Toggle play/pause
 #   ./media_control next             # Play the next track
 #   ./media_control prev             # Play the previous track
 
-PAUSED_FILE="/tmp/media_paused"
-[[ -f "$PAUSED_FILE" ]] || touch "$PAUSED_FILE"
+LAST_PLAYED_FILE="/tmp/last_played"
+[[ -f "$LAST_PLAYED_FILE" ]] || touch "$LAST_PLAYED_FILE"
 
 # Returns "source#title" if playing
 check_playing_media() {
@@ -40,40 +40,36 @@ check_playing_media() {
     fi
 }
 
-
 # Get the title of currently playing media or (paused) title
 get_media_title() {
     PLAYING="$(check_playing_media)"
 
     if [ -n "$PLAYING" ]; then
+        # Update the last played title in the file
+        echo "$PLAYING" > "$LAST_PLAYED_FILE"
         echo "$PLAYING" | cut -d'#' -f2
     else
-        PAUSED_TITLE="$(cat $PAUSED_FILE | cut -d'#' -f2)"
-        echo "(paused) $PAUSED_TITLE"
+        if [ -f "$LAST_PLAYED_FILE" ]; then
+            PAUSED_TITLE="$(cat $LAST_PLAYED_FILE | cut -d'#' -f2)"
+            echo "(paused) $PAUSED_TITLE"
+        else
+            echo "(paused) Unknown Title"
+        fi
     fi
 }
 
-
-# Toggle play/pause based on the currently playing media or PAUSED_FILE
-# writes to PAUSED_FILE
+# Toggle play/pause based on the currently playing media or last played media
 toggle_play() {
     SOURCE="$(check_playing_media)"
-    if [ -n "$SOURCE" ]; then
-        UPDATE_PAUSE=true
-    else
-        SOURCE="$(cat $PAUSED_FILE)"
-    fi
+    [ -z "$SOURCE" ] && SOURCE="$(cat $LAST_PLAYED_FILE)"
 
-    # there is media playing, meaning we're try to pause it
-    # need to update the PAUSED_FILE
+    # Update the LAST_PLAYED_FILE when playing media
     case "$SOURCE" in
         mpc#*)
             mpc toggle > /dev/null
-            [ -n $UPDATE_PAUSE ] && echo "$SOURCE" > $PAUSED_FILE
             ;;
         playerctl#*)
             playerctl play-pause > /dev/null
-            [ -n $UPDATE_PAUSE ] && echo "$SOURCE" > $PAUSED_FILE
             ;;
         mpv#*)
             MPV_PID=$(pgrep -n mpv)
@@ -84,7 +80,6 @@ toggle_play() {
                 echo '{ "command": ["set_property", "pause", false] }' | socat - "$MPV_SOCKET" > /dev/null
             else
                 echo '{ "command": ["set_property", "pause", true] }' | socat - "$MPV_SOCKET" > /dev/null
-                echo "$SOURCE" > $PAUSED_FILE
             fi
             ;;
         *)
@@ -93,10 +88,10 @@ toggle_play() {
     esac
 }
 
-# Play the next track based on the currently playing media or last paused media
+# Play the next track based on the currently playing media or last played media
 next_track() {
     SOURCE="$(check_playing_media)"
-    [ -z "$SOURCE" ] && SOURCE="$(cat $PAUSED_FILE)"
+    [ -z "$SOURCE" ] && SOURCE="$(cat $LAST_PLAYED_FILE)"
 
     case "$SOURCE" in
         mpc#*)
@@ -116,10 +111,10 @@ next_track() {
     esac
 }
 
-# Play the previous track based on the currently playing media or last paused media
+# Play the previous track based on the currently playing media or last played media
 previous_track() {
     SOURCE="$(check_playing_media)"
-    [ -z "$SOURCE" ] && SOURCE="$(cat $PAUSED_FILE)"
+    [ -z "$SOURCE" ] && SOURCE="$(cat $LAST_PLAYED_FILE)"
 
     case "$SOURCE" in
         mpc#*)

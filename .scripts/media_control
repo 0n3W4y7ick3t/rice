@@ -63,6 +63,7 @@ toggle_play() {
             mpc toggle > /dev/null # defaults to mpc
             ;;
     esac
+    get_media_title
 }
 
 # Play the next track based on the currently playing media or last played media
@@ -81,6 +82,7 @@ next_track() {
             mpc next > /dev/null # defaults to mpc
             ;;
     esac
+    get_media_title
 }
 
 # Play the previous track based on the currently playing media or last played media
@@ -99,6 +101,7 @@ previous_track() {
             mpc prev > /dev/null # defaults to mpc
             ;;
     esac
+    get_media_title
 }
 
 # Main logic to handle command-line arguments

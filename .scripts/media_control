@@ -1,0 +1,160 @@
+#!/bin/sh
+
+# media_control - A script to control media playback for MPC, Playerctl, and MPV
+# it toggle/next/prev current playing source or last paused source
+# the last paused source is managed in /tmp/media_paused
+#
+# Usage:
+#   ./media_control                  # Print currently playing media or last paused one
+#   ./media_control toggle           # Toggle play/pause
+#   ./media_control next             # Play the next track
+#   ./media_control prev             # Play the previous track
+
+PAUSED_FILE="/tmp/media_paused"
+[[ -f "$PAUSED_FILE" ]] || touch "$PAUSED_FILE"
+
+# Returns "source#title" if playing
+check_playing_media() {
+    MPV_SOCKET_DIR="/tmp/mpvSockets"
+
+    # Check if MPD is playing
+    if mpc status | grep -q '\[playing\]'; then
+        echo "mpc#$(mpc current)"
+
+    # Check if playerctl is playing (e.g., Chrome/YouTube)
+    elif playerctl status 2>/dev/null | grep -q 'Playing'; then
+        echo "playerctl#$(playerctl metadata --format '{{title}}')"
+
+    # Check if mpv is playing by looking for the socket file
+    else
+        MPV_PID=$(pgrep -n mpv)
+        MPV_SOCKET="${MPV_SOCKET_DIR}/${MPV_PID}"
+
+        if [[ -n "$MPV_PID" && -S "$MPV_SOCKET" ]]; then
+            STATUS=$(echo '{ "command": ["get_property", "pause"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
+            if [[ "$STATUS" == "false" ]]; then
+                TITLE=$(echo '{ "command": ["get_property", "media-title"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
+                [[ -n "$TITLE" ]] && echo "mpv#$TITLE"
+            fi
+        fi
+    fi
+}
+
+
+# Get the title of currently playing media or (paused) title
+get_media_title() {
+    PLAYING="$(check_playing_media)"
+
+    if [ -n "$PLAYING" ]; then
+        echo "$PLAYING" | cut -d'#' -f2
+    else
+        PAUSED_TITLE="$(cat $PAUSED_FILE | cut -d'#' -f2)"
+        echo "(paused) $PAUSED_TITLE"
+    fi
+}
+
+
+# Toggle play/pause based on the currently playing media or PAUSED_FILE
+# writes to PAUSED_FILE
+toggle_play() {
+    SOURCE="$(check_playing_media)"
+    if [ -n "$SOURCE" ]; then
+        UPDATE_PAUSE=true
+    else
+        SOURCE="$(cat $PAUSED_FILE)"
+    fi
+
+    # there is media playing, meaning we're try to pause it
+    # need to update the PAUSED_FILE
+    case "$SOURCE" in
+        mpc#*)
+            mpc toggle > /dev/null
+            [ -n $UPDATE_PAUSE ] && echo "$SOURCE" > $PAUSED_FILE
+            ;;
+        playerctl#*)
+            playerctl play-pause > /dev/null
+            [ -n $UPDATE_PAUSE ] && echo "$SOURCE" > $PAUSED_FILE
+            ;;
+        mpv#*)
+            MPV_PID=$(pgrep -n mpv)
+            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
+            STATUS=$(echo '{ "command": ["get_property", "pause"] }' | socat - "$MPV_SOCKET" | jq -r '.data')
+
+            if [[ $STATUS == "true" ]]; then
+                echo '{ "command": ["set_property", "pause", false] }' | socat - "$MPV_SOCKET" > /dev/null
+            else
+                echo '{ "command": ["set_property", "pause", true] }' | socat - "$MPV_SOCKET" > /dev/null
+                echo "$SOURCE" > $PAUSED_FILE
+            fi
+            ;;
+        *)
+            mpc toggle > /dev/null # defaults to mpc
+            ;;
+    esac
+}
+
+# Play the next track based on the currently playing media or last paused media
+next_track() {
+    SOURCE="$(check_playing_media)"
+    [ -z "$SOURCE" ] && SOURCE="$(cat $PAUSED_FILE)"
+
+    case "$SOURCE" in
+        mpc#*)
+            mpc next > /dev/null
+            ;;
+        playerctl#*)
+            playerctl next > /dev/null
+            ;;
+        mpv#*)
+            MPV_PID=$(pgrep -n mpv)
+            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
+            echo '{ "command": ["playlist-next"] }' | socat - "$MPV_SOCKET" > /dev/null
+            ;;
+        *)
+            mpc next > /dev/null # defaults to mpc
+            ;;
+    esac
+}
+
+# Play the previous track based on the currently playing media or last paused media
+previous_track() {
+    SOURCE="$(check_playing_media)"
+    [ -z "$SOURCE" ] && SOURCE="$(cat $PAUSED_FILE)"
+
+    case "$SOURCE" in
+        mpc#*)
+            mpc prev > /dev/null
+            ;;
+        playerctl#*)
+            playerctl previous > /dev/null
+            ;;
+        mpv#*)
+            MPV_PID=$(pgrep -n mpv)
+            MPV_SOCKET="/tmp/mpvSockets/${MPV_PID}"
+            echo '{ "command": ["playlist-prev"] }' | socat - "$MPV_SOCKET" > /dev/null
+            ;;
+        *)
+            mpc prev > /dev/null # defaults to mpc
+            ;;
+    esac
+}
+
+# Main logic to handle command-line arguments
+case "$1" in
+    "")
+        get_media_title
+        ;;
+    "toggle")
+        toggle_play
+        ;;
+    "next")
+        next_track
+        ;;
+    "prev")
+        previous_track
+        ;;
+    *)
+        echo "Usage: $0 [toggle|next|prev]"
+        exit 1
+        ;;
+esac

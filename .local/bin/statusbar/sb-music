@@ -1,19 +1,48 @@
 #!/bin/sh
 
-filter() { mpc | sed "/^volume:/d;s/\\&/&amp;/g;s/\\[paused\\].*/⏸/g;/\\[playing\\].*/d;/^ERROR/Q" | paste -sd ' ' -;}
+# sb-playbacks - A script to integrate with dwmblocks for displaying media playbacks
+#
+# This script uses media_control to fetch the current media status from MPC, MPD, or Playerctl
+# and allows interaction through mouse clicks.
 
-pidof -x sb-mpdup >/dev/null 2>&1 || sb-mpdup >/dev/null 2>&1 &
+# Filter function to process from pipe
+filter() {
+  read test
+  echo "$test" | sed "s/(paused) /⏸ /g"
+}
+
+# Start sb-media-watcher(watches playback changes) in the background if it's not already running
+pidof -x sb-media-watcher >/dev/null 2>&1 || sb-media-watcher >/dev/null 2>&1 &
 
 case $BLOCK_BUTTON in
-  1) mpc status | filter ; setsid -f "$TERMINAL" -e ncmpcpp ;;  # right click, pause/unpause
-  2) mpc toggle | filter ;;  # right click, pause/unpause
-  3) mpc status | filter ; notify-send "🎵 Music module" "\- Shows mpd song playing.
-- ⏸ when paused.
+    1)
+        # Left click: Show current media status
+        media_control | filter
+        # Open ncmpcpp, because bringing up mpv/chrome is not a good idea...
+        setsid -f "$TERMINAL" -e ncmpcpp ;;
+    2)
+        # Middle click: Toggle play/pause
+        media_control toggle | filter ;;
+    3)
+        # Right click: Show help notification
+        media_control | filter
+        notify-send "🎵 Music module" "\
+- Shows the currently playing song.
+- ⏸ indicates when paused.
 - Left click opens ncmpcpp.
-- Middle click pauses.
-- Scroll changes track.";;  # right click, pause/unpause
-  4) mpc prev   | filter ;;  # scroll up, previous
-  5) mpc next   | filter ;;  # scroll down, next
-  6) mpc status | filter ; "$TERMINAL" -e "$EDITOR" "$0" ;;
-  *) mpc status | filter ;;
+- Middle click toggles play/pause.
+- Scroll up/down changes tracks.";;
+    4)
+        # Scroll up: Previous track
+        media_control prev | filter ;;
+    5)
+        # Scroll down: Next track
+        media_control next | filter ;;
+    6)
+        # Click 6: Edit this script
+        media_control | filter
+        "$TERMINAL" -e "$EDITOR" "$0" ;;
+    *)
+        # Default action: Show current media status
+        media_control | filter ;;
 esac

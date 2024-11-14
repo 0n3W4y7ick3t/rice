@@ -67,6 +67,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     ]])
   end,
 })
+vim.opt.colorcolumn = "80"
 
 -- return to last edit position when opening file again
 -- CONFLICTS WITH auto-session

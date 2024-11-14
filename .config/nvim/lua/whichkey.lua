@@ -162,17 +162,16 @@ wk.add({
   },
 })
 
--- move between terminals and buffers
+-- Terminal and buffer navigation with tmux awareness
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
   vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
-  vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
-  vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
-  vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
-  vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
   vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+  vim.keymap.set('t', '<C-h>', [[<C-\><C-n>:<C-u>TmuxNavigateLeft<cr>]], opts)
+  vim.keymap.set('t', '<C-j>', [[<C-\><C-n>:<C-u>TmuxNavigateDown<cr>]], opts)
+  vim.keymap.set('t', '<C-k>', [[<C-\><C-n>:<C-u>TmuxNavigateUp<cr>]], opts)
+  vim.keymap.set('t', '<C-l>', [[<C-\><C-n>:<C-u>TmuxNavigateRight<cr>]], opts)
 end
-
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
 local map = vim.keymap.set
@@ -197,8 +196,3 @@ nmap('<leader>gg', ':!git visit<cr>')
 nmap('<tab>', '%')
 -- jump between selected boundrys in visual mode
 map('v', '<tab>', 'o', mute)
--- panel navigation
-map({ 'n', 'v' }, '<c-h>', '<c-w>h', mute)
-map({ 'n', 'v' }, '<c-l>', '<c-w>l', mute)
-map({ 'n', 'v' }, '<c-j>', '<c-w>j', mute)
-map({ 'n', 'v' }, '<c-k>', '<c-w>k', mute)

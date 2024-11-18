@@ -1,6 +1,6 @@
 #!/bin/sh
 
-clock=$(date -u '+%I')
+clock=$(date '+%I')
 
 case "$clock" in
   "00") icon="🕛" ;;

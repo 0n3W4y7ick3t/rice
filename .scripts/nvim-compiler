@@ -45,5 +45,6 @@ case "$ext" in
   rs) cargo run || rustc "$file" && "$base";;
   tex) textype "$file" ;;
   zig) zig build-exe "$file" && "$base" ;;
+  ts) tsc --target es2022 --module commonjs --lib es2022,dom "$file" && node "$base".js ;;
   *) sed -n '/^#!/s/^#!//p; q' "$file" | xargs -r -I % "$file" ;;
 esac

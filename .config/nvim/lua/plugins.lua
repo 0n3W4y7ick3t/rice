@@ -33,10 +33,10 @@ require('lazy').setup({
       "TmuxNavigatePrevious",
     },
     keys = {
-      { "<c-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
-      { "<c-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
-      { "<c-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
-      { "<c-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
+      { "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
+      { "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
+      { "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
+      { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
     },
   },
   {
@@ -420,6 +420,7 @@ require('lazy').setup({
         -- 'basedpyright',
         'marksman',
         'zls',
+        'ts_ls'
       }
       -- Update nvim-cmp capabilities and add them to each language server
       local lspconfig = require('lspconfig')
@@ -430,6 +431,7 @@ require('lazy').setup({
           single_file_support = true,
         }
       end
+
       -- clangd has its special setting
       lspconfig.clangd.setup {
         capabilities = capabilities,
@@ -482,6 +484,26 @@ require('lazy').setup({
             }
           }
         },
+
+        lspconfig.ts_ls.setup {
+          capabilities = capabilities,
+          on_attach = my_attach,
+          single_file_support = true,
+          root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json"),
+          init_options = {
+            hostInfo = "neovim",
+            preferences = {
+              includeInlayParameterNameHints = "all",
+              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
+          },
+        },
+
         flags = {
           debounce_text_changes = 200,
         },

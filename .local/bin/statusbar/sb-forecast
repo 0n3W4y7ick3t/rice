@@ -11,6 +11,7 @@
 unset http_proxy
 unset https_proxy
 unset all_proxy
+LOCATION="${1:-$LOCATION}"
 weatherreport="$XDG_DATA_HOME/weatherreport"
 getforecast() { timeout --signal=1 2s curl -sf "wttr.in/$LOCATION" > "$weatherreport" || exit 1 ;}
 

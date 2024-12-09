@@ -16,6 +16,7 @@ export BROWSER="firefox"
 export APPH=""
 export APPJ=""
 export APPK="code"
+export LOCATION="Tokyo" # for wttr.in weather reports
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"

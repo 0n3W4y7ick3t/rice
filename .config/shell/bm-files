@@ -6,16 +6,11 @@ bd	$HOME/.config/shell/bm-dirs		# A list of bookmarked directories similar to th
 
 # These do not update automatically, but on the next new instance of a program:
 
-cfz	$HOME/.zshrc						# zsh (shell) config
+cfz	$HOME/.zshrc						      # zsh (shell) config
 cfv	$HOME/.config/nvim/init.vim		# vim/neovim config
 cfa	$HOME/.config/shell/aliasrc		# aliases used by zsh (and potentially other shells)
 cfp	$HOME/.config/shell/profile		# profile file for login settings for zsh
-cfm	$HOME/.config/mutt/muttrc		# mutt (email client) config
-cfn	$HOME/.config/newsboat/config	# newsboat (RSS reader)
-cfu	$HOME/.config/newsboat/urls		# RSS urls for newsboat
-cfl	$HOME/.config/lf/lfrc		# lf (file browser) config
-cfx	$HOME/.config/sxiv/exec/key-handler	# sxiv (image viewer) key/script handler
-
+cfl	$HOME/.config/lf/lfrc		      # lf (file browser) config
+cfx	$HOME/.config/x11/xprofile	  # sxiv (image viewer) key/script handler
 zht $HOME/.cache/zshistory
-sn  $HOME/.local/snippets
 sdh $HOME/.local/share/sdcv_history

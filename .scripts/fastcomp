@@ -1,0 +1,3 @@
+#!/bin/sh
+
+fastcompmgr -o .30 -r 10 -c -C

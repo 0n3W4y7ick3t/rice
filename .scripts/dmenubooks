@@ -1,13 +1,11 @@
 #!/bin/sh
 
-# dmenu prompt to open a file based on its type
+# Get selection via dmenu from zathura file history
+ZATHURA_HISTORY="$HOME/.local/share/zathura/history"
 
-# Get user selection via dmenu from bookmark file.
-IFS=" :"
-chosen=$(cut -d '#' -f1 ~/.share/bookmarks | dmenu -i -l 30 | sed "s/$IFS.*//")
+chosen=$(grep -Po '(?<=\[)/[^]]+' "$ZATHURA_HISTORY" | dmenu -i -l 10 -p "open which book?")
 
 # Exit if none chosen.
 [ -z "$chosen" ] && exit
 
-# open it using a script
-open "$chosen"
+zathura "$chosen"

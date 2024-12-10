@@ -1,10 +1,8 @@
-###            *** Leon Satoshi's zshrc ***               ###
+###             *** Leon Akashiya's zshrc ***             ###
 ### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
 # *** Install powerlevel10k theme and plugins if not present  ***
 # You can remove these lines after they are installed.
-[ -d $XDG_CONFIG_HOME/zsh/plugins/wd ] || \
-  git clone https://github.com/mfaerevaag/wd $XDG_CONFIG_HOME/zsh/plugins/wd
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
@@ -35,11 +33,13 @@ HISTFILE="$XDG_CACHE_HOME/zshistory"
 [ -f "$XDG_CONFIG_HOME/shell/shortcutrc" ] && source "$XDG_CONFIG_HOME/shell/shortcutrc"
 [ -f "$XDG_CONFIG_HOME/shell/aliasrc" ] && source "$XDG_CONFIG_HOME/shell/aliasrc"
 [ -f "$XDG_CONFIG_HOME/shell/zshnameddirrc" ] && source "$XDG_CONFIG_HOME/shell/zshnameddirrc"
+[ -f "$XDG_CONFIG_HOME/shell/envaliasrc" ] && source "$XDG_CONFIG_HOME/shell/envaliasrc"
 
 # Basic auto/tab complete:
 zstyle ':completion:*' menu select
 # Case insensitive
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+fpath+=~/.zfunc
 autoload -U compinit && compinit
 zmodload zsh/complist
 _comp_options+=(globdots) # Include hidden files.
@@ -84,14 +84,14 @@ lfcd () {
 }
 
 mkcd () { mkdir "$1" && cd "$1" }
-bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files } # add file to files bookmark
-bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs }   # add current dir to dirs bookmark
-wd() { . $HOME/.config/zsh/plugins/wd/wd.sh }
+bmf () { echo "$1" `realpath $2` >> $XDG_CONFIG_HOME/shell/bm-files && shortcuts} # add file to files bookmark
+bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }   # add current dir to dirs bookmark
 
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!
-bindkey -s '^n' '^uneofetch\n'                 # typical arch users be like...
-bindkey -s '^a' '^ubc -lq\n'                   # caculator
+bindkey -s '^p' '^uclipmenu\n'                 # clipboard manager
+bindkey -s '^n' '^ufastfetch\n'                # typical arch users be like...
+bindkey -s '^b' '^ubc -lq\n'                   # caculator
 bindkey -s '^g' '^ulazygit\n'                  # lazier everyday!
 bindkey -s '^f' '^ucd "$(dirname "$(fzf)")"\n' # find file in cwd using fzf
 bindkey -s '^r' '!!\n'                         # redo last command

@@ -4,8 +4,8 @@
 
 # Location of link to wallpaper link.
 base="$XDG_DATA_HOME/bg"
-bgloc=$base'0'
-bgdir="$HOME/Pictures/wallpapers/likes"
+bgloc=$base
+bgdir="$HOME/pictures/wallpapers/likes"
 
 # Configuration files of applications that have their themes changed by pywal.
 dunstconf="$XDG_CONFIG_HOME/dunst/dunstrc"
@@ -23,4 +23,4 @@ else
   [ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
 fi
 
-feh --bg-fill $base'0' $base'1'
+feh --bg-fill $base

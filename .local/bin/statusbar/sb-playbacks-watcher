@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# sb-playbacks-watcher - A script to monitor media playback changes for mpc and playerctl.
+
+# Function to monitor mpc events
+monitor_mpc() {
+    while true; do
+        mpc idle player >/dev/null
+        kill -45 "$(pidof dwmblocks)"
+    done
+}
+
+# Function to monitor playerctl events
+monitor_playerctl() {
+    playerctl metadata --follow --format '{{title}}' | while read -r current_title; do
+        if [ -n "$current_title" ]; then
+            kill -45 "$(pidof dwmblocks)"
+        fi
+    done &
+
+    # Listen for play/pause state changes
+    playerctl status --follow | while read -r status; do
+        kill -45 "$(pidof dwmblocks)"
+    done
+}
+
+# Start monitoring mpc and playerctl
+while : ; do
+    # Start monitoring mpc in the background
+    monitor_mpc &
+    MPC_PID=$!
+
+    # Start monitoring playerctl in the background
+    monitor_playerctl &
+    PLAYERCTL_PID=$!
+
+    # Wait for any process to exit
+    wait -n "$MPC_PID" "$PLAYERCTL_PID"
+
+    # Refresh dwmblocks when either player changes state
+    kill -45 "$(pidof dwmblocks)"
+
+    # Kill the other process if one exits
+    kill "$MPC_PID" 2>/dev/null
+    kill "$PLAYERCTL_PID" 2>/dev/null
+done

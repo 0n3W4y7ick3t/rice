@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# remerge xresources
+xrdb -remove && xrdb -merge $XDG_CONFIG_HOME/x11/xresources
+# renew dwm
+pidof dwm >/dev/null && xdotool key super+F5

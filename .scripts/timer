@@ -1,7 +1,7 @@
 #!/bin/sh
 # timer [any command]
 
-temp=$(mktemp).timer
+temp=$(mktemp --suffix='.timer')
 started=$(date)
 read up rest </proc/uptime; t1="${up%.*}${up#*.}"
 $@; # ignore failure
@@ -14,4 +14,7 @@ echo "started  $started" >> $temp
 echo "finished $finished" >> $temp
 echo "total    $millisec ms" >> $temp
 
+echo
+echo "*** command finished ***"
+echo "[*] details saved in $temp:"
 cat $temp

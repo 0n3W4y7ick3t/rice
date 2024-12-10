@@ -8,6 +8,7 @@
 # `$0 kill`: Kill existing recording
 #
 # If there is already a running instance, user will be prompted to end it.
+save_to=$HOME/videos/records
 
 updateicon() { \
   echo "$1" > /tmp/recordingicon
@@ -36,7 +37,7 @@ screencast() { \
   -f alsa -i default \
   -r 30 \
    -c:v h264_nvenc -crf 0 -preset ultrafast -c:a aac \
-  "$HOME/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
+  "$save_to/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
   echo $! > /tmp/recordingpid
   updateicon "⏺️🎙️"
 }
@@ -46,7 +47,7 @@ video() { ffmpeg \
   -s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
   -i "$DISPLAY" \
   -c:v h264_nvenc -qp 0 -r 30 \
-  "$HOME/video-$(date '+%y%m%d-%H%M-%S').mkv" &
+  "$save_to/video-$(date '+%y%m%d-%H%M-%S').mkv" &
   echo $! > /tmp/recordingpid
   updateicon "⏺️"
 }
@@ -55,7 +56,7 @@ webcamhidef() { ffmpeg \
   -f v4l2 \
   -i /dev/video0 \
   -video_size 1920x1080 \
-  "$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+  "$save_to/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
   echo $! > /tmp/recordingpid
   updateicon "🎥"
 }
@@ -64,7 +65,7 @@ webcam() { ffmpeg \
   -f v4l2 \
   -i /dev/video0 \
   -video_size 640x480 \
-  "$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+  "$save_to/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
   echo $! > /tmp/recordingpid
   updateicon "🎥"
 }
@@ -74,7 +75,7 @@ audio() { \
   ffmpeg \
   -f alsa -i default \
   -c:a flac \
-  "$HOME/audio-$(date '+%y%m%d-%H%M-%S').flac" &
+  "$save_to/audio-$(date '+%y%m%d-%H%M-%S').flac" &
   echo $! > /tmp/recordingpid
   updateicon "🎙️"
 }
@@ -108,7 +109,7 @@ videoselected()
   -video_size "$W"x"$H" \
   -i :0.0+"$X,$Y" \
   -c:v libx264 -qp 0 -r 30 \
-  "$HOME/box-$(date '+%y%m%d-%H%M-%S').mkv" &
+  "$save_to/box-$(date '+%y%m%d-%H%M-%S').mkv" &
   echo $! > /tmp/recordingpid
   updateicon "⏺️"
 }

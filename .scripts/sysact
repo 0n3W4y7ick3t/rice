@@ -18,7 +18,7 @@ case "$(printf "🎩 htop\n🔒 blurlock\n🚪 leave $WM\n🌀 renew $WM\n💤 s
   '🔒 blurlock') blurlock ;;
   "🚪 leave $WM") kill -TERM "$(wmpid)" ;;
   "🌀 renew $WM") kill -HUP "$(wmpid)" ;;
-  '💤 sleep') slock $ctl suspend -i ;;
+  '💤 sleep') blurlock $ctl suspend -i ;;
   '🔃 reboot') $ctl reboot -i ;;
   '🔚 shutdown') $ctl poweroff -i ;;
   '📺 display off') xset dpms force off ;;

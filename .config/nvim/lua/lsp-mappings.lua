@@ -18,11 +18,7 @@ function my_attach(_, bufnr)
     local opts = { noremap = true, silent = true, desc = explain }
     vim.api.nvim_buf_set_keymap(bufnr, mode, l, r, opts)
   end
-  buf_map('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', 'go to declaration')
-  buf_map('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', 'go to definition')
-  buf_map('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>', 'go to type definition')
-  buf_map('n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', 'go to implementation')
-  buf_map('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', 'go to references')
+	-- reference/definition/implementation jumps are done by Glance
   vim.keymap.set('n', 'gC', function()
     require("treesitter-context").go_to_context()
   end, { silent = true, desc = 'go to treesitter-context' })

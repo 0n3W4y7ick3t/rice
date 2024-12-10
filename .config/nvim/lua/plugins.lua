@@ -132,7 +132,6 @@ require('lazy').setup({
   },
   {
     'akinsho/bufferline.nvim',
-    version = 'v3.*',
     event = 'VeryLazy',
     keys = {
       { '<leader>bp', '<cmd>BufferLineTogglePin<CR>',            desc = 'Toggle Buffer Pin' },
@@ -248,7 +247,7 @@ require('lazy').setup({
         pattern = [[\b(KEYWORDS):]], -- ripgrep regex
       },
     },
-    config = function()
+    init = function()
       local todo = require('todo-comments')
       nmap('[t', function() todo.jump_prev({ keywords = { 'TODO', 'HACK', 'WARN' } }) end)
       nmap(']t', function() todo.jump_next({ keywords = { 'TODO', 'HACK', 'WARN' } }) end)
@@ -388,6 +387,17 @@ require('lazy').setup({
       nmap('<Leader>dt', function() dapgo.debug_test() end, 'golang debug test')
     end
   },
+	{
+		'dnlhc/glance.nvim',
+		init=function ()
+			-- Lua
+			vim.keymap.set('n', 'gd', '<CMD>Glance definitions<CR>', { desc = 'Glance lsp definitions' })
+			vim.keymap.set('n', 'gt', '<CMD>Glance type_definitions<CR>', { desc = 'Glance lsp type_definition' })
+			vim.keymap.set('n', 'gr', '<CMD>Glance references<CR>', { desc = 'Glance lsp implementations' })
+			vim.keymap.set('n', 'gI', '<CMD>Glance implementations<CR>', { desc = 'Glance lsp references' })
+			vim.keymap.set('n', 'gR', '<CMD>Glance resume<CR>', { desc = 'Glance resume last list' })
+		end
+	},
   {
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -447,7 +457,7 @@ require('lazy').setup({
         },
       }
 
-      lspconfig.ruff_lsp.setup {
+      lspconfig.ruff.setup {
         init_options = {
           settings = {
             -- Any extra CLI arguments for `ruff` go here.
@@ -455,7 +465,7 @@ require('lazy').setup({
           }
         },
         on_attach = function(client, bufnr)
-          if client.name == 'ruff_lsp' then
+          if client.name == 'ruff' then
             -- Disable hover in favor of Pyright
             client.server_capabilities.hoverProvider = false
           end

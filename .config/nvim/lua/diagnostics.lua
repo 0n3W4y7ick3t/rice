@@ -1,17 +1,16 @@
-local signs = { Error = "x", Warn = "!", Hint = ":", Info = "?" }
-
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
-
 vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "x",
+      [vim.diagnostic.severity.WARN]  = "!",
+      [vim.diagnostic.severity.HINT]  = ":",
+      [vim.diagnostic.severity.INFO]  = "?",
+    },
+  },
   virtual_text = {
-    source = "always", -- Or "if_many"
-    prefix = '●', -- Could be '●', '▎', 'x'
+    source = "always",
+    prefix = "●",
   },
-  float = {
-    source = "always", -- Or "if_many"
-  },
+  float = { source = "always" },
   update_in_insert = true,
 })

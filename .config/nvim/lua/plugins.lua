@@ -58,7 +58,6 @@ require('lazy').setup({
       ]])
     end
   },
-  { 'wakatime/vim-wakatime', lazy = false },
   {
     "lmburns/lf.nvim",
     lazy = false,
@@ -89,7 +88,7 @@ require('lazy').setup({
       }
       )
     end,
-    requires = { "toggleterm.nvim" }
+    dependencies = { "akinsho/toggleterm.nvim" }
   },
   {
     'akinsho/toggleterm.nvim',
@@ -146,10 +145,13 @@ require('lazy').setup({
     }
   },
   {
-    'iamcco/markdown-preview.nvim', -- markdown preview
-    ft = { 'markdown', 'vimwiki' },
-    config = function()
-      nmap('<leader>m', ':MarkdownPreviewToggle<cr>', 'markdown preview toggle')
+    'MeanderingProgrammer/render-markdown.nvim', -- in-editor markdown rendering
+    ft = { 'markdown' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    opts = {},
+    config = function(_, opts)
+      require('render-markdown').setup(opts)
+      nmap('<leader>m', ':RenderMarkdown toggle<cr>', 'toggle markdown rendering')
     end
   },
   'nvim-lua/plenary.nvim',
@@ -165,56 +167,15 @@ require('lazy').setup({
   'szw/vim-maximizer',
   'mbbill/undotree',
   {
-    'folke/neodev.nvim',
-    opts = {},
+    -- successor to the archived neodev.nvim: configures lua_ls for nvim dev
+    'folke/lazydev.nvim',
     ft = 'lua',
-    config = function()
-      require('neodev').setup {}
-      -- HACK: setup lua lsp at the same time
-      local cap = vim.lsp.protocol.make_client_capabilities()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities(cap)
-      local lspconfig = require('lspconfig')
-      lspconfig.lua_ls.setup {
-        capabilities = capabilities,
-        on_attach = my_attach,
-        single_file_support = true,
-        on_init = function(client)
-          local path = client.workspace_folders[1].name
-          if not vim.loop.fs_stat(path .. '/.luarc.json') and not vim.loop.fs_stat(path .. '/.luarc.jsonc') then
-            client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
-              Lua = {
-                diagnostics = {
-                  -- Get the language server to recognize the `vim` global
-                  globals = { 'vim' },
-                },
-                runtime = {
-                  version = 'LuaJIT'
-                },
-                -- Make the server aware of Neovim runtime files
-                workspace = {
-                  checkThirdParty = false,
-                  library = {
-                    vim.env.VIMRUNTIME
-                    -- '${3rd}/luv/library'
-                    -- '${3rd}/busted/library',
-                  }
-                },
-                format = {
-                  enable = true,
-                  defaultConfig = {
-                    indent_style = 'space',
-                    indent_size = '2', -- should be string
-                  }
-                },
-              }
-            })
-
-            client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-          end
-          return true
-        end
-      }
-    end
+    opts = {
+      library = {
+        -- load luvit types when the `vim.uv` word is found
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      },
+    },
   },
   {
     'folke/todo-comments.nvim',
@@ -276,12 +237,19 @@ require('lazy').setup({
     end
   },
   {
-    'smoka7/hop.nvim',
-    version = '*',
-    opts = {},
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    -- keep native f/F/t/T behaviour; flash only adds the labelled jump
+    opts = { modes = { char = { enabled = false } } },
+    keys = {
+      { 'HH', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end,        desc = 'Flash jump' },
+      { 'HT', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end,   desc = 'Flash treesitter' },
+    },
     init = function()
-      nmap('HH', ':HopWord<cr>')
-      vim.keymap.set('i', 'HH', '<ESC>:HopWord<cr>', { noremap = true, silent = true })
+      vim.keymap.set('i', 'HH', function()
+        vim.cmd('stopinsert')
+        require('flash').jump()
+      end, { noremap = true, silent = true, desc = 'Flash jump' })
     end
   },
   {
@@ -409,71 +377,69 @@ require('lazy').setup({
           local mason_lspconfig = require 'mason-lspconfig'
           mason_lspconfig.setup {
             ensure_installed = {},
-            -- I manage these with the system
-            automatic_installation = { exclude = { 'clangd', 'gopls', 'rust_analyzer', 'zls' } },
+            -- servers are configured and enabled explicitly below
+            -- (clangd/gopls/rust_analyzer/zls are managed by the system)
+            automatic_enable = false,
           }
         end
       },
     },
-    init = function()
-      require 'lsp-mappings' -- import my_attach function
-      local cap = vim.lsp.protocol.make_client_capabilities()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities(cap)
-      local servers = {
-        'bashls',
-        'cmake',
-        'dockerls',
-        'gopls',
-        'golangci_lint_ls',
-        'lua_ls',
-        -- 'ruff_lsp',
-        -- 'basedpyright',
-        'marksman',
-        'zls',
-        'ts_ls'
-      }
-      -- Update nvim-cmp capabilities and add them to each language server
-      local lspconfig = require('lspconfig')
-      for _, lsp in ipairs(servers) do
-        lspconfig[lsp].setup {
-          capabilities = capabilities,
-          on_attach = my_attach,
-          single_file_support = true,
-        }
-      end
+    config = function()
+      require 'lsp-mappings' -- import the global my_attach function
+      -- blink.cmp provides the completion capabilities
+      local ok, blink = pcall(require, 'blink.cmp')
+      local capabilities = ok and blink.get_lsp_capabilities() or
+          vim.lsp.protocol.make_client_capabilities()
 
-      -- clangd has its special setting
-      lspconfig.clangd.setup {
+      -- defaults applied to every server (Neovim 0.11+ vim.lsp.config API)
+      vim.lsp.config('*', {
         capabilities = capabilities,
         on_attach = my_attach,
-        single_file_support = true,
-        cmd = {
-          "clangd",
-          "--background-index",
-          "--clang-tidy",
-          "--completion-style=detailed",
-          "--function-arg-placeholders=false", -- disable annoying arguments placing
-          "--fallback-style=llvm",
-        },
-      }
+      })
 
-      lspconfig.ruff.setup {
+      -- clangd has its special command line
+      vim.lsp.config('clangd', {
+        cmd = {
+          'clangd',
+          '--background-index',
+          '--clang-tidy',
+          '--completion-style=detailed',
+          '--function-arg-placeholders=false', -- disable annoying argument placeholders
+          '--fallback-style=llvm',
+        },
+      })
+
+      vim.lsp.config('ruff', {
         init_options = {
           settings = {
             -- Any extra CLI arguments for `ruff` go here.
             args = {},
-          }
+          },
         },
-        on_attach = function(client, bufnr)
-          if client.name == 'ruff' then
-            -- Disable hover in favor of Pyright
-            client.server_capabilities.hoverProvider = false
-          end
-        end
-      }
+        on_attach = function(client, _)
+          -- Disable hover in favor of pylsp
+          client.server_capabilities.hoverProvider = false
+        end,
+      })
 
-      lspconfig.pylsp.setup {
-        on_attach = my_attach,
+      vim.lsp.config('lua_ls', {
+        settings = {
+          Lua = {
+            runtime = { version = 'LuaJIT' },
+            diagnostics = { globals = { 'vim' } },
+            workspace = { checkThirdParty = false },
+            format = {
+              enable = true,
+              defaultConfig = {
+                indent_style = 'space',
+                indent_size = '2', -- should be string
+              },
+            },
+          },
+        },
+      })
+
+      vim.lsp.config('pylsp', {
         settings = {
           pylsp = {
             plugins = {
@@ -491,34 +457,63 @@ require('lazy').setup({
               jedi_completion = { fuzzy = true },
               -- import sorting
               pyls_isort = { enabled = true },
-            }
-          }
-        },
-
-        lspconfig.ts_ls.setup {
-          capabilities = capabilities,
-          on_attach = my_attach,
-          single_file_support = true,
-          root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json"),
-          init_options = {
-            hostInfo = "neovim",
-            preferences = {
-              includeInlayParameterNameHints = "all",
-              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-              includeInlayFunctionParameterTypeHints = true,
-              includeInlayVariableTypeHints = true,
-              includeInlayPropertyDeclarationTypeHints = true,
-              includeInlayFunctionLikeReturnTypeHints = true,
-              includeInlayEnumMemberValueHints = true,
             },
           },
         },
+      })
 
-        flags = {
-          debounce_text_changes = 200,
+      vim.lsp.config('ts_ls', {
+        init_options = {
+          hostInfo = 'neovim',
+          preferences = {
+            includeInlayParameterNameHints = 'all',
+            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+            includeInlayFunctionParameterTypeHints = true,
+            includeInlayVariableTypeHints = true,
+            includeInlayPropertyDeclarationTypeHints = true,
+            includeInlayFunctionLikeReturnTypeHints = true,
+            includeInlayEnumMemberValueHints = true,
+          },
         },
-        capabilities = capabilities,
+      })
+
+      -- enable the servers (system-managed + mason-installed alike),
+      -- but skip any whose binary is missing so we don't spam "not executable"
+      local wanted = {
+        'bashls',
+        'cmake',
+        'dockerls',
+        'gopls',
+        'golangci_lint_ls',
+        'lua_ls',
+        'marksman',
+        'zls',
+        'ts_ls',
+        'clangd',
+        'pylsp',
+        'ruff',
+        -- 'basedpyright',
       }
+      local function available(name)
+        local cfg = vim.lsp.config[name]
+        local cmd = cfg and cfg.cmd
+        if type(cmd) ~= 'table' then return true end -- function/unknown cmd: let nvim decide
+        return vim.fn.executable(cmd[1]) == 1
+      end
+      local enabled = {}
+      for _, name in ipairs(wanted) do
+        if available(name) then enabled[#enabled + 1] = name end
+      end
+      vim.lsp.enable(enabled)
+
+      -- files opened as startup arguments may have already fired FileType
+      -- before vim.lsp.enable registered its autocmd; re-fire it so they attach
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == ''
+            and vim.bo[buf].filetype ~= '' then
+          vim.api.nvim_exec_autocmds('FileType', { buffer = buf, modeline = false })
+        end
+      end
     end
   },
   {
@@ -541,7 +536,8 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { "stylua" },
         python = { "black" },
-        javascript = { { "prettierd", "prettier" } },
+        -- use the first formatter that is available
+        javascript = { "prettierd", "prettier", stop_after_first = true },
       },
       -- Set up format-on-save
       -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
@@ -568,22 +564,61 @@ require('lazy').setup({
       }
     end,
   },
+  { 'saghen/blink.compat', version = '*', lazy = true, opts = {} },
   {
-    'hrsh7th/nvim-cmp',
-    -- load cmp on InsertEnter
+    'saghen/blink.cmp',
+    version = '*',
     event = 'InsertEnter',
-    -- these dependencies will only be loaded when cmp loads
-    -- dependencies are always lazy-loaded unless specified otherwise
     dependencies = {
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-path',
-      'hrsh7th/cmp-cmdline',
-      'hrsh7th/cmp-nvim-lua',
-      'hrsh7th/cmp-vsnip',
+      'saghen/blink.compat',
+      -- keep vsnip for snippet storage/expansion (~/.vsnip) and editing commands;
+      -- cmp-vsnip surfaces those snippets in blink via blink.compat
       'hrsh7th/vim-vsnip',
       'hrsh7th/vim-vsnip-integ',
-      '0n3W4y7ick3t/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-vsnip',
+    },
+    opts = {
+      -- expansion/jumping delegated to vsnip so ~/.vsnip snippets keep working
+      snippets = {
+        expand = function(snippet) vim.fn['vsnip#anonymous'](snippet) end,
+        active = function(filter)
+          if filter and filter.direction then
+            return vim.fn['vsnip#jumpable'](filter.direction) == 1
+          end
+          return vim.fn['vsnip#available'](1) == 1
+        end,
+        jump = function(direction)
+          local key = direction == 1 and '<Plug>(vsnip-jump-next)' or '<Plug>(vsnip-jump-prev)'
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), '', true)
+        end,
+      },
+      keymap = {
+        preset = 'none',
+        ['<C-u>'] = { 'scroll_documentation_up', 'fallback' },
+        ['<C-d>'] = { 'scroll_documentation_down', 'fallback' },
+        ['<C-e>'] = { 'hide', 'fallback' },
+        ['<C-y>'] = { 'show', 'fallback' },
+        ['<CR>'] = { 'accept', 'fallback' },
+        ['<Tab>'] = { 'select_next', 'snippet_forward', 'show', 'fallback' },
+        ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
+      },
+      completion = {
+        documentation = { auto_show = true, auto_show_delay_ms = 200 },
+        list = { selection = { preselect = true, auto_insert = false } },
+        menu = { border = 'rounded' },
+      },
+      signature = { enabled = true, window = { border = 'rounded' } },
+      -- wilder.nvim already handles cmdline (`:`/`/`/`?`)
+      cmdline = { enabled = false },
+      sources = {
+        default = { 'lsp', 'path', 'vsnip', 'buffer', 'lazydev' },
+        providers = {
+          -- reuse the nvim-cmp vsnip source through the compat layer
+          vsnip = { name = 'vsnip', module = 'blink.compat.source', score_offset = -3 },
+          -- lazydev provides nvim API completions in lua files
+          lazydev = { name = 'LazyDev', module = 'lazydev.integrations.blink', score_offset = 100 },
+        },
+      },
     },
   },
   'nvim-lualine/lualine.nvim',
@@ -595,4 +630,8 @@ require('lazy').setup({
     'mrcjkb/rustaceanvim',
     ft = 'rust' -- just for rust
   },
+}, {
+  -- no luarocks installed on this system; stops plugins with rockspecs
+  -- (e.g. nvim-dap-python) from looping on a failing luarocks build
+  rocks = { enabled = false },
 })

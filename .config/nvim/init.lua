@@ -2,7 +2,6 @@ vim.g.mapleader = ' '
 
 require 'neovim'
 require 'plugins'
-require 'nvim-cmp-config'
 require 'treesitter-config'
 require 'diagnostics'
 require 'rustaceanvim'

@@ -28,11 +28,9 @@ set wrap
 set linebreak
 set history=1000
 set numberwidth=1
-nnoremap <F2> :set invpaste paste?<cr>
 " ugly trick, some terminal can't differenciate <c-i> and <tab>
 nnoremap <c-[> <c-i>
 nnoremap <c-]> <c-o>
-set pastetoggle=<F2>
 set showmode
 set sb spr " split
 set encoding=utf-8

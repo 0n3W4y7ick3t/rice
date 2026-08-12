@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Poke a waybar custom module by its "signal" number (same numbers the old bar used).
+# Never fails callers when waybar is absent.
+
+pkill -RTMIN+"${1:?usage: barsig N}" waybar 2>/dev/null || true

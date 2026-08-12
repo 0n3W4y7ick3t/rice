@@ -1,2 +1,2 @@
 #!/bin/sh
-xclip -selection clipboard "$1" -t `file --mime-type --brief "$1"`
+wl-copy -t "$(file --mime-type --brief "$1")" < "$1"

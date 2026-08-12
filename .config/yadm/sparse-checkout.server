@@ -1,0 +1,53 @@
+# git sparse-checkout patterns for servers (non-cone mode).
+# Apply with:
+#   yadm sparse-checkout init --no-cone
+#   yadm sparse-checkout set --no-cone --stdin < ~/.config/yadm/sparse-checkout.server
+# Format: `/*` includes everything, `!` lines carve out GUI-only trees.
+
+/*
+
+# GUI config trees
+!/.config/hypr/
+!/.config/waybar/
+!/.config/kitty/
+!/.config/kanshi/
+!/.config/fcitx5/
+!/.config/mpv/
+!/.config/mpd/
+!/.config/ncmpcpp/
+!/.config/nsxiv/
+!/.config/zathura/
+!/.config/dunst/
+!/.config/gammastep/
+!/.config/wal/
+!/.local/bin/statusbar/
+!/.local/share/applications/
+
+# GUI scripts
+!/.scripts/dmenu
+!/.scripts/dmenubooks
+!/.scripts/dmenuhandler
+!/.scripts/dmenumount
+!/.scripts/dmenumountcifs
+!/.scripts/dmenupass
+!/.scripts/dmenurecord
+!/.scripts/dmenuscreenshots
+!/.scripts/dmenuumount
+!/.scripts/dmenuunicode
+!/.scripts/setbg
+!/.scripts/ranbg
+!/.scripts/blurlock
+!/.scripts/screenshot
+!/.scripts/snippets-type
+!/.scripts/clippick
+!/.scripts/passmenu
+!/.scripts/barsig
+!/.scripts/hypr-layout
+!/.scripts/hypr-gaps
+!/.scripts/sysact
+!/.scripts/samedir
+!/.scripts/clip
+!/.scripts/copy2clipboard
+!/.scripts/otp
+!/.scripts/playback-control
+!/.scripts/pauseallmpv

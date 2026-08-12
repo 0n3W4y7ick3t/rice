@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# grim/slurp screenshot helper: full | region | window | region-edit.
+# Saves under ~/pictures/screenshots (same dir the old dmenuscreenshots used),
+# copies the image to the clipboard and records the path in
+# $XDG_DATA_HOME/lastscreenshot like the old script did.
+# region-edit pipes the region through swappy for annotation.
+
+set -eu
+
+dir="$HOME/pictures/screenshots"
+mkdir -p "$dir"
+mode="${1:-region}"
+file="$dir/pic-$mode-$(date '+%y%m%d-%H%M-%S').png"
+
+case "$mode" in
+  full) grim "$file" ;;
+  region) grim -g "$(slurp)" "$file" ;;
+  region-edit) grim -g "$(slurp)" - | swappy -f - -o "$file" ;;
+  window)
+    grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$file" ;;
+  *) echo "usage: screenshot [full|region|window|region-edit]" >&2; exit 1 ;;
+esac
+
+[ -s "$file" ] || { rm -f "$file"; exit 1; }
+wl-copy < "$file"
+echo "$file" > "${XDG_DATA_HOME:-$HOME/.local/share}/lastscreenshot"

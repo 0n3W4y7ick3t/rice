@@ -1,0 +1,16 @@
+# ThinkPad X13: internal panel only, kanshi handles docking profiles.
+# Adjust mode/scale on first boot if the panel wants something else.
+monitor = eDP-1, preferred, auto, 1.25
+
+input {
+    touchpad {
+        natural_scroll = false
+        tap-to-click = true
+    }
+}
+
+# 3-finger horizontal swipe switches workspaces (Hyprland >= 0.51 syntax).
+# Legacy fallback: gestures { workspace_swipe = true; workspace_swipe_fingers = 3 }
+gesture = 3, horizontal, workspace
+
+exec-once = kanshi

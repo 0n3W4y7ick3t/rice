@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Runtime gap control, mirroring dwm's togglegaps/defaultgaps/incrgaps.
+# toggle state is kept in /tmp/hyprgaps. Defaults match hyprland.conf.
+
+set -eu
+
+state=/tmp/hyprgaps
+def_in="4 3 4 3"
+def_out="10 8 10 8"
+
+setgaps() {
+  hyprctl keyword general:gaps_in "$1" >/dev/null
+  hyprctl keyword general:gaps_out "$2" >/dev/null
+}
+
+# Read current gaps as "t r b l" from hyprctl
+curgaps() { hyprctl -j getoption "general:$1" | jq -r '.custom'; }
+
+# Add a delta to all four values, clamping at 0
+adjust() { echo "$1" | awk -v d="$2" '{for(i=1;i<=NF;i++){$i+=d; if($i<0)$i=0}; print}'; }
+
+case "${1:?usage: hypr-gaps toggle|default|inc|dec|smart}" in
+  toggle)
+    if [ -f "$state" ] && grep -q off "$state"; then
+      setgaps "$def_in" "$def_out"
+      rm -f "$state"
+    else
+      setgaps "0 0 0 0" "0 0 0 0"
+      echo off > "$state"
+    fi ;;
+  default)
+    setgaps "$def_in" "$def_out"
+    rm -f "$state" ;;
+  inc)
+    setgaps "$(adjust "$(curgaps gaps_in)" 3)" "$(adjust "$(curgaps gaps_out)" 3)" ;;
+  dec)
+    setgaps "$(adjust "$(curgaps gaps_in)" -3)" "$(adjust "$(curgaps gaps_out)" -3)" ;;
+  smart)
+    # dwm smartgaps: no gaps when a workspace has a single tiled window.
+    # Toggled via a dynamic workspace rule; hyprctl reload clears it again.
+    if [ -f "$state" ] && grep -q smart "$state"; then
+      hyprctl reload >/dev/null
+      rm -f "$state"
+    else
+      hyprctl keyword workspace "w[tv1], gapsout:0, gapsin:0" >/dev/null
+      echo smart > "$state"
+    fi ;;
+  *) echo "usage: hypr-gaps toggle|default|inc|dec|smart" >&2; exit 1 ;;
+esac

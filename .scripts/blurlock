@@ -1,17 +1,14 @@
 #!/bin/sh
 
-# 1. kill all mpv socket
-for i in $(ls /tmp/mpvSockets/*); do
+# 1. pause all mpv sockets
+for i in /tmp/mpvSockets/*; do
+        [ -e "$i" ] || continue
         echo '{ "command": ["set_property", "pause", true] }' | socat - "$i";
 done
-# 2. kill ncmpcpp by mpc
+# 2. pause ncmpcpp by mpc
 mpc pause
 # 3. pause web browser stuff
 playerctl pause
 
-# actual locker
-maim -u > /tmp/1.jpg
-convert /tmp/1.jpg -blur 0x20 /tmp/2.png
-
-i3lock -i /tmp/2.png
-exit 0
+# actual locker (hyprlock takes its own blurred screenshot)
+exec hyprlock

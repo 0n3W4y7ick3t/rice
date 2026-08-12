@@ -1,4 +1,9 @@
 #!/bin/sh
 # *** usage ***
 # cat [text file] | clip
-xclip -selection clipboard  $@
+# clip [file]
+if [ $# -gt 0 ]; then
+  wl-copy < "$1"
+else
+  wl-copy
+fi

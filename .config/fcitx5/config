@@ -1,0 +1,31 @@
+# fcitx5 hotkeys, pinned explicitly rather than left to built-in defaults so
+# the bindings are documented and reproducible from the rice repo.
+#
+# Group is: keyboard-us (English) -> pinyin (Chinese) -> mozc (Japanese)
+[Hotkey]
+# Cycle forward through the three input methods. Enumerating with the trigger
+# key means one chord walks the whole list instead of only toggling the last
+# two, which matters with three methods rather than two.
+EnumerateWithTriggerKeys=True
+EnumerateSkipFirst=False
+
+[Hotkey/TriggerKey]
+0=Control+space
+
+[Hotkey/EnumerateForwardKeys]
+0=Control+Shift_L
+
+[Hotkey/EnumerateBackwardKeys]
+0=Control+Shift_R
+
+[Hotkey/PrevPage]
+0=Up
+
+[Hotkey/NextPage]
+0=Down
+
+[Behavior]
+# Start in English; switch deliberately.
+ActiveByDefault=False
+# Remember which method each window used.
+ShareInputState=No

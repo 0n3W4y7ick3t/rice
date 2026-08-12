@@ -1,0 +1,43 @@
+/* Tokyo Night, matching the old dwm bar. */
+
+* {
+    font-family: "FiraCode Nerd Font", "Noto Color Emoji";
+    font-size: 20px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+window#waybar {
+    background: rgba(26, 27, 38, 0.85);
+    color: #A9B1D6;
+}
+
+#workspaces button {
+    color: #A9B1D6;
+    padding: 0 6px;
+    border-radius: 0;
+}
+
+#workspaces button.active {
+    background: #7AA2F7;
+    color: #1A1B26;
+}
+
+#workspaces button.urgent {
+    background: #F7768E;
+    color: #1A1B26;
+}
+
+#custom-layout {
+    padding: 0 8px;
+    color: #7AA2F7;
+}
+
+window#waybar #window {
+    color: #A9B1D6;
+}
+
+.modules-right * {
+    margin: 0 3px;
+}

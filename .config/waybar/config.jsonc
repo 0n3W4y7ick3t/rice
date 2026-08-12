@@ -1,0 +1,165 @@
+// Waybar as a dwmblocks replacement: the sb-* scripts from
+// ~/.local/bin/statusbar (already on PATH via shell/profile's find over
+// ~/.local/bin) run unchanged. Click/scroll handlers pass BLOCK_BUTTON=1..5
+// exactly like dwmblocks did; `barsig N` maps to each module's "signal".
+{
+    "layer": "top",
+    "position": "top",
+    "modules-left": ["hyprland/workspaces", "custom/layout"],
+    "modules-center": ["hyprland/window"],
+    "modules-right": [
+        "custom/recording",
+        "custom/playbacks",
+        "custom/nettraf",
+        "custom/volume",
+        "custom/battery",
+        "custom/memory",
+        "custom/cpu",
+        "custom/forecast",
+        "custom/moonphase",
+        "custom/clock"
+    ],
+
+    // occupied workspaces only; hyprland.conf must also drop persistent:true
+    "hyprland/workspaces": {
+        "format": "{id}"
+    },
+
+    "custom/layout": {
+        "exec": "cat /tmp/hyprlayout 2>/dev/null || echo '[]='",
+        "interval": "once",
+        "signal": 8
+    },
+
+    // Class plus the useful half of the title (kitty's cwd, vscode's project).
+    // The raw {title} is mostly boilerplate -- every app appends its own name,
+    // and vscode/chrome/slack bury the interesting part in the middle -- so the
+    // rewrite rules below strip the chrome. Rules are full-string regex matches
+    // against the *formatted* output, and the first match wins.
+    // Available tokens: {class} {initialClass} {title} {initialTitle}.
+    "hyprland/window": {
+        "format": "{class}  {title}",
+        "separate-outputs": true,
+        "max-length": 80,
+        "rewrite": {
+            // "file - PROJECT (Workspace) - folder - Visual Studio Code"
+            "code  .* - (.*) \\(Workspace\\).*": "code  $1",
+            "code  (.*) - Visual Studio Code": "code  $1",
+            "google-chrome  (.*) - Google Chrome": "chrome  $1",
+            "slack  (.*) - Slack": "slack  $1",
+            // kitty already sets its title to the cwd; nothing to strip.
+            "(.*)": "$1"
+        }
+    },
+
+    "custom/recording": {
+        "exec": "cat /tmp/recordingicon 2>/dev/null",
+        "interval": "once",
+        "signal": 9,
+        "hide-empty-text": true
+    },
+
+    "custom/playbacks": {
+        "exec": "sb-playbacks",
+        "interval": "once",
+        "signal": 11,
+        // playback-control prints nothing when no track has been played yet,
+        // so the module collapses instead of parking a bare "(paused)" in the
+        // bar from boot onward. A genuinely paused track still shows as "|| title".
+        "hide-empty-text": true,
+        "on-click": "BLOCK_BUTTON=1 sb-playbacks",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-playbacks",
+        "on-click-right": "BLOCK_BUTTON=3 sb-playbacks",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-playbacks",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-playbacks"
+    },
+
+    "custom/nettraf": {
+        "exec": "sb-nettraf",
+        "interval": 1,
+        "signal": 16,
+        "on-click": "BLOCK_BUTTON=1 sb-nettraf",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-nettraf",
+        "on-click-right": "BLOCK_BUTTON=3 sb-nettraf",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-nettraf",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-nettraf"
+    },
+
+    "custom/volume": {
+        "exec": "sb-volume",
+        "interval": "once",
+        "signal": 10,
+        "on-click": "BLOCK_BUTTON=1 sb-volume",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-volume",
+        "on-click-right": "BLOCK_BUTTON=3 sb-volume",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-volume",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-volume"
+    },
+
+    "custom/battery": {
+        "exec": "sb-battery",
+        "exec-if": "test -d /sys/class/power_supply/BAT0",
+        "interval": 5,
+        "signal": 3,
+        "on-click": "BLOCK_BUTTON=1 sb-battery",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-battery",
+        "on-click-right": "BLOCK_BUTTON=3 sb-battery",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-battery",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-battery"
+    },
+
+    "custom/memory": {
+        "exec": "sb-memory",
+        "interval": 2,
+        "signal": 14,
+        "on-click": "BLOCK_BUTTON=1 sb-memory",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-memory",
+        "on-click-right": "BLOCK_BUTTON=3 sb-memory",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-memory",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-memory"
+    },
+
+    "custom/cpu": {
+        "exec": "sb-cpu",
+        "interval": 2,
+        "signal": 18,
+        "on-click": "BLOCK_BUTTON=1 sb-cpu",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-cpu",
+        "on-click-right": "BLOCK_BUTTON=3 sb-cpu",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-cpu",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-cpu"
+    },
+
+    "custom/forecast": {
+        "exec": "sb-forecast",
+        "interval": 18000,
+        "signal": 5,
+        "on-click": "BLOCK_BUTTON=1 sb-forecast",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-forecast",
+        "on-click-right": "BLOCK_BUTTON=3 sb-forecast",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-forecast",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-forecast"
+    },
+
+    "custom/moonphase": {
+        "exec": "sb-moonphase",
+        "interval": 86400,
+        "signal": 17,
+        "on-click": "BLOCK_BUTTON=1 sb-moonphase",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-moonphase",
+        "on-click-right": "BLOCK_BUTTON=3 sb-moonphase",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-moonphase",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-moonphase"
+    },
+
+    "custom/clock": {
+        "exec": "sb-clock",
+        "interval": 1,
+        "signal": 1,
+        "on-click": "BLOCK_BUTTON=1 sb-clock",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-clock",
+        "on-click-right": "BLOCK_BUTTON=3 sb-clock",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-clock",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-clock"
+    }
+}

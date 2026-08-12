@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# keybindings-pdf - build KEYBINDINGS.pdf locally, the same way CI does.
+#
+# .github/workflows/keybindings.yml does not build typst from source; it pulls
+# the prebuilt musl binary from the typst releases page and puts it on PATH.
+# This does the same, so a local PDF is byte-for-byte the CI artifact's process
+# and does not cost a Rust toolchain build (app-text/typst is a source-only
+# ebuild on Gentoo).
+#
+# The binary is cached under XDG_CACHE_HOME, not installed system-wide: it is a
+# build tool for one document, not something the machine needs on PATH.
+#
+# Usage: keybindings-pdf [-c config] [--force-download]
+
+set -eu
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+root="$(cd "$script_dir/.." && pwd)"
+
+# Same triple CI uses. musl so it does not care about the host's glibc.
+target=typst-x86_64-unknown-linux-musl
+url="https://github.com/typst/typst/releases/latest/download/${target}.tar.xz"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/keybindings-pdf"
+bindir="$cache/$target"
+
+conf="$HOME/.config/hypr/hyprland.conf"
+[ -f "$conf" ] || conf="$root/.config/hypr/hyprland.conf"
+force=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    -c) conf="$2"; shift 2 ;;
+    --force-download) force=1; shift ;;
+    -h|--help)
+        echo "usage: keybindings-pdf [-c config] [--force-download]"
+        exit 0
+        ;;
+    *) echo "usage: keybindings-pdf [-c config] [--force-download]" >&2; exit 1 ;;
+    esac
+done
+
+# Prefer a typst already on PATH (packaged, or a previous run's cache).
+if [ "$force" -eq 0 ] && command -v typst >/dev/null 2>&1; then
+    typst_bin=$(command -v typst)
+elif [ "$force" -eq 0 ] && [ -x "$bindir/typst" ]; then
+    typst_bin="$bindir/typst"
+else
+    command -v curl >/dev/null 2>&1 || { echo "curl not found" >&2; exit 1; }
+    echo "fetching $target ..."
+    mkdir -p "$cache"
+    # -f so a 404 is an error rather than a tarball full of HTML, -L to follow
+    # the redirect that /latest/ always issues.
+    curl -fsSL "$url" | tar -xJ -C "$cache"
+    [ -x "$bindir/typst" ] || { echo "typst missing after extract: $bindir" >&2; exit 1; }
+    typst_bin="$bindir/typst"
+    echo "cached at $typst_bin"
+fi
+
+echo "typst: $("$typst_bin" --version)"
+
+# hypr-keybindings-doc looks typst up on PATH, so put ours in front rather than
+# teaching that script a second way to find it -- CI relies on the PATH lookup.
+PATH="$(dirname "$typst_bin"):$PATH"
+export PATH
+
+exec "$script_dir/hypr-keybindings-doc" -c "$conf" --pdf

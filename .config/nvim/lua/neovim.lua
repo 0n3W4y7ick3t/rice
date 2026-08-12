@@ -67,6 +67,27 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 vim.opt.colorcolumn = "80"
 
+-- regenerate the keybindings doc (md + pdf) after saving hyprland configs
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = { "*/hypr/hyprland.conf", "*/hypr/machine.conf*" },
+  callback = function()
+    local function done(code)
+      vim.schedule(function()
+        if code == 0 then
+          vim.notify("keybindings doc regenerated", vim.log.levels.INFO)
+        else
+          vim.notify("hypr-keybindings-doc failed", vim.log.levels.WARN)
+        end
+      end)
+    end
+    if vim.system then
+      vim.system({ "hypr-keybindings-doc", "--pdf" }, {}, function(out) done(out.code) end)
+    else
+      vim.fn.jobstart({ "hypr-keybindings-doc", "--pdf" }, { on_exit = function(_, code) done(code) end })
+    end
+  end,
+})
+
 -- return to last edit position when opening file again
 -- CONFLICTS WITH auto-session
 -- vim.api.nvim_create_autocmd("BufReadPost", {

@@ -2,13 +2,18 @@
     monitor = 0
     follow = keyboard
     width = 370
-    height = 350
-    offset = 0x19
+    height = (0, 350)
+    offset = (0, 19)
     padding = 2
     horizontal_padding = 2
     transparency = 25
     font = Monospace 12
     format = "<b>%s</b>\n%b"
+    # left click runs the notification's default action instead of just
+    # dismissing it, so clicking a slack notice jumps to the slack window
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
 
 [urgency_low]
     background = "#1d2021"

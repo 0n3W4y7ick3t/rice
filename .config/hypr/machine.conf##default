@@ -1,0 +1,3 @@
+# Default machine config: used when no yadm class alternate applies.
+# Keeps hyprland.conf's `source` line from dangling on unknown machines.
+monitor = , preferred, auto, 1

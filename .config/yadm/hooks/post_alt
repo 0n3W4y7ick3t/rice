@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# alt rewrites the machine.conf symlink; hyprland auto-reloads during the gap,
+# fails the source= glob and drops every monitor rule to the generic one.
+command -v hyprctl >/dev/null 2>&1 || exit 0
+hyprctl reload >/dev/null 2>&1 || true

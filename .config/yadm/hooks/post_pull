@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# yadm runs its own alt *after* this hook, so reloading here would race the
+# machine.conf symlink being recreated. Force alt first, then reload: alt is
+# idempotent, and its own post_alt hook does the reload.
+command -v yadm >/dev/null 2>&1 && yadm alt >/dev/null 2>&1
+command -v hyprctl >/dev/null 2>&1 || exit 0
+hyprctl reload >/dev/null 2>&1 || true

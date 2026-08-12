@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Wayland passmenu: pick a pass(1) entry, copy it with `pass show -c`.
+# With --type, type it into the focused window via wtype instead.
+
+set -eu
+
+typeit=0
+[ "${1:-}" = "--type" ] && { typeit=1; shift; }
+
+prefix="${PASSWORD_STORE_DIR:-$HOME/.password-store}"
+name="$(find "$prefix" -name '*.gpg' -printf '%P\n' | sed 's/\.gpg$//' | dmenu -i -l 20 -p "pass:")"
+[ -n "$name" ] || exit 0
+
+if [ "$typeit" -eq 0 ]; then
+  pass show -c "$name"
+else
+  pass show "$name" | head -n 1 | tr -d '\n' | wtype -
+fi

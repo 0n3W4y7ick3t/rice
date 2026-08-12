@@ -1,0 +1,43 @@
+name: keybindings
+
+on:
+  push:
+    paths:
+      - '.config/hypr/**'
+      - '.scripts/hypr-keybindings-doc'
+      - '.github/workflows/keybindings.yml'
+  pull_request:
+    paths:
+      - '.config/hypr/**'
+      - '.scripts/hypr-keybindings-doc'
+      - '.github/workflows/keybindings.yml'
+
+jobs:
+  keybindings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate KEYBINDINGS.md
+        run: .scripts/hypr-keybindings-doc -c .config/hypr/hyprland.conf
+
+      - name: Check doc freshness
+        run: |
+          git diff --exit-code KEYBINDINGS.md || {
+            echo "::error::KEYBINDINGS.md is stale. Run .scripts/hypr-keybindings-doc and commit the result."
+            exit 1
+          }
+
+      - name: Install typst
+        run: |
+          curl -sL https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz | tar -xJ
+          echo "$PWD/typst-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+
+      - name: Build PDF
+        run: .scripts/hypr-keybindings-doc -c .config/hypr/hyprland.conf --pdf
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: KEYBINDINGS.pdf
+          path: KEYBINDINGS.pdf

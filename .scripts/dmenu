@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# wmenu shim so legacy dmenu-consuming scripts run unmodified on Wayland.
+# Translates dmenu flags to wmenu equivalents, drops X-only ones, and applies
+# Tokyo Night colors unless the caller passed its own.
+
+set -eu
+
+font=0
+colors=0
+set -- "$@" ---end---
+while [ "$1" != "---end---" ]; do
+  a=$1; shift
+  case "$a" in
+    # "Name-Size" -> "Name Size"; wmenu exits on a bad font
+    -fn) set -- "$@" -f "$(printf '%s' "$1" | sed 's/-\([0-9][0-9]*\)$/ \1/')"; shift; font=1 ;;
+    -f) set -- "$@" -f "$1"; shift; font=1 ;;
+    -m|-w) shift ;;  # monitor / embed window id: X-only, drop with value
+    -nb) set -- "$@" -N "${1#\#}"; shift; colors=1 ;;
+    -nf) set -- "$@" -n "${1#\#}"; shift; colors=1 ;;
+    -sb) set -- "$@" -S "${1#\#}"; shift; colors=1 ;;
+    -sf) set -- "$@" -s "${1#\#}"; shift; colors=1 ;;
+    -N|-n|-S|-s|-M) set -- "$@" "$a" "$1"; shift; colors=1 ;;
+    -l|-p) set -- "$@" "$a" "$1"; shift ;;
+    *) set -- "$@" "$a" ;;  # -i -P -b and anything else pass through
+  esac
+done
+shift  # drop the ---end--- marker
+
+# defaults match waybar's style.css
+[ "$font" -eq 1 ] || set -- "$@" -f "FiraCode Nerd Font 15"
+[ "$colors" -eq 1 ] || set -- "$@" -N 1A1B26 -n A9B1D6 -S 7AA2F7 -s 1A1B26
+
+exec wmenu "$@"

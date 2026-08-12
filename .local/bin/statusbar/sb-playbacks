@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# sb-playbacks - A script to integrate with dwmblocks for displaying media playbacks
+# sb-playbacks - A script to integrate with the statusbar for displaying media playbacks
 #
 # This script uses playback-control to fetch the current media status from MPC, MPD, or Playerctl
 # and allows interaction through mouse clicks.

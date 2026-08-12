@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# yadm bootstrap: runs after `yadm clone`. Machine role comes from the yadm
+# class (`yadm config local.class desktop|x13|wsl|server`), which also selects the
+# ##class.* alternate files via `yadm alt`.
+
+set -eu
+
+CLASS=$(yadm config local.class 2>/dev/null || echo "")
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# Directories the configs expect to exist.
+mkdir -p \
+  "$XDG_CONFIG_HOME" \
+  "$XDG_DATA_HOME" \
+  "$XDG_CACHE_HOME" \
+  "$XDG_CACHE_HOME/lf" \
+  "$HOME/.local/bin"
+
+# zsh theme/plugins .zshrc sources (clone once, .zshrc would do it lazily anyway)
+clone() { [ -d "$2" ] || git clone --depth=1 "$1" "$2"; }
+clone https://github.com/romkatv/powerlevel10k "$XDG_CONFIG_HOME/zsh/themes/powerlevel10k"
+clone https://github.com/zsh-users/zsh-autosuggestions "$XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions"
+clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting"
+
+# Generate shell/lf/nvim shortcut files from bm-dirs/bm-files.
+"$HOME/.scripts/shortcuts" || true
+
+if [ "$CLASS" = "server" ]; then
+  echo "bootstrap: server class, skipping GUI setup"
+  exit 0
+fi
+
+echo "bootstrap: done (class: ${CLASS:-unset})"

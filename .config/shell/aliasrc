@@ -9,7 +9,7 @@ done; unset command
 alias \
   cx="chmod +x" \
   curl="curl --user-agent 'noleak'" \
-  cwd="pwd|xclip -selection clipboard" \
+  cwd="pwd|wl-copy" \
   g="git" \
   ka="killall" \
   lg="lazygit" \
@@ -68,6 +68,5 @@ alias sudo="sudo "
 se() { cd ~/.scripts; $EDITOR $(fzf) ;}
 
 alias \
-  lf="lfub" \
   ref="shortcuts >/dev/null; source $XDG_CONFIG_HOME/shell/shortcutrc ; source $XDG_CONFIG_HOME/shell/zshnameddirrc" \
   weather="less -S $XDG_DATA_HOME/weatherreport" \

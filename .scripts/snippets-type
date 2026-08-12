@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Pick a snippet from ~/.local/share/snippets (first word is the snippet,
+# rest is description; # lines are comments) and type it with wtype.
+
+set -eu
+
+snips="${XDG_DATA_HOME:-$HOME/.local/share}/snippets"
+[ -f "$snips" ] || { notify-send "snippets-type" "$snips not found."; exit 1; }
+
+grep -v '^#' "$snips" | dmenu -i -l 50 | cut -d' ' -f1 | tr -d '\n' | wtype -

@@ -33,7 +33,14 @@
 [merge]
   conflictstyle = diff3
 
-[includeIf "gitdir:~/companyA/"]
-  path = .gitconfig-companyA
-[includeIf "gitdir:~/personal/"]
-  path = .gitconfig-personal
+# Identity and machine-specific git config live in an UNTRACKED local file;
+# this repo carries zero personal info. Create ~/.gitconfig-local with your
+# [user] section (and any per-directory includeIf rules for work identities).
+[include]
+  path = ~/.gitconfig-local
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

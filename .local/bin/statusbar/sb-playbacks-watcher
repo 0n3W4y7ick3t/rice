@@ -6,7 +6,7 @@
 monitor_mpc() {
     while true; do
         mpc idle player >/dev/null
-        kill -45 "$(pidof dwmblocks)"
+        barsig 11
     done
 }
 
@@ -14,13 +14,13 @@ monitor_mpc() {
 monitor_playerctl() {
     playerctl metadata --follow --format '{{title}}' | while read -r current_title; do
         if [ -n "$current_title" ]; then
-            kill -45 "$(pidof dwmblocks)"
+            barsig 11
         fi
     done &
 
     # Listen for play/pause state changes
     playerctl status --follow | while read -r status; do
-        kill -45 "$(pidof dwmblocks)"
+        barsig 11
     done
 }
 
@@ -37,8 +37,8 @@ while : ; do
     # Wait for any process to exit
     wait -n "$MPC_PID" "$PLAYERCTL_PID"
 
-    # Refresh dwmblocks when either player changes state
-    kill -45 "$(pidof dwmblocks)"
+    # Refresh the bar when either player changes state
+    barsig 11
 
     # Kill the other process if one exits
     kill "$MPC_PID" 2>/dev/null

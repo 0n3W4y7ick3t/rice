@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Menu of every open window; keyed on address, since titles are not unique.
+
+set -eu
+
+list=$(hyprctl clients -j | jq -r '
+  .[]
+  | select(.mapped)
+  | (if (.workspace.name | startswith("special:")) then "sp"
+     else (.workspace.id | tostring) end) as $ws
+  | [.address, $ws, .class, .title] | @tsv')
+
+[ -n "$list" ] || { notify-send "🪟 hypr-windows" "no open windows"; exit 0; }
+
+choice=$(printf '%s\n' "$list" \
+  | awk -F'\t' '{ printf "%s\t%3s  %-16.16s  %s\n", $1, $2, $3, $4 }' \
+  | cut -f2- \
+  | dmenu -i -l 15 -p "window") || exit 0
+
+[ -n "$choice" ] || exit 0
+
+addr=$(printf '%s\n' "$list" \
+  | awk -F'\t' -v want="$choice" '
+      { line = sprintf("%3s  %-16.16s  %s", $2, $3, $4)
+        if (line == want) { print $1; exit } }')
+
+[ -n "$addr" ] || exit 0
+
+hyprctl dispatch focuswindow "address:$addr" >/dev/null

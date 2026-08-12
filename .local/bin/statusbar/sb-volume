@@ -4,18 +4,20 @@
 
 case $BLOCK_BUTTON in
   1) setsid -f "$TERMINAL" -e pulsemixer ;;
-  2) pulsemixer --toggle-mute ;;
-  4) pulsemixer --change-volume +1 ;;
-  5) pulsemixer --change-volume -1 ;;
+  2) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+  4) wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 1%+ ;;
+  5) wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 1%- ;;
   3) notify-send "📢 Volume module" "\- Shows volume 🔊, 🔇 if muted.
 - Middle click to mute.
 - Scroll to change." ;;
   6) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
-[ $(pulsemixer --get-mute) = true ] && echo 🔇 && exit
+# `wpctl get-volume` prints "Volume: 0.45 [MUTED]"
+wpout=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+case "$wpout" in *MUTED*) echo 🔇 && exit ;; esac
 
-vol=$(echo `pulsemixer --get-volume` | cut -d' ' -f2)
+vol=$(echo "$wpout" | awk '{print int($2*100)}')
 
 if [ "$vol" -gt "70" ]; then
   icon="🔊"

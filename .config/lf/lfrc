@@ -1,14 +1,9 @@
 # Leon's lf settings
 
 # Note on Image Previews
-# 1. ueberzug must be installed.
-# 2. The scope file (~/.config/lf/scope for me), must have a command similar to
-#    mine to generate ueberzug images.
-# 3. A `set cleaner` line as below is a cleaner script.
-# 4. lf should be started through a wrapper script (~/.local/bin/lfub for me)
-#    that creates the environment for ueberzug. This command can be be aliased
-#    in your shellrc (`alias lf="lfub") or if set to a binding, should be
-#    called directly instead of normal lf.
+# Image previews use the kitty graphics protocol via `kitten icat`, driven by
+# the scope (previewer) and cleaner scripts below. Run lf inside kitty; no
+# wrapper script is needed.
 
 # dynamically set number of columns based on terminal width
 cmd on-redraw %{{
@@ -180,9 +175,9 @@ source "~/.config/lf/shortcutrc"
 
 map <a-f> edit-config
 # copy file to clipboard
-map <a-c> $xclip -sel clip "$f" -t `file --mime-type -b "$f"`
+map <a-c> $wl-copy -t `file --mime-type -b "$f"` < "$f"
 # copy file full path to clipboard
-map <a-p> $printf "%s" "$fx" | xclip -sel clip
+map <a-p> $printf "%s" "$fx" | wl-copy
 
 map <c-f> $lf -remote "send $id select '$(fzf)'"
 map J $lf -remote "send $id cd $(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' $XDG_CONFIG_HOME/shell/bm-dirs | fzf)"

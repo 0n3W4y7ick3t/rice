@@ -37,11 +37,16 @@ get_media_title() {
         echo "$PLAYING" > "$LAST_PLAYED_FILE"
         echo "$PLAYING" | cut -d'#' -f2
     else
-        if [ -f "$LAST_PLAYED_FILE" ]; then
-            PAUSED_TITLE="$(cat $LAST_PLAYED_FILE | cut -d'#' -f2)"
+        PAUSED_TITLE=""
+        [ -f "$LAST_PLAYED_FILE" ] && PAUSED_TITLE="$(cut -d'#' -f2 < "$LAST_PLAYED_FILE")"
+
+        # Only report a pause when there is an actual track to name. With
+        # nothing played yet this printed a bare "(paused)" (or "(paused)
+        # Unknown Title"), which sat in the status bar from boot until the
+        # first song. Printing nothing lets the module's hide-empty-text
+        # collapse it instead.
+        if [ -n "$PAUSED_TITLE" ]; then
             echo "(paused) $PAUSED_TITLE"
-        else
-            echo "(paused) Unknown Title"
         fi
     fi
 }

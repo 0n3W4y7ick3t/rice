@@ -1,6 +1,11 @@
 ###             *** Leon Akashiya's zshrc ***             ###
 ### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
+# Powerlevel10k instant prompt; must stay near the top. No-op without a cache.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # *** Install powerlevel10k theme and plugins if not present  ***
 # You can remove these lines after they are installed.
 [ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
@@ -89,7 +94,7 @@ bmd () { echo "$1" `realpath .` >> $XDG_CONFIG_HOME/shell/bm-dirs && shortcuts }
 
 bindkey -s '^o' '^ulfcd\n'                     # open lf file browser
 bindkey -s '^v' '^unvim\n'                     # gimee neovim!
-bindkey -s '^p' '^uclipmenu\n'                 # clipboard manager
+bindkey -s '^p' '^uclippick\n'                 # clipboard manager
 bindkey -s '^n' '^ufastfetch\n'                # typical arch users be like...
 bindkey -s '^b' '^ubc -lq\n'                   # caculator
 bindkey -s '^g' '^ulazygit\n'                  # lazier everyday!
@@ -103,3 +108,15 @@ bindkey '^e' edit-command-line
 bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^e' edit-command-line
 bindkey -M visual '^[[P' vi-delete
+
+# Load p10k prompt customization if configured (run `p10k configure` to create).
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Machine-local additions, untracked.
+# `if` rather than `[ ... ] && ...`: this is the last statement in the file, so
+# its status becomes $? at the first prompt. The && form exits 1 whenever the
+# file is absent, which made powerlevel10k paint its error indicator red in
+# every new shell.
+if [ -f "$HOME/.zshrc.local" ]; then
+    source "$HOME/.zshrc.local"
+fi

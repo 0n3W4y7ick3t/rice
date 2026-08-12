@@ -1,0 +1,46 @@
+# Desktop PC (neverland): two 4K panels behind identical connector names, so we
+# match by EDID description rather than connector. To swap which display is
+# primary, exchange the desc: lines (position/scale stay with the line, and the
+# workspace pins below follow the primary desc).
+#
+# Layout: 27" Dell in portrait on the LEFT, 42" LG TV landscape on the RIGHT.
+#   Dell  3840x2160 @ scale 2, rotated -> logical 1080x1920 at 0x0
+#   LG TV 3840x2160 @ scale 2             logical 1920x1080 at 1080x0
+#
+# Both panels run scale 2: the Dell is 27" 4K (~163 PPI) and the TV is 42" 4K
+# (~105 PPI), and anything less made text too small to read comfortably.
+#
+# transform 3 (270 deg), not 1: the panel is physically rotated 90 deg
+# clockwise, and Wayland's transform compensates in the opposite direction.
+monitor = desc:Dell Inc. DELL U2723QX BHD5YN3, 3840x2160@60, 0x0, 2, transform, 3
+monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 2, vrr, 1
+# Fallback for anything unmatched
+monitor = , preferred, auto, 1.5
+
+# Pin workspaces 1-9 to the 42" TV: it is the main display. The 27" Dell keeps
+# its physical position on the left but holds no pinned workspaces.
+workspace = 1, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 2, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 3, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 4, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 5, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 6, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 7, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 8, monitor:desc:LG Electronics LG TV SSCR2
+workspace = 9, monitor:desc:LG Electronics LG TV SSCR2
+
+# NVIDIA
+# The RTX 5080 sits at PCI 01:00.0, the AMD iGPU at 0d:00.0 (probed since
+# CONFIG_FW_LOADER_COMPRESS let its firmware load), so there are two DRM
+# cards. AQ_DRM_DEVICES pins aquamarine to the 5080, but it is NOT set here:
+# the variable is a colon-separated list and the stable by-path node name
+# contains colons (pci-0000:01:00.0), which aquamarine splits into garbage —
+# and /dev/dri/cardN is not stable across boots. ~/.config/shell/profile
+# resolves the by-path link to the real cardN and exports it at login.
+env = LIBVA_DRIVER_NAME,nvidia
+env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+env = ELECTRON_OZONE_PLATFORM_HINT,auto
+
+xwayland {
+    force_zero_scaling = true
+}

@@ -17,7 +17,7 @@ choice="$({ echo "🆕add" ; echo "🕙sync-time" ; ls ${dir}/*-otp.gpg ;} | sed
 
 case $choice in
   🆕add )
-    ifinstalled maim zbar xclip || exit 1
+    ifinstalled grim slurp zbarimg wl-copy || exit 1
 
     temp="$dir/temp.png"
     otp="otp-test-script"
@@ -25,7 +25,7 @@ case $choice in
 
     notify-send "Scan the image." "Scan the OTP QR code."
 
-    maim -s "$temp" || exit 1
+    grim -g "$(slurp)" "$temp" || exit 1
     info="$(zbarimg -q "$temp")"
     info="${info#QR-Code:}"
     issuer="$(echo "$info" | grep -o "issuer=[A-z0-9]\+")"

@@ -5,7 +5,7 @@
 # Location of link to wallpaper link.
 base="$XDG_DATA_HOME/bg"
 bgloc=$base
-bgdir="$HOME/pictures/wallpapers/likes"
+bgdir="$HOME/pictures/wallpapers/landscape"
 
 # Configuration files of applications that have their themes changed by pywal.
 dunstconf="$XDG_CONFIG_HOME/dunst/dunstrc"
@@ -23,4 +23,5 @@ else
   [ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
 fi
 
-feh --bg-fill $base
+# hyprpaper 0.8.4 dropped reload/preload/unload; `wallpaper` also loads it
+hyprctl hyprpaper wallpaper ",$(readlink -f "$bgloc")"

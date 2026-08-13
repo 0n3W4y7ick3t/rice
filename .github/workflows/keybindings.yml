@@ -16,7 +16,7 @@ jobs:
   keybindings:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Regenerate KEYBINDINGS.md
         run: .scripts/hypr-keybindings-doc
@@ -37,7 +37,7 @@ jobs:
         run: .scripts/hypr-keybindings-doc --pdf
 
       - name: Upload PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: KEYBINDINGS.pdf
           path: KEYBINDINGS.pdf

@@ -10,7 +10,7 @@
 | `Super + K` | `cyclenext prev` |
 | `Super + Shift + J` | `swapnext` |
 | `Super + Shift + K` | `swapnext prev` |
-| `Super + V` | `layoutmsg focusmaster` |
+| `Super + Shift + V` | `layoutmsg focusmaster` |
 | `Super + Space` | `layoutmsg swapwithmaster` |
 | `Super + Shift + Space` | `togglefloating` |
 | `Super + Q` | `killactive` |
@@ -142,7 +142,7 @@
 | `Super + Shift + L` | `blurlock` |
 | `` Super + ` `` | `wmenuunicode` |
 | `Super + Insert` | `snippets-type` |
-| `Alt + Shift + V` | `clippick` |
+| `Super + V` | `clippick` |
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |
 | `Super + F5` | `hyprctl reload` |
@@ -187,6 +187,13 @@
 | `Super + Scroll Down` | `hypr-gaps dec` |
 
 ## Machine: desktop
+
+| Keys | Action |
+| --- | --- |
+| `Super + Shift + left` | `movecurrentworkspacetomonitor -1` |
+| `Super + Shift + right` | `movecurrentworkspacetomonitor +1` |
+
+## hyprland-plugin/hyprexpo-sandwichfarm; re-emerge after every hyprland bump
 
 | Keys | Action |
 | --- | --- |

@@ -4,16 +4,18 @@
 # ws1 default rule below follows the primary desc).
 #
 # Layout: 27" Dell in portrait on the LEFT, 42" LG TV landscape on the RIGHT.
-#   Dell  3840x2160 @ scale 2, rotated -> logical 1080x1920 at 0x0
-#   LG TV 3840x2160 @ scale 2             logical 1920x1080 at 1080x0
+#   Dell  3840x2160 @ scale 1.6,   rotated -> logical 1350x2400 at 0x0
+#   LG TV 3840x2160 @ scale 1.333            logical 2880x1620 at 1350x0
 #
-# Both panels run scale 2: the Dell is 27" 4K (~163 PPI) and the TV is 42" 4K
-# (~105 PPI), and anything less made text too small to read comfortably.
+# Both panels ran scale 2 until 2026-08-14, which made the UI oversized.
+# Chosen by eye: 1.6 for the Dell (27" 4K, ~163 PPI), 1.333 for the TV
+# (42" 4K, ~105 PPI; 1.5 still too big, 1.25 too small). Apps whose text
+# ends up small get per-app zoom (e.g. vscode zoomLevel).
 #
 # transform 3 (270 deg), not 1: the panel is physically rotated 90 deg
 # clockwise, and Wayland's transform compensates in the opposite direction.
-monitor = desc:Dell Inc. DELL U2723QX BHD5YN3, 3840x2160@60, 0x0, 2, transform, 3
-monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 2, vrr, 1
+monitor = desc:Dell Inc. DELL U2723QX BHD5YN3, 3840x2160@60, 0x0, 1.6, transform, 3
+monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 1.333333, vrr, 1
 # Fallback for anything unmatched
 monitor = , preferred, auto, 1.5
 

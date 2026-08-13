@@ -480,6 +480,19 @@ require('lazy').setup({
       })
 
       vim.lsp.config('ts_ls', {
+        -- typescript only: no LSP wanted on plain js
+        filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
+        -- upstream root_dir falls back to cwd, then tsserver init errors out
+        -- unless the workspace ships its own typescript; only start where it does
+        root_dir = function(bufnr, on_dir)
+          local root = vim.fs.root(bufnr,
+            { 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'package.json' })
+          -- tsserver.js check also excludes typescript >= 7 (native, no tsserver.js),
+          -- which this server cannot wrap
+          if root and vim.uv.fs_stat(root .. '/node_modules/typescript/lib/tsserver.js') then
+            on_dir(root)
+          end
+        end,
         init_options = {
           hostInfo = 'neovim',
           preferences = {

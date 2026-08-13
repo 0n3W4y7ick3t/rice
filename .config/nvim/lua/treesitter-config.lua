@@ -20,7 +20,7 @@ local ts = require('nvim-treesitter')
 -- markdown_inline is pulled in automatically by markdown's `requires`.
 ts.install({
   'c', 'cpp', 'python', 'go', 'bash', 'lua', 'vim',
-  'vimdoc', 'query', 'markdown', 'rust', 'javascript', 'yaml',
+  'vimdoc', 'query', 'markdown', 'rust', 'javascript', 'yaml', 'typescript',
 })
 
 vim.api.nvim_create_autocmd('FileType', {

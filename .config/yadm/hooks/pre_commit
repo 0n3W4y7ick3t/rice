@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Keep KEYBINDINGS.md in step with the Hyprland config at commit time, so it
+# can never be pushed stale. CI checks the same thing, but only after a push:
+# the doc is generated from a file edited by hand, so the two drift by default
+# and the failure lands one round-trip too late.
+#
+# Only fires when the inputs are actually staged. Exits non-zero on a
+# regenerated doc rather than staging it silently -- a hook that adds files
+# behind your back makes the commit differ from what you reviewed.
+
+staged=$(yadm diff --cached --name-only 2>/dev/null) || exit 0
+
+case "$staged" in
+  *.config/hypr/*|*.scripts/hypr-keybindings-doc*) ;;
+  *) exit 0 ;;
+esac
+
+command -v "$HOME/.scripts/hypr-keybindings-doc" >/dev/null 2>&1 || exit 0
+"$HOME/.scripts/hypr-keybindings-doc" >/dev/null || exit 0
+
+# Unstaged change to the doc => it was out of date and has just been rewritten.
+if ! yadm diff --quiet -- KEYBINDINGS.md 2>/dev/null; then
+  echo "pre_commit: KEYBINDINGS.md was stale and has been regenerated." >&2
+  echo "            Review it, then:  yadm add KEYBINDINGS.md" >&2
+  exit 1
+fi

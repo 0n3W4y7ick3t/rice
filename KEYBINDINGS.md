@@ -185,3 +185,9 @@
 | `Super + RMB` | `resizewindow` |
 | `Super + Scroll Up` | `hypr-gaps inc` |
 | `Super + Scroll Down` | `hypr-gaps dec` |
+
+## Machine: desktop
+
+| Keys | Action |
+| --- | --- |
+| `Super + Shift + 0` | `hyprexpo:expo toggle` |

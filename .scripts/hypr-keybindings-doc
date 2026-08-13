@@ -5,7 +5,16 @@
 # section titles; a trailing " # comment" on a bind line becomes its
 # description. Output order follows config order so CI can diff it.
 #
-# Usage: hypr-keybindings-doc [-c config] [--pdf]
+# Reads hyprland.conf PLUS every machine.conf##class.* alternate, each under
+# its own "Machine: <class>" heading, so machine-specific binds (hyprexpo on
+# the desktop) are documented instead of silently missing. The alternates are
+# read, never the deployed `machine.conf` symlink: the symlink exists only on
+# a deployed machine and points at one class, so using it would make the
+# output depend on which machine ran the script and CI could never match.
+# All files go to one awk so $mod, defined in hyprland.conf, resolves in them.
+#
+# Usage: hypr-keybindings-doc [-c config]... [--pdf]
+#   -c may be repeated; giving any -c replaces the default set entirely.
 
 set -eu
 
@@ -16,20 +25,41 @@ conf="$HOME/.config/hypr/hyprland.conf"
 # In-repo / CI use: fall back to the copy next to this script.
 [ -f "$conf" ] || conf="$root/.config/hypr/hyprland.conf"
 pdf=0
+confs=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -c) conf="$2"; shift 2 ;;
+    -c) confs="$confs$2
+"; shift 2 ;;
     --pdf) pdf=1; shift ;;
-    *) echo "usage: hypr-keybindings-doc [-c config] [--pdf]" >&2; exit 1 ;;
+    *) echo "usage: hypr-keybindings-doc [-c config]... [--pdf]" >&2; exit 1 ;;
   esac
 done
+
+if [ -n "$confs" ]; then
+  conf="$(printf '%s' "$confs" | head -n1)"   # first -c is the primary
+else
+  confs="$conf
+"
+  # Sorted by the glob, so the order is the same here and in CI.
+  for m in "$(dirname "$conf")"/machine.conf##class.*; do
+    [ -f "$m" ] && confs="$confs$m
+"
+  done
+fi
 
 [ -f "$conf" ] || { echo "config not found: $conf" >&2; exit 1; }
 
 # emit md|typ: parse bind lines and render markdown tables or typst rows.
 emit() {
-  awk -v mode="$1" '
+  mode="$1"
+  # $confs is a newline-separated list built above; split it into args.
+  oldifs="$IFS"; IFS='
+'
+  # shellcheck disable=SC2086  # deliberate split on the newline IFS
+  set -- $confs
+  IFS="$oldifs"
+  awk -v mode="$mode" -v main="$conf" '
   function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
   function humankey(k) {
     k = trim(k)
@@ -107,6 +137,16 @@ emit() {
     if (open && mode == "typ") print ")"
     open = 0
   }
+  # Each extra config opens its own "Machine: <class>" section. Held in mach
+  # rather than opened here, so a class with no binds at all (x13) does not
+  # emit an empty table, and so the file own prose comments cannot clobber
+  # the heading the way a plain `pending` would.
+  FNR == 1 && FILENAME != main {
+    mach = FILENAME
+    sub(/.*##class\./, "", mach)
+    mach = "Machine: " mach
+    pending = ""; cmt = 0
+  }
   # Section titles are standalone "# Foo" lines. A comment BLOCK of two or
   # more lines is prose and must not open a section -- before this, the last
   # line of any explanatory block above a bind silently became a heading, so
@@ -143,13 +183,14 @@ emit() {
     action = expand(action)
     if (desc != "") action = action "  (" desc ")"
 
-    if (pending != "") { close_section(); open_section(pending); pending = "" }
+    if (mach != "") { close_section(); open_section(mach); mach = ""; pending = "" }
+    else if (pending != "") { close_section(); open_section(pending); pending = "" }
     if (!open) open_section("Other")
     if (mode == "md") print "| " code(keys) " | " code(action) " |"
     else print "  " typstr(keys) ", " typstr(action) ","
   }
   END { close_section() }
-  ' "$conf"
+  ' "$@"
 }
 
 md="$root/KEYBINDINGS.md"

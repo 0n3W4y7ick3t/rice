@@ -17,8 +17,10 @@ local nmap = function(key, cmd, desc)
 end
 
 require('lazy').setup({
-  'lukas-reineke/indent-blankline.nvim',
-  'stevearc/aerial.nvim',
+  -- version = '*' pins to release tags: :Lazy update moves tag-to-tag
+  -- instead of tracking HEAD (only set where upstream tags actively)
+  { 'lukas-reineke/indent-blankline.nvim', version = '*' },
+  { 'stevearc/aerial.nvim',                version = '*' },
   'jreybert/vimagit',
   'tpope/vim-fugitive',
   'lewis6991/gitsigns.nvim',
@@ -131,6 +133,7 @@ require('lazy').setup({
   },
   {
     'akinsho/bufferline.nvim',
+    version = '*',
     event = 'VeryLazy',
     keys = {
       { '<leader>bp', '<cmd>BufferLineTogglePin<CR>',            desc = 'Toggle Buffer Pin' },
@@ -146,6 +149,7 @@ require('lazy').setup({
   },
   {
     'MeanderingProgrammer/render-markdown.nvim', -- in-editor markdown rendering
+    version = '*',
     ft = { 'markdown' },
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
     opts = {},
@@ -157,18 +161,27 @@ require('lazy').setup({
   'nvim-lua/plenary.nvim',
   {
     'nvim-treesitter/nvim-treesitter',
+    lazy = false, -- main branch does not support lazy-loading
+    branch = 'main',
+    -- main is a rolling branch with no release tags; pin a known-good commit
+    commit = 'c9f9ed6c1892f629ea399f4ee7905f2686fa13f2',
     build = ":TSUpdate",
     dependencies = {
       'nvim-treesitter/nvim-treesitter-context',
-      'nvim-treesitter/nvim-treesitter-textobjects',
+      {
+        'nvim-treesitter/nvim-treesitter-textobjects',
+        branch = 'main',
+        commit = '898ee307df58f854d11cd7edd06472574d48014e',
+      },
     },
   },
-  'nvim-telescope/telescope.nvim',
+  { 'nvim-telescope/telescope.nvim', version = '*' },
   'szw/vim-maximizer',
   'mbbill/undotree',
   {
     -- successor to the archived neodev.nvim: configures lua_ls for nvim dev
     'folke/lazydev.nvim',
+    version = '*',
     ft = 'lua',
     opts = {
       library = {
@@ -179,6 +192,7 @@ require('lazy').setup({
   },
   {
     'folke/todo-comments.nvim',
+    version = '*',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       keywords = {
@@ -220,6 +234,7 @@ require('lazy').setup({
   },
   {
     'folke/which-key.nvim',
+    version = '*',
     event = 'VeryLazy',
     init = function()
       vim.o.timeout = true
@@ -368,10 +383,12 @@ require('lazy').setup({
 	},
   {
     'neovim/nvim-lspconfig',
+    version = '*',
     dependencies = {
       {
         'williamboman/mason.nvim',
-        dependencies = 'williamboman/mason-lspconfig.nvim',
+        version = '*',
+        dependencies = { { 'williamboman/mason-lspconfig.nvim', version = '*' } },
         config = function()
           require('mason').setup()
           local mason_lspconfig = require 'mason-lspconfig'
@@ -624,10 +641,11 @@ require('lazy').setup({
   'nvim-lualine/lualine.nvim',
   { 'nvim-tree/nvim-web-devicons',   lazy = true },
   { 'bluz71/vim-nightfly-guicolors', lazy = false },
-  { 'folke/tokyonight.nvim',         lazy = false },
+  { 'folke/tokyonight.nvim',         lazy = false, version = '*' },
 
   {
     'mrcjkb/rustaceanvim',
+    version = '^9', -- upstream recommends pinning the major
     ft = 'rust' -- just for rust
   },
 }, {

@@ -1,7 +1,7 @@
 # Desktop PC (neverland): two 4K panels behind identical connector names, so we
 # match by EDID description rather than connector. To swap which display is
 # primary, exchange the desc: lines (position/scale stay with the line, and the
-# workspace pins below follow the primary desc).
+# ws1 default rule below follows the primary desc).
 #
 # Layout: 27" Dell in portrait on the LEFT, 42" LG TV landscape on the RIGHT.
 #   Dell  3840x2160 @ scale 2, rotated -> logical 1080x1920 at 0x0
@@ -17,17 +17,14 @@ monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 2, vrr, 1
 # Fallback for anything unmatched
 monitor = , preferred, auto, 1.5
 
-# Pin workspaces 1-9 to the 42" TV: it is the main display. The 27" Dell keeps
-# its physical position on the left but holds no pinned workspaces.
-workspace = 1, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 2, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 3, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 4, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 5, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 6, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 7, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 8, monitor:desc:LG Electronics LG TV SSCR2
-workspace = 9, monitor:desc:LG Electronics LG TV SSCR2
+# Workspaces are assigned to monitors dynamically (stock behavior): they live
+# where they were created, and the Dell takes the lowest free ID on connect.
+# Only ws1 gets a default so login always lands on the TV, the main display.
+workspace = 1, monitor:desc:LG Electronics LG TV SSCR2, default:true
+
+# Throw the current workspace to the other monitor ($mod+left/right focuses it)
+bind = $mod SHIFT, left, movecurrentworkspacetomonitor, -1
+bind = $mod SHIFT, right, movecurrentworkspacetomonitor, +1
 
 # NVIDIA
 # The RTX 5080 sits at PCI 01:00.0, the AMD iGPU at 0d:00.0 (probed since

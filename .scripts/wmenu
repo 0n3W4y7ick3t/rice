@@ -1,8 +1,14 @@
 #!/bin/sh
 
-# wmenu shim so legacy dmenu-consuming scripts run unmodified on Wayland.
-# Translates dmenu flags to wmenu equivalents, drops X-only ones, and applies
-# Tokyo Night colors unless the caller passed its own.
+# wmenu wrapper: applies the Tokyo Night palette and the bar font unless the
+# caller passed its own, so every menu in .scripts looks the same without
+# repeating eight flags. Also still accepts the dmenu spellings (-fn -nb -nf
+# -sb -sf) and drops the X-only ones, because these scripts are ports of
+# Luke Smith's voidrice and upstream diffs keep arriving in dmenu form.
+#
+# NOTE: this file is named wmenu and $HOME/.scripts comes first in PATH, so it
+# shadows /usr/bin/wmenu. It must therefore exec the real binary by absolute
+# path -- a bare `exec wmenu` would find this script again and fork-bomb.
 
 set -eu
 
@@ -31,4 +37,8 @@ shift  # drop the ---end--- marker
 [ "$font" -eq 1 ] || set -- "$@" -f "FiraCode Nerd Font 15"
 [ "$colors" -eq 1 ] || set -- "$@" -N 1A1B26 -n A9B1D6 -S 7AA2F7 -s 1A1B26
 
-exec wmenu "$@"
+for d in /usr/bin /usr/local/bin /bin; do
+  [ -x "$d/wmenu" ] && exec "$d/wmenu" "$@"
+done
+echo "wmenu: real binary not found outside \$HOME/.scripts" >&2
+exit 127

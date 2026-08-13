@@ -4,4 +4,4 @@
 # password prompt if needed.
 
 # red prompt: it overlays waybar's strip and would otherwise read as the bar
-dmenu -P -p "$1" -M 7F1D1D -m FFFFFF <&- && echo 2>/dev/null
+wmenu -P -p "$1" -M 7F1D1D -m FFFFFF <&- && echo 2>/dev/null

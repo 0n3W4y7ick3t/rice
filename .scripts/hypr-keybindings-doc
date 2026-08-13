@@ -107,6 +107,13 @@ emit() {
     if (open && mode == "typ") print ")"
     open = 0
   }
+  # Section titles are standalone "# Foo" lines. A comment BLOCK of two or
+  # more lines is prose and must not open a section -- before this, the last
+  # line of any explanatory block above a bind silently became a heading, so
+  # a two-line note turned "## plugin actually exists (desktop only)." into a
+  # section and CI failed on a stale doc it could not explain.
+  !/^#/ { cmt = 0 }
+  /^#/  { cmt++ }
   # $name = value  -> remember it for expand() above.
   /^\$[A-Za-z_][A-Za-z0-9_]* *=/ {
     name = $0; sub(/^\$/, "", name); sub(/ *=.*/, "", name)
@@ -114,7 +121,7 @@ emit() {
     vars[trim(name)] = trim(val)
     next
   }
-  /^# / { pending = substr($0, 3); next }
+  /^# / { pending = (cmt == 1) ? substr($0, 3) : ""; next }
   /^bind[lem]* *=/ {
     line = $0
     desc = ""

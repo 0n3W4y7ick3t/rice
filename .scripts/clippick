@@ -2,4 +2,4 @@
 
 # Pick a clipboard history entry (cliphist) and put it back on the clipboard.
 
-cliphist list | dmenu -i -l 30 | cliphist decode | wl-copy
+cliphist list | wmenu -i -l 30 | cliphist decode | wl-copy

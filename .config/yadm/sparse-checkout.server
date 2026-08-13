@@ -24,16 +24,16 @@
 !/.local/share/applications/
 
 # GUI scripts
-!/.scripts/dmenu
-!/.scripts/dmenubooks
-!/.scripts/dmenuhandler
-!/.scripts/dmenumount
-!/.scripts/dmenumountcifs
-!/.scripts/dmenupass
-!/.scripts/dmenurecord
-!/.scripts/dmenuscreenshots
-!/.scripts/dmenuumount
-!/.scripts/dmenuunicode
+!/.scripts/wmenu
+!/.scripts/wmenubooks
+!/.scripts/wmenuhandler
+!/.scripts/wmenumount
+!/.scripts/wmenumountcifs
+!/.scripts/wmenupass
+!/.scripts/wmenurecord
+!/.scripts/wmenuscreenshots
+!/.scripts/wmenuumount
+!/.scripts/wmenuunicode
 !/.scripts/setbg
 !/.scripts/ranbg
 !/.scripts/blurlock

@@ -68,7 +68,6 @@
 | `Super + Shift + 8` | `movetoworkspacesilent 8` |
 | `Super + Shift + 9` | `movetoworkspacesilent 9` |
 | `Super + 0` | `hypr-windows` |
-| `Super + Shift + 0` | `hyprexpo:expo toggle` |
 | `Super + Tab` | `workspace previous` |
 | `Super + \` | `workspace previous` |
 | `Super + G` | `workspace r-1` |
@@ -106,14 +105,13 @@
 | `Super + Shift + D` | `passmenu` |
 | `Super + W` | `google-chrome-stable` |
 | `Super + E` | `kitty -e lf` |
-| `Super + Shift + E` | `nemo` |
 | `Super + R` | `kitty -e htop` |
 | `Super + Shift + R` | `ranbg` |
 | `Super + C` | `code` |
 | `Super + N` | `kitty -e nvim -c VimwikiIndex` |
 | `Super + Shift + N` | `kitty -e nvim -c VimwikiDiaryIndex` |
 | `Super + M` | `kitty -e ncmpcpp` |
-| `Super + Shift + B` | `dmenubooks` |
+| `Super + Shift + B` | `wmenubooks` |
 
 ## Media
 
@@ -142,16 +140,16 @@
 | `Super + BackSpace` | `sysact` |
 | `Super + Shift + BackSpace` | `hyprctl reload` |
 | `Super + Shift + L` | `blurlock` |
-| `` Super + ` `` | `dmenuunicode` |
+| `` Super + ` `` | `wmenuunicode` |
 | `Super + Insert` | `snippets-type` |
 | `Alt + Shift + V` | `clippick` |
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |
 | `Super + F5` | `hyprctl reload` |
-| `Super + F6` | `dmenubluetooth` |
+| `Super + F6` | `wmenubluetooth` |
 | `Super + F8` | `mw -Y` |
-| `Super + F9` | `dmenumount` |
-| `Super + F10` | `dmenuumount` |
+| `Super + F9` | `wmenumount` |
+| `Super + F10` | `wmenuumount` |
 | `Super + F11` | `mpv --untimed --no-cache --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] \| tail -n 1)` |
 
 ## Screenshots and recording
@@ -160,8 +158,8 @@
 | --- | --- |
 | `Print` | `screenshot region` |
 | `Super + Shift + S` | `screenshot region` |
-| `Super + Print` | `dmenurecord` |
-| `Super + Delete` | `dmenurecord kill` |
+| `Super + Print` | `wmenurecord` |
+| `Super + Delete` | `wmenurecord kill` |
 
 ## XF86 keys
 

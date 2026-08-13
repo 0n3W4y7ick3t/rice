@@ -8,4 +8,4 @@ set -eu
 snips="${XDG_DATA_HOME:-$HOME/.local/share}/snippets"
 [ -f "$snips" ] || { notify-send "snippets-type" "$snips not found."; exit 1; }
 
-grep -v '^#' "$snips" | dmenu -i -l 50 | cut -d' ' -f1 | tr -d '\n' | wtype -
+grep -v '^#' "$snips" | wmenu -i -l 50 | cut -d' ' -f1 | tr -d '\n' | wtype -

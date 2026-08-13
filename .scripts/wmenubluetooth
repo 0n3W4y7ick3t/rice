@@ -61,7 +61,7 @@ while :; do
     {
       [ -z "$list" ] || printf '%s\n' "$list" | cut -f2
       printf '%s\n' "🔍 scan (10s)" "$power" "🖥 bluetoothctl shell"
-    } | dmenu -i -l 12 -p "bluetooth"
+    } | wmenu -i -l 12 -p "bluetooth"
   ) || exit 0
   [ -n "$choice" ] || exit 0
 
@@ -84,7 +84,7 @@ while :; do
   action=$(printf '%s\n' \
     "🔗 connect" "✂ disconnect" "🤝 pair, trust and connect" \
     "⭐ trust" "☆ untrust" "🗑 remove" "ℹ info" |
-    dmenu -i -l 7 -p "$name") || continue
+    wmenu -i -l 7 -p "$name") || continue
   [ -n "$action" ] || continue
 
   case "$action" in
@@ -100,12 +100,12 @@ while :; do
     "⭐ trust")   btrun "trust $name" trust "$mac" || true ;;
     "☆ untrust") btrun "untrust $name" untrust "$mac" || true ;;
     "🗑 remove")
-      confirm=$(printf '%s\n' "No" "Yes" | dmenu -i -p "remove $name?") || continue
+      confirm=$(printf '%s\n' "No" "Yes" | wmenu -i -p "remove $name?") || continue
       if [ "$confirm" = "Yes" ]; then
         btrun "remove $name" remove "$mac" || true
       fi ;;
     "ℹ info")
       bluetoothctl info "$mac" 2>&1 | sed 's/^[[:space:]]*//' |
-        dmenu -i -l 20 -p "$name" >/dev/null || true ;;
+        wmenu -i -l 20 -p "$name" >/dev/null || true ;;
   esac
 done

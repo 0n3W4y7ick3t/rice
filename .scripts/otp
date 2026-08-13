@@ -13,7 +13,7 @@ ifinstalled pass pass-otp
 
 dir="${PASSWORD_STORE_DIR}"
 
-choice="$({ echo "🆕add" ; echo "🕙sync-time" ; ls ${dir}/*-otp.gpg ;} | sed "s/.*\///;s/-otp.gpg//" | dmenu -p "Pick a 2FA:")"
+choice="$({ echo "🆕add" ; echo "🕙sync-time" ; ls ${dir}/*-otp.gpg ;} | sed "s/.*\///;s/-otp.gpg//" | wmenu -p "Pick a 2FA:")"
 
 case $choice in
   🆕add )
@@ -33,7 +33,7 @@ case $choice in
 
     if echo "$info" | pass otp insert "$otp"; then
       while true ; do
-        export name="$(dmenu -p "Give this One Time Password a one-word name:")"
+        export name="$(wmenu -p "Give this One Time Password a one-word name:")"
         echo "$name" | grep -q -- "^[A-z0-9-]\+$" && break
       done
       pass mv "$otp" "$name-otp"

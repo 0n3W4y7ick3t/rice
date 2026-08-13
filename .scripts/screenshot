@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # grim/slurp screenshot helper: full | region | window | region-edit.
-# Saves under ~/pictures/screenshots (same dir the old dmenuscreenshots used),
+# Saves under ~/pictures/screenshots (same dir the old wmenuscreenshots used),
 # copies the image to the clipboard and records the path in
 # $XDG_DATA_HOME/lastscreenshot like the old script did.
 # region-edit pipes the region through swappy for annotation.

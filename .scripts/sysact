@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# A dmenu wrapper script for system functions.
+# A wmenu wrapper script for system functions.
 case "$(readlink -f /sbin/init)" in
   *systemd*) ctl='systemctl' ;;
   *) ctl='loginctl' ;;
 esac
 
-case "$(printf "🎩 htop\n🔒 blurlock\n🚪 leave Hyprland\n🌀 renew Hyprland\n💤 sleep\n🔃 reboot\n🔚 shutdown\n📺 display off\n" | dmenu -i -p 'Action: ')" in
+case "$(printf "🎩 htop\n🔒 blurlock\n🚪 leave Hyprland\n🌀 renew Hyprland\n💤 sleep\n🔃 reboot\n🔚 shutdown\n📺 display off\n" | wmenu -i -p 'Action: ')" in
   '🎩 htop') "${TERMINAL:-kitty}" -e htop ;;
   '🔒 blurlock') blurlock ;;
   '🚪 leave Hyprland') hyprctl dispatch exit ;;

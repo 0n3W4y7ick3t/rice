@@ -16,7 +16,7 @@ list=$(hyprctl clients -j | jq -r '
 choice=$(printf '%s\n' "$list" \
   | awk -F'\t' '{ printf "%s\t%3s  %-16.16s  %s\n", $1, $2, $3, $4 }' \
   | cut -f2- \
-  | dmenu -i -l 15 -p "window") || exit 0
+  | wmenu -i -l 15 -p "window") || exit 0
 
 [ -n "$choice" ] || exit 0
 

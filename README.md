@@ -1,6 +1,6 @@
 # Leon's Linux Rice
 
-I use [gentoo](https://www.gentoo.org/) + [Hyprland](https://hypr.land/) (installed from hyproverlay) with kitty as the terminal, waybar as the bar, and wmenu standing in for dmenu. The dotfiles are managed with [yadm](https://yadm.io/), so the same repo covers the desktop, the laptop, WSL and headless servers. This repo is still heavily inspired by Luke Smith's [voidrice](https://github.com/LukeSmithxyz/voidrice) and keeps many of his scripts, now ported to Wayland tools.
+I use [gentoo](https://www.gentoo.org/) + [Hyprland](https://hypr.land/) (installed from hyproverlay) with kitty as the terminal, waybar as the bar, and wmenu in place of dmenu. The dotfiles are managed with [yadm](https://yadm.io/), so the same repo covers the desktop, the laptop, WSL and headless servers. This repo is still heavily inspired by Luke Smith's [voidrice](https://github.com/LukeSmithxyz/voidrice) and keeps many of his scripts, now ported to Wayland tools.
 
 The old dwm/st forks are retired and their repos archived. Everything they did (master layout, gaps, scratchpads, the statusbar signal numbers) is reproduced in the Hyprland config and the `hypr-layout` / `hypr-gaps` / `barsig` helper scripts.
 

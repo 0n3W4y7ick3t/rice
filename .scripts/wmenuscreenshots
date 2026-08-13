@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Usage:
-# `$0`: Ask for screenshot type via dmenu
+# `$0`: Ask for screenshot type via wmenu
 # `$0 full`: take full screenshot
 # `$0 select`: select region by mouse
 # `$0 active`: the active window
@@ -23,7 +23,7 @@ show() {
 }
 
 prompt() { \
-  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\nedit(s)\\nshowlast(a)\\nupload(a)" | dmenu -i -p "Select screenshot styles or actions:")
+  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\nedit(s)\\nshowlast(a)\\nupload(a)" | wmenu -i -p "Select screenshot styles or actions:")
   case "$choice" in
     full*) screenshot full;;
     act*) screenshot window;;

@@ -44,3 +44,25 @@ env = ELECTRON_OZONE_PLATFORM_HINT,auto
 xwayland {
     force_zero_scaling = true
 }
+
+# Gentoo-only bits. These lived in hyprland.conf until 2026-08-13, where they
+# were dead weight at best on the Arch laptop and a real config error at worst:
+# the plugin path does not exist there, so $mod+SHIFT+0 raised "Invalid
+# dispatcher, requested hyprexpo:expo does not exist" on every start.
+#
+# pipewire: OpenRC has no user session to socket-activate it, so the launcher
+# script starts the whole graph. systemd does that itself.
+exec-once = gentoo-pipewire-launcher & # Gentoo OpenRC pipewire session
+
+# hyprland-plugin/hyprexpo-sandwichfarm; re-emerge after every hyprland bump
+plugin = /usr/lib/hyprland-plugins/hyprexpo.so
+bind = $mod SHIFT, 0, hyprexpo:expo, toggle
+
+plugin {
+    hyprexpo {
+        columns = 3
+        gap_size = 8
+        bg_col = rgb(1A1B26)
+        workspace_method = center current
+    }
+}

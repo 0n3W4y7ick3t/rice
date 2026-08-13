@@ -1,0 +1,111 @@
+#!/bin/sh
+
+# Bluetooth menu: pick a device, then pick an action. Everything goes through
+# bluetoothctl -- bluez-tools (bt-device) is Gentoo-only and Arch ships
+# bluez-utils instead, so bluetoothctl is the one interface both machines share.
+#
+# Two bluetoothctl traps are handled here: it exits 0 on several failures (it
+# only prints "Failed to ..."), so results are judged from its output; and
+# `scan on` / `connect` never return without the global --timeout.
+
+set -eu
+
+note() { notify-send "🔵 bluetooth" "$1"; }
+
+command -v bluetoothctl >/dev/null 2>&1 ||
+  { note "bluetoothctl is not installed"; exit 1; }
+
+if command -v rfkill >/dev/null 2>&1 &&
+   rfkill list bluetooth 2>/dev/null | grep -q "Soft blocked: yes"; then
+  note "radio is rfkill-blocked — run: rfkill unblock bluetooth"
+  exit 1
+fi
+
+# btrun <label> <bluetoothctl args...>; reports through dunst and returns 1 on
+# a failure-looking output, so callers can chain (pair -> trust -> connect).
+btrun() {
+  label=$1
+  shift
+  out=$(bluetoothctl "$@" 2>&1 || true)
+  err=$(printf '%s\n' "$out" | grep -E 'Failed|Error|not available' | tail -n 1)
+  if [ -n "$err" ]; then
+    note "$label: $err"
+    return 1
+  fi
+  note "$label: done"
+}
+
+while :; do
+  show=$(bluetoothctl show 2>&1 || true)
+  case "$show" in
+    *"Powered:"*) ;;
+    *) note "no controller available (is bluetoothd running?)"; exit 1 ;;
+  esac
+  case "$show" in
+    *"Powered: yes"*) power="⏻ power off" ;;
+    *) power="⏻ power on" ;;
+  esac
+
+  connected=$(bluetoothctl devices Connected 2>/dev/null || true)
+  # mac <TAB> menu label <TAB> name -- names contain spaces, so the address is
+  # carried alongside the label instead of being parsed back out of it.
+  list=$(bluetoothctl devices 2>/dev/null | awk -v conn="$connected" '
+    $1 == "Device" {
+      mac = $2
+      name = $0
+      sub(/^Device [^ ]+ +/, "", name)
+      printf "%s\t%s %s\t%s\n", mac, (index(conn, mac) ? "🔗" : "·"), name, name
+    }' || true)
+
+  choice=$(
+    {
+      [ -z "$list" ] || printf '%s\n' "$list" | cut -f2
+      printf '%s\n' "🔍 scan (10s)" "$power" "🖥 bluetoothctl shell"
+    } | dmenu -i -l 12 -p "bluetooth"
+  ) || exit 0
+  [ -n "$choice" ] || exit 0
+
+  case "$choice" in
+    "🔍 scan (10s)")
+      note "scanning for 10s…"
+      bluetoothctl --timeout 10 scan on >/dev/null 2>&1 || true
+      continue ;;
+    "⏻ power on")  btrun "power on" power on || true; continue ;;
+    "⏻ power off") btrun "power off" power off || true; continue ;;
+    "🖥 bluetoothctl shell") exec "${TERMINAL:-kitty}" -e bluetoothctl ;;
+  esac
+
+  mac=$(printf '%s\n' "$list" |
+    awk -F'\t' -v want="$choice" '$2 == want { print $1; exit }')
+  name=$(printf '%s\n' "$list" |
+    awk -F'\t' -v want="$choice" '$2 == want { print $3; exit }')
+  [ -n "$mac" ] || continue
+
+  action=$(printf '%s\n' \
+    "🔗 connect" "✂ disconnect" "🤝 pair, trust and connect" \
+    "⭐ trust" "☆ untrust" "🗑 remove" "ℹ info" |
+    dmenu -i -l 7 -p "$name") || continue
+  [ -n "$action" ] || continue
+
+  case "$action" in
+    "🔗 connect")    btrun "connect $name" --timeout 15 connect "$mac" || true ;;
+    "✂ disconnect") btrun "disconnect $name" disconnect "$mac" || true ;;
+    # NoInputNoOutput auto-accepts: non-interactive mode has nowhere to type a
+    # PIN. A device that insists on one needs the bluetoothctl shell entry.
+    "🤝 pair, trust and connect")
+      if btrun "pair $name" --timeout 30 --agent NoInputNoOutput pair "$mac"; then
+        btrun "trust $name" trust "$mac" || true
+        btrun "connect $name" --timeout 15 connect "$mac" || true
+      fi ;;
+    "⭐ trust")   btrun "trust $name" trust "$mac" || true ;;
+    "☆ untrust") btrun "untrust $name" untrust "$mac" || true ;;
+    "🗑 remove")
+      confirm=$(printf '%s\n' "No" "Yes" | dmenu -i -p "remove $name?") || continue
+      if [ "$confirm" = "Yes" ]; then
+        btrun "remove $name" remove "$mac" || true
+      fi ;;
+    "ℹ info")
+      bluetoothctl info "$mac" 2>&1 | sed 's/^[[:space:]]*//' |
+        dmenu -i -l 20 -p "$name" >/dev/null || true ;;
+  esac
+done

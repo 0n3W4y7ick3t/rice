@@ -148,6 +148,7 @@
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |
 | `Super + F5` | `hyprctl reload` |
+| `Super + F6` | `dmenubluetooth` |
 | `Super + F8` | `mw -Y` |
 | `Super + F9` | `dmenumount` |
 | `Super + F10` | `dmenuumount` |

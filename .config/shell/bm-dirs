@@ -13,5 +13,5 @@ mn   /mnt
 # mm   $HOME/music
 # pp   $HOME/pictures
 # vv   $HOME/videos
-# removed
-akira /home/leon/akira
+akira $HOME/akira
+wall /mnt/DATA/Pictures/wallpapers

@@ -158,6 +158,8 @@
 | --- | --- |
 | `Print` | `screenshot region` |
 | `Super + Shift + S` | `screenshot region` |
+| `Super + Shift + Print` | `wmenuscreenshots` |
+| `Super + Shift + P` | `wmenuscreenshots  (NJ81 has no Print key)` |
 | `Super + Print` | `wmenurecord` |
 | `Super + Delete` | `wmenurecord kill` |
 

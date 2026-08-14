@@ -11,8 +11,13 @@
 set -eu
 
 if [ "${1:-}" != run ]; then
-  # the paste target: whatever window is focused before the float opens
-  CLIPIMG_TARGET=$(hyprctl activewindow -j 2>/dev/null | jq -r '.address // empty')
+  # the paste target: whatever window is focused before the float opens.
+  # Terminals are no target -- they cannot paste an image.
+  _aw=$(hyprctl activewindow -j 2>/dev/null)
+  CLIPIMG_TARGET=$(printf '%s' "$_aw" | jq -r '.address // empty')
+  case "$(printf '%s' "$_aw" | jq -r '.class // empty')" in
+    kitty | spterm | floatterm) CLIPIMG_TARGET="" ;;
+  esac
   export CLIPIMG_TARGET
   exec kitty --class clipimg -e "$0" run
 fi
@@ -51,10 +56,11 @@ setsid -f wl-copy < "$tmp/$sel" >/dev/null 2>&1
 id=${sel%.*}
 id=${id#*-}
 notify-send "🖼 clipboard" "image #$id back on clipboard"
-# auto-paste into the recorded window. It must get REAL focus first (clients
-# drop key events for surfaces without keyboard enter; hyprland sendshortcut
-# is broken for wayland-native apps), so: wait for our clipboard offer, force
-# focus, wait until it took, then inject ctrl+v. Pasteless windows ignore it.
+# auto-paste into the recorded window: wait for our clipboard offer, force
+# real focus (clients drop key events without keyboard enter), wait until it
+# took, then send ctrl+v. The `activewindow` selector is load-bearing --
+# sendshortcut with `address:` silently drops for wayland-native windows.
+# Pasteless windows just ignore the keypress.
 if [ -n "${CLIPIMG_TARGET:-}" ]; then
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     wl-paste -l 2>/dev/null | grep -q "^image/" && break
@@ -65,11 +71,5 @@ if [ -n "${CLIPIMG_TARGET:-}" ]; then
     [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$CLIPIMG_TARGET" ] && break
     sleep 0.03
   done
-  # complementary delivery: wtype reaches wayland-native windows only,
-  # sendshortcut reaches XWayland ones only
-  if [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .xwayland)" = "true" ]; then
-    hyprctl dispatch sendshortcut "CTRL,V,address:$CLIPIMG_TARGET" >/dev/null 2>&1
-  else
-    wtype -M ctrl -k v -m ctrl
-  fi
+  hyprctl dispatch sendshortcut "CTRL,V,activewindow" >/dev/null 2>&1
 fi

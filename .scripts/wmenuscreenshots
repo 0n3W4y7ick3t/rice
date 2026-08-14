@@ -61,8 +61,13 @@ prompt() {
     "🖼 #"*)
       id=${choice#🖼 \#}
       id=${id%% *}
-      # wmenu is a layer surface, so the real window still counts as active
-      target=$(hyprctl activewindow -j 2>/dev/null | jq -r '.address // empty')
+      # wmenu is a layer surface, so the real window still counts as active;
+      # terminals are no paste target -- they cannot paste an image
+      aw=$(hyprctl activewindow -j 2>/dev/null)
+      target=$(printf '%s' "$aw" | jq -r '.address // empty')
+      case "$(printf '%s' "$aw" | jq -r '.class // empty')" in
+        kitty | spterm | floatterm) target="" ;;
+      esac
       cliphist decode "$id" | wl-copy
       notify-send "📸 screenshot" "image #$id back on clipboard"
       # auto-paste: refocus the target (real keyboard enter required), wait
@@ -77,12 +82,9 @@ prompt() {
           [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$target" ] && break
           sleep 0.03
         done
-        # wtype reaches wayland-native windows, sendshortcut XWayland ones
-        if [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .xwayland)" = "true" ]; then
-          hyprctl dispatch sendshortcut "CTRL,V,address:$target" >/dev/null 2>&1
-        else
-          wtype -M ctrl -k v -m ctrl
-        fi
+        # `activewindow` is load-bearing: sendshortcut with `address:`
+        # silently drops for wayland-native windows
+        hyprctl dispatch sendshortcut "CTRL,V,activewindow" >/dev/null 2>&1
       fi;;
   esac
 }

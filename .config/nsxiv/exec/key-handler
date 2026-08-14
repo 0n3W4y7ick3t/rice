@@ -19,6 +19,9 @@ do
       convert -rotate -90 "$file" "$file" ;;
     "f")
       convert -flop "$file" "$file" ;;
+    "C")
+      wl-copy < "$file" &&
+      notify-send -i "$(readlink -f "$file")" "image copied to clipboard" & ;;
     "y")
       printf "%s" "$file" | tr -d '\n' | wl-copy &&
       notify-send "$file copied to clipboard" & ;;

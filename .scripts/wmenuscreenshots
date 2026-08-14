@@ -1,48 +1,70 @@
 #!/bin/sh
 
 # Usage:
-# `$0`: Ask for screenshot type via wmenu
+# `$0`: Ask for screenshot type via wmenu. The menu also lists clipboard
+#       image history (🖼 rows) -- picking one re-copies that image.
 # `$0 full`: take full screenshot
 # `$0 select`: select region by mouse
 # `$0 active`: the active window
 # `$0 edit`: select region, annotate in swappy
 # `$0 upload`: upload lastscreenshot to imgur, yank the image link to clipboard
 # `$0 show`: show lastscreenshot with $IMG_VIEWER
+# `$0 history`: browse clipboard image history with live preview (clippick-img)
 #
 # Actual capture is delegated to the `screenshot` grim/slurp helper, which
 # also copies to clipboard and records $XDG_DATA_HOME/lastscreenshot.
 
 upload() {
   last="$(cat "$XDG_DATA_HOME"/lastscreenshot)"
-  err=$(imgur "$last") || notify-send "$err" && exit 1;
-  notify-send "uploaded"
+  # imgur itself wl-copies the link and appends to imgur_history
+  if imgur "$last" >/dev/null 2>&1; then
+    notify-send "📸 screenshot" "uploaded — link on clipboard"
+  else
+    notify-send "📸 screenshot" "imgur upload failed"
+    exit 1
+  fi
 }
 
 show() {
   $IMG_VIEWER "$(cat "$XDG_DATA_HOME"/lastscreenshot)"
 }
 
-prompt() { \
-  choice=$(printf "full(s)\\nactive(s)\\nselect(s)\\nedit(s)\\nshowlast(a)\\nupload(a)" | wmenu -i -p "Select screenshot styles or actions:")
+prompt() {
+  # clipboard image history, newest first:
+  # `124\t[[ binary data 25 KiB png 752x648 ]]` -> `🖼 #124 png 752x648 (25 KiB)`
+  images=$(cliphist list 2>/dev/null | awk -F'\t' '
+    $2 ~ /^\[\[ binary data/ {
+      split($2, f, " ")
+      printf "🖼 #%s %s %s (%s %s)\n", $1, f[6], f[7], f[4], f[5]
+    }' | head -n 10)
+  choice=$({
+    printf '%s\n' "full(s)" "active(s)" "select(s)" "edit(s)" \
+      "showlast(a)" "upload(a)" "history(a)"
+    [ -z "$images" ] || printf '%s\n' "$images"
+  } | wmenu -i -l 17 -p "Select screenshot styles or actions:")
   case "$choice" in
     full*) screenshot full;;
     act*) screenshot window;;
     rec* | sel*) screenshot region;;
     edit*) screenshot region-edit;;
-    upload*) upload && exit 0;;
-    show*) show && exit 0;;
+    upload*) upload;;
+    show*) show;;
+    history*) clippick-img;;
+    "🖼 #"*)
+      id=${choice#🖼 \#}
+      id=${id%% *}
+      cliphist decode "$id" | wl-copy
+      notify-send "📸 screenshot" "image #$id back on clipboard";;
   esac
 }
-
-# pause browser media, playerctl needed
-playerctl pause
 
 case "$1" in
   full) screenshot full;;
   act*) screenshot window;;
   rec* | sel*) screenshot region;;
   edit*) screenshot region-edit;;
-  upload) upload && exit 0;;
-  show*) show && exit 0;;
+  upload) upload;;
+  show*) show;;
+  history) clippick-img;;
   *) prompt;;
 esac

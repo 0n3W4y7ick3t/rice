@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# README.md and LICENSE stay tracked at the repo root for GitHub, but are
+# never materialized in $HOME. Re-applied on every pull so each machine
+# picks the rule up without a manual bootstrap; idempotent.
+command -v yadm >/dev/null 2>&1 &&
+  yadm sparse-checkout set --no-cone '/*' '!/README.md' '!/LICENSE' >/dev/null 2>&1
+
 # yadm runs its own alt *after* this hook, so reloading here would race the
 # machine.conf symlink being recreated. Force alt first, then reload: alt is
 # idempotent, and its own post_alt hook does the reload.

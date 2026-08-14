@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# gh wrapper (shadows /usr/bin/gh via PATH, like the wmenu wrapper): pick the
+# GitHub account from the working directory, so `gh auth switch` is never
+# needed. The mapping is an UNTRACKED file -- this repo is public and must not
+# name employers: $XDG_CONFIG_HOME/gh/dirmap, tab-separated
+# `<dir prefix>\t<account>` lines, first match wins. Example:
+#   /home/me/work	work-account
+#   /	personal-account
+#
+# `gh auth ...` passes through untouched: auth management must see the real
+# state. Note git credential calls (`gh auth git-credential`) follow the
+# ACTIVE account, not this map -- directories whose HTTPS remotes belong to
+# a non-active account need their own credential helper via a gitconfig
+# includeIf (see the untracked ~/.gitconfig-local chain); SSH remotes never
+# consult gh.
+
+real=/usr/bin/gh
+
+# an explicit token from the environment (CI, one-offs) wins
+[ -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}" ] || exec "$real" "$@"
+case "${1:-}" in auth) exec "$real" "$@" ;; esac
+
+map="${XDG_CONFIG_HOME:-$HOME/.config}/gh/dirmap"
+[ -f "$map" ] || exec "$real" "$@"
+
+user=$(awk -F'\t' -v pwd="$PWD/" '
+  /^#/ { next }
+  NF == 2 { pre = ($1 == "/") ? "/" : $1 "/" }
+  NF == 2 && index(pwd, pre) == 1 { print $2; exit }' "$map")
+[ -n "$user" ] || exec "$real" "$@"
+
+tok=$("$real" auth token --user "$user" 2>/dev/null)
+[ -n "$tok" ] || exec "$real" "$@"
+GH_TOKEN="$tok"
+export GH_TOKEN
+exec "$real" "$@"

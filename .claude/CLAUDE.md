@@ -105,6 +105,15 @@ managers themselves (`~/.local/bin/mise`, `~/.local/share/cargo` for
 rustup) and their configs — a toolchain pin belongs to one machine and one
 project, so tracking it here would only churn the alternates.
 
+The same seam pattern picks GitHub accounts: the tracked `.scripts/gh`
+wrapper maps directories to gh accounts through an untracked
+`~/.config/gh/dirmap` (tab-separated `<dir prefix>\t<account>`, first match
+wins), so `gh auth switch` is never needed. The wrapper only routes gh CLI
+commands; git's credential calls follow gh's *active* account (personal),
+and directories whose HTTPS remotes belong to the other account pin their
+own credential helper inside the untracked gitconfig include chain.
+Recreate dirmap and that chain by hand on a new machine.
+
 The rule that decides it: **this repo is public, so nothing in it may say
 anything about who Leon works for or what he works on.** No employer
 names, no account names, no project or repo names, and no directory

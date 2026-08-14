@@ -10,7 +10,7 @@
 | `Super + K` | `cyclenext prev` |
 | `Super + Shift + J` | `swapnext` |
 | `Super + Shift + K` | `swapnext prev` |
-| `Super + Shift + V` | `layoutmsg focusmaster` |
+| `Super + Ctrl + Space` | `layoutmsg focusmaster` |
 | `Super + Space` | `layoutmsg swapwithmaster` |
 | `Super + Shift + Space` | `togglefloating` |
 | `Super + Q` | `killactive` |
@@ -143,7 +143,7 @@
 | `` Super + ` `` | `wmenuunicode` |
 | `Super + Insert` | `snippets-type` |
 | `Super + V` | `clippick` |
-| `Super + Ctrl + V` | `clippick-img  (image clipboard history with preview)` |
+| `Super + Shift + V` | `clippick-img  (image clipboard history with preview)` |
 | `Super + F1` | `zathura ~/.local/share/KEYBINDINGS.pdf  (keybindings cheatsheet)` |
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |

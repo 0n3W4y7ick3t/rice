@@ -23,7 +23,7 @@ jobs:
 
       - name: Check doc freshness
         run: |
-          git diff --exit-code KEYBINDINGS.md || {
+          git diff --exit-code .local/share/KEYBINDINGS.md || {
             echo "::error::KEYBINDINGS.md is stale. Run .scripts/hypr-keybindings-doc and commit the result."
             exit 1
           }
@@ -40,4 +40,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: KEYBINDINGS.pdf
-          path: KEYBINDINGS.pdf
+          path: .local/share/KEYBINDINGS.pdf

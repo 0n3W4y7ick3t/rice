@@ -1,7 +1,11 @@
 #!/bin/sh
 
-# Generate KEYBINDINGS.md (and with --pdf also KEYBINDINGS.pdf via typst) at
-# the repo root from the Hyprland config. Top-level `# comment` lines become
+# Generate .local/share/KEYBINDINGS.md (and with --pdf also KEYBINDINGS.pdf
+# next to it via typst) from the Hyprland config. It lives under .local/share
+# so the deployed $HOME root stays free of non-dot files, and deliberately NOT
+# in .config/hypr: the keybindings CI triggers on .config/hypr/**, so a doc
+# there would re-trigger the workflow on every regenerated-doc commit.
+# Top-level `# comment` lines become
 # section titles; a trailing " # comment" on a bind line becomes its
 # description. Output order follows config order so CI can diff it.
 #
@@ -193,7 +197,7 @@ emit() {
   ' "$@"
 }
 
-md="$root/KEYBINDINGS.md"
+md="$root/.local/share/KEYBINDINGS.md"
 {
   echo "# Keybindings"
   echo
@@ -246,5 +250,5 @@ EOF
   emit typ | sed 's/^== /= /'
 } > "$typ"
 
-typst compile "$typ" "$root/KEYBINDINGS.pdf"
-echo "wrote $root/KEYBINDINGS.pdf"
+typst compile "$typ" "$root/.local/share/KEYBINDINGS.pdf"
+echo "wrote $root/.local/share/KEYBINDINGS.pdf"

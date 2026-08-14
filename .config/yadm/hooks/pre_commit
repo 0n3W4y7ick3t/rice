@@ -22,8 +22,8 @@ command -v "$HOME/.scripts/hypr-keybindings-doc" >/dev/null 2>&1 || exit 0
 # Unstaged change to the doc => it was out of date and has just been rewritten.
 # Absolute path: the pathspec is CWD-relative, so committing from outside $HOME
 # would otherwise make this check match nothing and pass a stale doc.
-if ! yadm diff --quiet -- "$HOME/KEYBINDINGS.md" 2>/dev/null; then
+if ! yadm diff --quiet -- "$HOME/.local/share/KEYBINDINGS.md" 2>/dev/null; then
   echo "pre_commit: KEYBINDINGS.md was stale and has been regenerated." >&2
-  echo "            Review it, then:  yadm add KEYBINDINGS.md" >&2
+  echo "            Review it, then:  yadm add ~/.local/share/KEYBINDINGS.md" >&2
   exit 1
 fi

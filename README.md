@@ -30,7 +30,7 @@ Machine-local shell tweaks go in `~/.zshrc.local`, which `.zshrc` sources if pre
 
 ## Keybindings
 
-[KEYBINDINGS.md](KEYBINDINGS.md) is generated from the Hyprland config by `.scripts/hypr-keybindings-doc`; don't edit it by hand. Run the script to regenerate it, or add `--pdf` for a printable `KEYBINDINGS.pdf` (needs [typst](https://typst.app/), stays untracked). Saving `hyprland.conf` or a `machine.conf` in neovim regenerates both automatically, and CI fails a push that changes the hypr config without refreshing the doc.
+[KEYBINDINGS.md](.local/share/KEYBINDINGS.md) is generated from the Hyprland config by `.scripts/hypr-keybindings-doc`; don't edit it by hand. Run the script to regenerate it, or add `--pdf` for a printable `.local/share/KEYBINDINGS.pdf` (needs [typst](https://typst.app/), stays untracked; `$mod+F1` opens it). Saving `hyprland.conf` or a `machine.conf` in neovim regenerates both automatically, and CI fails a push that changes the hypr config without refreshing the doc.
 
 ## Hyprland config layout
 

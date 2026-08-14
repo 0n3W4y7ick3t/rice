@@ -76,6 +76,19 @@ missing the variable stays unset and aquamarine probes every card).
 `GTK_IM_MODULE`/`QT_IM_MODULE` breaks the candidate popup — details in
 deployLinux CLAUDE.md. Mozc is enabled via `.config/fcitx5/profile`.
 
+## Repo-meta files keep the home root clean
+
+`ls ~` shows no repo files by design (2026-08-14). This file lives at
+`.claude/CLAUDE.md` (Claude Code still auto-loads it there). The generated
+keybindings doc lives at `.local/share/KEYBINDINGS.md` / `.pdf` —
+deliberately NOT `.config/hypr/`, because the keybindings CI triggers on
+`.config/hypr/**` and a doc there would re-trigger it on every regen
+commit; `$mod+F1` opens the pdf. `README.md` and `LICENSE` are still
+tracked at the repo root (GitHub renders/detects them there) but
+**sparse-excluded from the worktree** — don't be surprised that they exist
+on GitHub yet not in `$HOME`; the `post_pull` hook re-applies the sparse
+rule on every machine.
+
 ## Committing
 
 **yadm is the commit location on a deployed machine**, not a clone. Edit

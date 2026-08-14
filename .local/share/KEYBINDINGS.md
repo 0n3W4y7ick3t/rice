@@ -143,6 +143,7 @@
 | `` Super + ` `` | `wmenuunicode` |
 | `Super + Insert` | `snippets-type` |
 | `Super + V` | `clippick` |
+| `Super + F1` | `zathura ~/.local/share/KEYBINDINGS.pdf  (keybindings cheatsheet)` |
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |
 | `Super + F5` | `hyprctl reload` |

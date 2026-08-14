@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# Clipboard *image* history (text history is clippick): every image cliphist
+# has stored -- screenshots, browser "copy image", ... -- is decoded to tmpfs
+# and picked in fzf, with the highlighted image rendered live in the preview
+# pane through kitty's graphics protocol. Enter re-copies it.
+#
+# Called without args it wraps itself in a floating kitty (class clipimg, see
+# the hyprland windowrule), so the picker always sits on top as one window.
+
+set -eu
+
+if [ "${1:-}" != run ]; then
+  exec kitty --class clipimg -e "$0" run
+fi
+
+tmp=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/clipimg.XXXXXX")
+trap 'rm -rf "$tmp"' EXIT INT TERM
+
+# decode newest-first; zero-padded prefix keeps ls in list order, the cliphist
+# id stays in the name so the pick maps back without a lookup table.
+n=0
+while IFS='	' read -r id ext; do
+  [ -n "$id" ] || continue
+  n=$((n + 1))
+  cliphist decode "$id" > "$tmp/$(printf '%03d' "$n")-$id.$ext"
+done <<EOF
+$(cliphist list 2>/dev/null | awk -F'\t' '
+  $2 ~ /^\[\[ binary data/ { split($2, f, " "); print $1 "\t" f[6] }')
+EOF
+
+if [ "$n" -eq 0 ]; then
+  notify-send "🖼 clipboard" "no images in clipboard history"
+  exit 0
+fi
+
+sel=$(ls "$tmp" | fzf --layout=reverse --no-multi --prompt 'clipboard image> ' \
+  --preview-window 'down,75%' \
+  --preview "kitten icat --clear --transfer-mode=memory --unicode-placeholder \
+    --stdin=no --place=\${FZF_PREVIEW_COLUMNS}x\${FZF_PREVIEW_LINES}@0x0 $tmp/{}") ||
+  exit 0
+[ -n "$sel" ] || exit 0
+
+# stdio detached so the forked clipboard server can't hold the pty open and
+# keep the kitty float alive after the pick.
+wl-copy < "$tmp/$sel" >/dev/null 2>&1
+id=${sel%.*}
+id=${id#*-}
+notify-send "🖼 clipboard" "image #$id back on clipboard"

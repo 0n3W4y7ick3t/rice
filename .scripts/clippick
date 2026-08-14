@@ -1,5 +1,29 @@
 #!/bin/sh
 
-# Pick a clipboard history entry (cliphist) and put it back on the clipboard.
+# Pick a clipboard history entry (cliphist), put it back on the clipboard and
+# paste it into the window that was focused when the menu opened. Text only:
+# image history lives in clippick-img ($mod+SHIFT+V).
 
-cliphist list | wmenu -i -l 30 | cliphist decode | wl-copy
+tinfo=$(hyprctl activewindow -j 2>/dev/null)
+target=$(printf '%s' "$tinfo" | jq -r '.address // empty')
+tclass=$(printf '%s' "$tinfo" | jq -r '.class // empty')
+
+sel=$(cliphist list | grep -v '\[\[ binary data' | wmenu -i -l 30) || exit 0
+[ -n "$sel" ] || exit 0
+printf '%s\n' "$sel" | cliphist decode | wl-copy
+
+if [ -n "$target" ]; then
+  hyprctl dispatch focuswindow "address:$target" >/dev/null 2>&1
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$target" ] && break
+    sleep 0.03
+  done
+  # terminals paste on ctrl+shift+v; plain ctrl+v would insert a literal ^V.
+  # `activewindow` is load-bearing: sendshortcut with `address:` silently
+  # drops for wayland-native windows.
+  case "$tclass" in
+    kitty | spterm | floatterm | keytest) keys="CTRL SHIFT,V" ;;
+    *) keys="CTRL,V" ;;
+  esac
+  hyprctl dispatch sendshortcut "$keys,activewindow" >/dev/null 2>&1
+fi

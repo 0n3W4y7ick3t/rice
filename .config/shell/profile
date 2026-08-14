@@ -16,7 +16,6 @@ export BROWSER="google-chrome-stable"
 export APPH=""
 export APPJ=""
 export APPK="code"
-export LOCATION="Tokyo" # for wttr.in weather reports
 
 # ~/ Clean-up:
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -36,8 +35,6 @@ export GOPATH="$XDG_DATA_HOME/go"
 export VIMWIKI_DIR="$XDG_DATA_HOME/nvim/vimwiki"
 export PYTHON_VENV_DIR=$HOME/.local/share/pyenv
 # export BLOG_DIR="$HOME/foo/blog"
-# for script uploadlast to upload lastd screenshot file to imgur
-# export IMGUR_CLIENT_ID="foo"
 
 # Other program settings:
 export GTK_THEME=Arc:dark # https://github.com/jnsh/arc-theme
@@ -66,27 +63,22 @@ export PATH=$HOME/.scripts:${$(find ~/.local/bin -type d -printf %p:)%%:}:$CARGO
 
 [ ! -f $XDG_CONFIG_HOME/shell/shortcutrc ] && shortcuts >/dev/null 2>&1 &
 
-# neverland is multi-GPU (5080 + Zen5 iGPU): pin Hyprland/aquamarine to the
-# 5080. AQ_DRM_DEVICES is a colon-separated list and by-path names contain
-# colons (aquamarine would split them into garbage and find no GPU at all),
-# and /dev/dri/cardN is not stable across boots — so resolve the stable
-# by-path link to this boot's cardN here. Fail-soft: if the node is missing
-# (driver not loaded, card moved slots), leave the variable unset and let
-# aquamarine probe every card — wrong primary GPU still beats no desktop.
+# Untracked secrets/personal env (LOCATION, IMGUR_CLIENT_ID, tokens);
+# post_pull deploys it from profile.local.template.
+[ -f "$HOME/.config/shell/profile.local" ] && . "$HOME/.config/shell/profile.local"
+
+# Multi-GPU: pin aquamarine to the 5080 by resolving the stable by-path link
+# (cardN moves across boots, and AQ_DRM_DEVICES splits on the colons that
+# by-path names contain). Fail-soft: unset -> aquamarine probes every card.
 if [ "$(uname -n)" = "neverland" ]; then
     _card="$(readlink -f /dev/dri/by-path/pci-0000:01:00.0-card 2>/dev/null)"
     [ -n "$_card" ] && [ -e "$_card" ] && export AQ_DRM_DEVICES="$_card"
     unset _card
 fi
 
-# Start Hyprland on tty1 if installed and not already running (skip on servers/WSL).
-# Launch via start-hyprland, not Hyprland directly: it is a watchdog that
-# supervises the compositor, and Hyprland warns loudly at startup when it is
-# missing. dbus-run-session still wraps it — start-hyprland does not set up a
-# session bus itself, and losing it breaks the portals, fcitx5 and dunst.
-# stdout/stderr persist in ~/.cache/hyprland/session.log (one .old kept):
-# without it a backend failure that exits before the crash reporter leaves
-# nothing behind once the tty scrolls away.
+# tty1 -> Hyprland via start-hyprland (its watchdog) under dbus-run-session
+# (portals/fcitx5/dunst need that bus). Early failures survive the tty in
+# ~/.cache/hyprland/session.log, one .old kept.
 if [ "$(tty)" = "/dev/tty1" ] && command -v start-hyprland >/dev/null 2>&1 && ! pidof -s Hyprland >/dev/null 2>&1; then
     _hlog="${XDG_CACHE_HOME:-$HOME/.cache}/hyprland/session.log"
     mkdir -p "${_hlog%/*}"
@@ -94,14 +86,9 @@ if [ "$(tty)" = "/dev/tty1" ] && command -v start-hyprland >/dev/null 2>&1 && ! 
     exec dbus-run-session start-hyprland >"$_hlog" 2>&1
 fi
 
-# Switch escape and caps on a bare console, if it needs no password. keyd does
-# this for every device once it is running, so this is only a fallback for a tty
-# with keyd down.
-#
-# Guarded to real consoles and forced to succeed: this is the last statement in
-# the file, so its exit status becomes $? at the first prompt. `sudo -n` fails
-# whenever a password is required, which left every new shell starting at exit 1
-# and lit up the prompt's red error indicator.
+# caps<->esc fallback for a tty with keyd down. Forced to succeed: as the
+# file's last statement its status becomes $? at the first prompt, and a
+# failing `sudo -n` was painting the prompt's error indicator red.
 case "$(tty)" in
 /dev/tty[0-9]*) sudo -n loadkeys "$XDG_DATA_HOME/ttymaps.kmap" 2>/dev/null || true ;;
 esac

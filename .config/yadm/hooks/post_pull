@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# First deploy on a machine: materialize the untracked secrets seam.
+[ -f "$HOME/.config/shell/profile.local" ] ||
+  install -m 600 "$HOME/.config/shell/profile.local.template" \
+    "$HOME/.config/shell/profile.local" 2>/dev/null
+
 # README.md and LICENSE stay tracked at the repo root for GitHub, but are
 # never materialized in $HOME. Re-applied on every pull so each machine
 # picks the rule up without a manual bootstrap; idempotent.

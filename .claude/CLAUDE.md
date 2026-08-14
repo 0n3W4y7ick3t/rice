@@ -100,7 +100,10 @@ committing there produces a second history that nothing deploys from.
 
 `.zshrc` sources `~/.zshrc.local` if it exists, and that file is the seam
 for anything machine-local: SDKs installed from tarballs, a version
-manager's shell hook. Keep it untracked. The same goes for the version
+manager's shell hook. Keep it untracked. Secret env vars go in
+`~/.config/shell/profile.local` (chmod 600, gitignored), sourced by the
+login profile so the whole graphical session inherits them — `.zshrc.local`
+is interactive-shells-only and too late for compositor-launched apps. The same goes for the version
 managers themselves (`~/.local/bin/mise`, `~/.local/share/cargo` for
 rustup) and their configs — a toolchain pin belongs to one machine and one
 project, so tracking it here would only churn the alternates.

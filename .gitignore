@@ -4,6 +4,7 @@ KEYBINDINGS.pdf
 # so this public file names nothing either.
 .gitconfig-*
 .config/gh/
+.config/shell/profile.local
 # Claude state is machine-local (claude-sync owns what syncs), but the repo
 # context file is tracked here.
 .claude/*

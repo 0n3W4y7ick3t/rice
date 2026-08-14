@@ -143,6 +143,7 @@
 | `` Super + ` `` | `wmenuunicode` |
 | `Super + Insert` | `snippets-type` |
 | `Super + V` | `clippick` |
+| `Super + Ctrl + V` | `clippick-img  (image clipboard history with preview)` |
 | `Super + F1` | `zathura ~/.local/share/KEYBINDINGS.pdf  (keybindings cheatsheet)` |
 | `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
 | `Super + F4` | `kitty -e pulsemixer` |

@@ -1,7 +1,7 @@
 [alias]
   lol = log --graph --decorate --pretty=oneline --abbrev-commit
   lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
-  ll =  log --oneline
+  ll = log --oneline
   la = log -1 HEAD --stat
   st = status
   cm = commit -m
@@ -33,14 +33,17 @@
 [merge]
   conflictstyle = diff3
 
+# gh handles GitHub credentials; the empty helper first clears any
+# system-level helper so gh is the only one consulted.
+[credential "https://github.com"]
+  helper =
+  helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+  helper =
+  helper = !gh auth git-credential
+
 # Identity and machine-specific git config live in an UNTRACKED local file;
 # this repo carries zero personal info. Create ~/.gitconfig-local with your
 # [user] section (and any per-directory includeIf rules for work identities).
 [include]
   path = ~/.gitconfig-local
-[credential "https://github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !/usr/bin/gh auth git-credential

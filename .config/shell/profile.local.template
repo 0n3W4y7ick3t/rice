@@ -1,4 +1,6 @@
 # Machine-local secrets and personal env (chmod 600, untracked). Sourced at
 # login by .config/shell/profile; exports reach the whole graphical session.
-export LOCATION=""           # wttr.in weather city
-#export IMGUR_CLIENT_ID=""   # personal imgur API key for the imgur script
+export LOCATION=""            # wttr.in weather city
+#export IMGUR_CLIENT_ID=""      # imgur app; alone = anonymous uploads
+#export IMGUR_CLIENT_SECRET=""  # + refresh token = uploads land in account
+#export IMGUR_REFRESH_TOKEN=""  # from the one-time OAuth authorize flow

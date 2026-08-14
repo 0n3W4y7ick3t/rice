@@ -10,7 +10,55 @@
 # replace with your own or specify yours as IMGUR_CLIENT_ID environment variable
 # to avoid limits
 default_client_id=c9a6efb3d7932fd
+
+# Creds live in the untracked profile.local; source it when the caller's
+# environment predates it (e.g. a session started before it existed).
+if [ -z "$IMGUR_REFRESH_TOKEN" ] && [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.local" ]; then
+	. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.local"
+fi
 client_id="${IMGUR_CLIENT_ID:=$default_client_id}"
+
+# --anon as the first argument forces an anonymous upload even when account
+# credentials are configured.
+anon=0
+if [ "$1" == "--anon" ]; then
+	anon=1
+	shift
+fi
+
+# Client-ID auth = ANONYMOUS upload (not tied to any account, deletable only
+# through the saved deletehash link). With IMGUR_CLIENT_SECRET and
+# IMGUR_REFRESH_TOKEN set (profile.local), upload with an OAuth Bearer token
+# instead, so images land in the account and are deletable from imgur.com.
+# Access tokens expire monthly; cache one and refresh it after a day.
+# Prints the auth header; also reports "mode=account"/"mode=anonymous" on
+# stderr so callers can tell where the upload actually went.
+auth_header() {
+	local tokfile tok resp
+	if [ "$anon" -eq 0 ] && [ -n "$IMGUR_REFRESH_TOKEN" ] && [ -n "$IMGUR_CLIENT_SECRET" ]; then
+		tokfile="${XDG_CACHE_HOME:-$HOME/.cache}/imgur_token"
+		if [ ! -f "$tokfile" ] || [ -n "$(find "$tokfile" -mmin +1440 2>/dev/null)" ]; then
+			resp=$(curl -s -X POST \
+				-F "refresh_token=$IMGUR_REFRESH_TOKEN" \
+				-F "client_id=$client_id" \
+				-F "client_secret=$IMGUR_CLIENT_SECRET" \
+				-F "grant_type=refresh_token" https://api.imgur.com/oauth2/token)
+			tok=$(printf '%s' "$resp" | sed -n 's/.*"access_token" *: *"\([^"]*\)".*/\1/p')
+			if [ -n "$tok" ]; then
+				printf '%s' "$tok" > "$tokfile" && chmod 600 "$tokfile"
+			fi
+		fi
+		tok=$(cat "$tokfile" 2>/dev/null)
+		if [ -n "$tok" ]; then
+			echo "imgur: mode=account" >&2
+			echo "Authorization: Bearer $tok"
+			return
+		fi
+		echo "imgur: token refresh failed, falling back" >&2
+	fi
+	echo "imgur: mode=anonymous" >&2
+	echo "Authorization: Client-ID $client_id"
+}
 
 # Function to output usage instructions
 function usage {
@@ -29,7 +77,7 @@ function usage {
 # Function to upload a path
 # First argument should be a content spec understood by curl's -F option
 function upload {
-	curl -s -H "Authorization: Client-ID $client_id" -H "Expect: " -F "image=$1" https://api.imgur.com/3/image.xml
+	curl -s -H "$(auth_header)" -H "Expect: " -F "image=$1" https://api.imgur.com/3/image.xml
 	# The "Expect: " header is to get around a problem when using this through
 	# the Squid proxy. Not sure if it's a Squid bug or what.
 }
@@ -107,7 +155,9 @@ done
 if type pbcopy &>/dev/null; then
 	echo -n "$clip" | pbcopy $IMGUR_PBCOPY_OPTIONS
 elif [ $WAYLAND_DISPLAY ] && type wl-copy &>/dev/null; then
-	echo -n "$clip" | wl-copy
+	# stdio detached: wl-copy's serving daemon otherwise inherits the caller's
+	# pipes, deadlocking $(imgur ...) captures and dying with the caller.
+	echo -n "$clip" | wl-copy >/dev/null 2>&1
 elif type clip &>/dev/null; then
 	echo -n "$clip" | clip $IMGUR_CLIP_OPTIONS
 else

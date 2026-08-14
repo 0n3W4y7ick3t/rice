@@ -7,18 +7,25 @@
 # `$0 select`: select region by mouse
 # `$0 active`: the active window
 # `$0 edit`: select region, annotate in swappy
-# `$0 upload`: upload lastscreenshot to imgur, yank the image link to clipboard
+# `$0 upload`: upload lastscreenshot to imgur (account if creds configured),
+#              yank the image link to clipboard
+# `$0 upload-anon`: same, forced anonymous
 # `$0 show`: show lastscreenshot with $IMG_VIEWER
 # `$0 history`: browse clipboard image history with live preview (clippick-img)
 #
 # Actual capture is delegated to the `screenshot` grim/slurp helper, which
 # also copies to clipboard and records $XDG_DATA_HOME/lastscreenshot.
 
+# upload [--anon]; imgur itself wl-copies the link and appends to
+# imgur_history, and reports mode=account/anonymous on stderr.
 upload() {
   last="$(cat "$XDG_DATA_HOME"/lastscreenshot)"
-  # imgur itself wl-copies the link and appends to imgur_history
-  if imgur "$last" >/dev/null 2>&1; then
-    notify-send "📸 screenshot" "uploaded — link on clipboard"
+  if out=$(imgur ${1:+"$1"} "$last" 2>&1 >/dev/null); then
+    case "$out" in
+      *mode=account*) where="to your account";;
+      *) where="anonymously";;
+    esac
+    notify-send "📸 screenshot" "uploaded $where — link on clipboard"
   else
     notify-send "📸 screenshot" "imgur upload failed"
     exit 1
@@ -39,22 +46,44 @@ prompt() {
     }' | head -n 10)
   choice=$({
     printf '%s\n' "full(s)" "active(s)" "select(s)" "edit(s)" \
-      "showlast(a)" "upload(a)" "history(a)"
+      "showlast(a)" "upload(a)" "upload-anon(a)" "history(a)"
     [ -z "$images" ] || printf '%s\n' "$images"
-  } | wmenu -i -l 17 -p "Select screenshot styles or actions:")
+  } | wmenu -i -l 18 -p "Select screenshot styles or actions:")
   case "$choice" in
     full*) screenshot full;;
     act*) screenshot window;;
     rec* | sel*) screenshot region;;
     edit*) screenshot region-edit;;
+    upload-anon*) upload --anon;;
     upload*) upload;;
     show*) show;;
     history*) clippick-img;;
     "🖼 #"*)
       id=${choice#🖼 \#}
       id=${id%% *}
+      # wmenu is a layer surface, so the real window still counts as active
+      target=$(hyprctl activewindow -j 2>/dev/null | jq -r '.address // empty')
       cliphist decode "$id" | wl-copy
-      notify-send "📸 screenshot" "image #$id back on clipboard";;
+      notify-send "📸 screenshot" "image #$id back on clipboard"
+      # auto-paste: refocus the target (real keyboard enter required), wait
+      # until focus took, then inject ctrl+v; pasteless windows ignore it
+      if [ -n "$target" ]; then
+        for _ in 1 2 3 4 5 6 7 8 9 10; do
+          wl-paste -l 2>/dev/null | grep -q "^image/" && break
+          sleep 0.05
+        done
+        hyprctl dispatch focuswindow "address:$target" >/dev/null 2>&1
+        for _ in 1 2 3 4 5 6 7 8 9 10; do
+          [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$target" ] && break
+          sleep 0.03
+        done
+        # wtype reaches wayland-native windows, sendshortcut XWayland ones
+        if [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .xwayland)" = "true" ]; then
+          hyprctl dispatch sendshortcut "CTRL,V,address:$target" >/dev/null 2>&1
+        else
+          wtype -M ctrl -k v -m ctrl
+        fi
+      fi;;
   esac
 }
 
@@ -64,6 +93,7 @@ case "$1" in
   rec* | sel*) screenshot region;;
   edit*) screenshot region-edit;;
   upload) upload;;
+  upload-anon) upload --anon;;
   show*) show;;
   history) clippick-img;;
   *) prompt;;

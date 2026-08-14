@@ -11,6 +11,9 @@
 set -eu
 
 if [ "${1:-}" != run ]; then
+  # the paste target: whatever window is focused before the float opens
+  CLIPIMG_TARGET=$(hyprctl activewindow -j 2>/dev/null | jq -r '.address // empty')
+  export CLIPIMG_TARGET
   exec kitty --class clipimg -e "$0" run
 fi
 
@@ -41,9 +44,32 @@ sel=$(ls "$tmp" | fzf --layout=reverse --no-multi --prompt 'clipboard image> ' \
   exit 0
 [ -n "$sel" ] || exit 0
 
-# stdio detached so the forked clipboard server can't hold the pty open and
-# keep the kitty float alive after the pick.
-wl-copy < "$tmp/$sel" >/dev/null 2>&1
+# setsid detaches the clipboard server from this kitty: it must outlive the
+# float or the offer dies with the pty. The fd is opened here, so the trap's
+# rm cannot race it.
+setsid -f wl-copy < "$tmp/$sel" >/dev/null 2>&1
 id=${sel%.*}
 id=${id#*-}
 notify-send "🖼 clipboard" "image #$id back on clipboard"
+# auto-paste into the recorded window. It must get REAL focus first (clients
+# drop key events for surfaces without keyboard enter; hyprland sendshortcut
+# is broken for wayland-native apps), so: wait for our clipboard offer, force
+# focus, wait until it took, then inject ctrl+v. Pasteless windows ignore it.
+if [ -n "${CLIPIMG_TARGET:-}" ]; then
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    wl-paste -l 2>/dev/null | grep -q "^image/" && break
+    sleep 0.05
+  done
+  hyprctl dispatch focuswindow "address:$CLIPIMG_TARGET" >/dev/null 2>&1
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$CLIPIMG_TARGET" ] && break
+    sleep 0.03
+  done
+  # complementary delivery: wtype reaches wayland-native windows only,
+  # sendshortcut reaches XWayland ones only
+  if [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .xwayland)" = "true" ]; then
+    hyprctl dispatch sendshortcut "CTRL,V,address:$CLIPIMG_TARGET" >/dev/null 2>&1
+  else
+    wtype -M ctrl -k v -m ctrl
+  fi
+fi

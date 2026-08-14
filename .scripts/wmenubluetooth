@@ -6,7 +6,12 @@
 #
 # Two bluetoothctl traps are handled here: it exits 0 on several failures (it
 # only prints "Failed to ..."), so results are judged from its output; and
-# `scan on` / `connect` never return without the global --timeout.
+# `connect` never returns without the global --timeout.
+#
+# Scanning runs as a background `bluetoothctl scan on` that lives as long as
+# this menu: bluez purges unpaired "temporary" devices once discovery stops,
+# so a blocking `--timeout N scan on` loses its findings before the list is
+# redrawn. Discovery is refcounted per client, killing the child stops it.
 
 set -eu
 
@@ -20,6 +25,10 @@ if command -v rfkill >/dev/null 2>&1 &&
   note "radio is rfkill-blocked — run: rfkill unblock bluetooth"
   exit 1
 fi
+
+scanpid=""
+stopscan() { [ -z "$scanpid" ] || kill "$scanpid" 2>/dev/null || :; }
+trap stopscan EXIT INT TERM
 
 # btrun <label> <bluetoothctl args...>; reports through dunst and returns 1 on
 # a failure-looking output, so callers can chain (pair -> trust -> connect).
@@ -47,32 +56,46 @@ while :; do
   esac
 
   connected=$(bluetoothctl devices Connected 2>/dev/null || true)
+  paired=$(bluetoothctl devices Paired 2>/dev/null || true)
   # mac <TAB> menu label <TAB> name -- names contain spaces, so the address is
   # carried alongside the label instead of being parsed back out of it.
-  list=$(bluetoothctl devices 2>/dev/null | awk -v conn="$connected" '
+  # 🔗 connected, · paired, 📡 discovered-only (fresh scan result).
+  list=$(bluetoothctl devices 2>/dev/null | awk -v conn="$connected" -v pair="$paired" '
     $1 == "Device" {
       mac = $2
       name = $0
       sub(/^Device [^ ]+ +/, "", name)
-      printf "%s\t%s %s\t%s\n", mac, (index(conn, mac) ? "🔗" : "·"), name, name
+      mark = index(conn, mac) ? "🔗" : (index(pair, mac) ? "·" : "📡")
+      printf "%s\t%s %s\t%s\n", mac, mark, name, name
     }' || true)
+
+  if [ -n "$scanpid" ]; then
+    scan="🔍 scanning… refresh list"
+  else
+    scan="🔍 scan"
+  fi
 
   choice=$(
     {
       [ -z "$list" ] || printf '%s\n' "$list" | cut -f2
-      printf '%s\n' "🔍 scan (10s)" "$power" "🖥 bluetoothctl shell"
+      printf '%s\n' "$scan" "$power" "🖥 bluetoothctl shell"
     } | wmenu -i -l 12 -p "bluetooth"
   ) || exit 0
   [ -n "$choice" ] || exit 0
 
   case "$choice" in
-    "🔍 scan (10s)")
-      note "scanning for 10s…"
-      bluetoothctl --timeout 10 scan on >/dev/null 2>&1 || true
+    "🔍 scan")
+      bluetoothctl scan on >/dev/null 2>&1 &
+      scanpid=$!
+      note "scanning — list refreshes in 8s"
+      sleep 8
       continue ;;
+    "🔍 scanning… refresh list") continue ;;
     "⏻ power on")  btrun "power on" power on || true; continue ;;
     "⏻ power off") btrun "power off" power off || true; continue ;;
-    "🖥 bluetoothctl shell") exec "${TERMINAL:-kitty}" -e bluetoothctl ;;
+    # exec replaces the process, so the EXIT trap never fires -- stop the
+    # scan child by hand first.
+    "🖥 bluetoothctl shell") stopscan; exec "${TERMINAL:-kitty}" -e bluetoothctl ;;
   esac
 
   mac=$(printf '%s\n' "$list" |

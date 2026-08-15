@@ -1,5 +1,5 @@
-# Favorite programs for wmenuapps ($mod+D; bare Super tap shows only these):
-# one command per line, in this order. Arguments are allowed, e.g.:
+# Favorite programs for wmenuapps ($mod+D shows only these; $mod+\ is the
+# full launcher): one command per line, in this order. Arguments allowed:
 #   kitty -e ncmpcpp
 # Append with `bmp <cmd>`.
 telegram-desktop

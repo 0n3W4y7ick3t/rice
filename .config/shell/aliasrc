@@ -66,7 +66,7 @@ alias groot="cd \`git rev-parse --show-toplevel\`"
 alias sudo="sudo "
 
 se() { cd ~/.scripts; $EDITOR $(fzf) ;}
-# mark a program as favorite for wmenuapps ($mod+D / bare Super tap)
+# mark a program as favorite for wmenuapps ($mod+D)
 bmp() { [ $# -gt 0 ] && printf '%s\n' "$*" >> "$XDG_CONFIG_HOME/shell/bm-progs" ;}
 
 alias \

@@ -5,8 +5,8 @@
 # here. Picking a line bumps its count. Usage lives in an untracked
 # per-machine cache; lines may be full commands with arguments.
 #
-# `wmenuapps favs` shows the favorites alone (bound to a bare Super tap);
-# `bmp <cmd>` (aliasrc) appends to the favorites file.
+# `wmenuapps favs` shows the favorites alone ($mod+D; the full list is
+# $mod+backslash); `bmp <cmd>` (aliasrc) appends to the favorites file.
 
 set -eu
 

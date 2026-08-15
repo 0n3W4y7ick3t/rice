@@ -101,8 +101,8 @@
 
 | Keys | Action |
 | --- | --- |
-| `Super + D` | `wmenuapps  (favorites + PATH by usage)` |
-| `Super + SUPER_L` | `wmenuapps favs  (bare super tap: favorites only)` |
+| `Super + D` | `wmenuapps favs  (favorites only)` |
+| `Super + \` | `wmenuapps  (favorites + PATH by usage)` |
 | `Super + Shift + D` | `passmenu` |
 | `Super + W` | `google-chrome-stable` |
 | `Super + E` | `kitty -e lf` |

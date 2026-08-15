@@ -1,0 +1,8 @@
+# Favorite programs for wmenuapps ($mod+D; bare Super tap shows only these):
+# one command per line, in this order. Arguments are allowed, e.g.:
+#   kitty -e ncmpcpp
+# Append with `bmp <cmd>`.
+telegram-desktop
+code
+virt-manager
+dbeaver

@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# App launcher: favorites (shell/bm-progs, kept in file order) pinned on
+# top, then every PATH executable ordered by how often it was launched from
+# here. Picking a line bumps its count. Usage lives in an untracked
+# per-machine cache; lines may be full commands with arguments.
+#
+# `wmenuapps favs` shows the favorites alone (bound to a bare Super tap);
+# `bmp <cmd>` (aliasrc) appends to the favorites file.
+
+set -eu
+
+favs="${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-progs"
+hist="${XDG_DATA_HOME:-$HOME/.local/share}/wmenuapps-usage"
+tab=$(printf '\t')
+
+[ -f "$hist" ] || : > "$hist"
+
+path_bins() {
+  oldifs=$IFS
+  IFS=:
+  for dir in $PATH; do
+    [ -d "$dir" ] && ls -1 "$dir" 2>/dev/null
+  done
+  IFS=$oldifs
+}
+
+# hist is "count<TAB>command"; prefix candidates with their count, order by
+# count desc then name, strip the prefix again. Branch on FILENAME, not the
+# NR==FNR idiom: an empty hist would make NR==FNR true for stdin too and
+# swallow every candidate.
+by_usage() {
+  awk -F'\t' '
+    FILENAME == "-" { print (cnt[$0] + 0) "\t" $0; next }
+    { cnt[$2] = $1 }' "$hist" - |
+    sort -t "$tab" -k1,1nr -k2,2 | cut -f2-
+}
+
+favlist() {
+  [ ! -f "$favs" ] || sed 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$favs"
+}
+
+if [ "${1:-}" = favs ]; then
+  choice=$(favlist | wmenu -i -l 10 -p "fav") || exit 0
+else
+  choice=$(
+    {
+      favlist
+      path_bins | sort -u | by_usage
+    } | awk '!seen[$0]++' | wmenu -i -l 20 -p "run"
+  ) || exit 0
+fi
+[ -n "$choice" ] || exit 0
+
+awk -F'\t' -v OFS='\t' -v c="$choice" \
+  '{ if ($2 == c) { $1++; f = 1 }; print } END { if (!f) print 1, c }' \
+  "$hist" > "$hist.new" && mv "$hist.new" "$hist"
+
+setsid -f sh -c "$choice" >/dev/null 2>&1

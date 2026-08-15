@@ -101,7 +101,8 @@
 
 | Keys | Action |
 | --- | --- |
-| `Super + D` | `wmenu-run -f 'FiraCode Nerd Font 15' -N 1A1B26 -n A9B1D6 -S 7AA2F7 -s 1A1B26` |
+| `Super + D` | `wmenuapps  (favorites + PATH by usage)` |
+| `Super + SUPER_L` | `wmenuapps favs  (bare super tap: favorites only)` |
 | `Super + Shift + D` | `passmenu` |
 | `Super + W` | `google-chrome-stable` |
 | `Super + E` | `kitty -e lf` |

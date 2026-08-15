@@ -166,7 +166,7 @@ emit() {
     next
   }
   /^# / { pending = (cmt == 1) ? substr($0, 3) : ""; next }
-  /^bind[lem]* *=/ {
+  /^bind[a-z]* *=/ {
     line = $0
     desc = ""
     if (match(line, / # /)) {

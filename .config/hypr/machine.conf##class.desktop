@@ -15,7 +15,11 @@
 # transform 3 (270 deg), not 1: the panel is physically rotated 90 deg
 # clockwise, and Wayland's transform compensates in the opposite direction.
 monitor = desc:Dell Inc. DELL U2723QX BHD5YN3, 3840x2160@60, 0x0, 1.6, transform, 3
-monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 1.333333, vrr, 1
+# vrr off: this panel gamma-flickers at the low end of its VRR range, which
+# fullscreen ~24fps video hits constantly (2026-08-14). vrr,2 if gaming ever
+# wants it back. Separate issue: HDMI FRL retrains blank the screen -- see
+# dmesg "FRL link training failed" if flashes persist with vrr off.
+monitor = desc:LG Electronics LG TV SSCR2, 3840x2160@120, auto-right, 1.333333, vrr, 0
 # Fallback for anything unmatched
 monitor = , preferred, auto, 1.5
 

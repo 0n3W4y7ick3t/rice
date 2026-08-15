@@ -69,7 +69,6 @@
 | `Super + Shift + 9` | `movetoworkspacesilent 9` |
 | `Super + 0` | `hypr-windows` |
 | `Super + Tab` | `workspace previous` |
-| `Super + \` | `workspace previous` |
 | `Super + G` | `workspace r-1` |
 | `Super + ;` | `workspace r+1` |
 | `Super + Shift + G` | `movetoworkspace r-1` |

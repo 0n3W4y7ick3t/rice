@@ -25,8 +25,12 @@ clone https://github.com/romkatv/powerlevel10k "$XDG_CONFIG_HOME/zsh/themes/powe
 clone https://github.com/zsh-users/zsh-autosuggestions "$XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions"
 clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$XDG_CONFIG_HOME/zsh/plugins/fast-syntax-highlighting"
 
-# Generate shell/lf/nvim shortcut files from bm-dirs/bm-files.
-"$HOME/.scripts/shortcuts" || true
+# Bookmarks are untracked per-machine files: seed each from its tracked
+# example, then generate the shell/lf/nvim shortcut files from bm-dirs/bm-files.
+for f in bm-dirs bm-files bm-progs; do
+  [ -f "$XDG_CONFIG_HOME/shell/$f" ] || cp "$XDG_CONFIG_HOME/shell/$f.example" "$XDG_CONFIG_HOME/shell/$f"
+done
+XDG_CONFIG_HOME="$XDG_CONFIG_HOME" "$HOME/.scripts/shortcuts" || true
 
 if [ "$CLASS" = "server" ]; then
   echo "bootstrap: server class, skipping GUI setup"

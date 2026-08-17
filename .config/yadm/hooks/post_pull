@@ -5,6 +5,17 @@
   install -m 600 "$HOME/.config/shell/profile.local.template" \
     "$HOME/.config/shell/profile.local" 2>/dev/null
 
+# Same seam for the bookmarks: bm-dirs/bm-files/bm-progs are untracked and
+# per-machine, seeded from the tracked *.example when missing. A fresh seed
+# regenerates the shortcut files so the aliases exist right away.
+seeded=
+for f in bm-dirs bm-files bm-progs; do
+  [ -f "$HOME/.config/shell/$f" ] ||
+    { cp "$HOME/.config/shell/$f.example" "$HOME/.config/shell/$f" 2>/dev/null && seeded=1; }
+done
+[ -n "$seeded" ] &&
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" "$HOME/.scripts/shortcuts" >/dev/null 2>&1
+
 # README.md and LICENSE stay tracked at the repo root for GitHub, but are
 # never materialized in $HOME. Re-applied on every pull so each machine
 # picks the rule up without a manual bootstrap; idempotent.

@@ -5,6 +5,10 @@ KEYBINDINGS.pdf
 .gitconfig-*
 .config/gh/
 .config/shell/profile.local
+# Bookmarks grow per machine by hand (bmd/bmf/bmp append to them); the tracked
+# *.example is the seed post_pull/bootstrap copy on first deploy.
+.config/shell/bm-*
+!.config/shell/bm-*.example
 # Claude state is machine-local (claude-sync owns what syncs), but the repo
 # context file is tracked here.
 .claude/*

@@ -117,12 +117,20 @@ and directories whose HTTPS remotes belong to the other account pin their
 own credential helper inside the untracked gitconfig include chain.
 Recreate dirmap and that chain by hand on a new machine.
 
+The bookmarks follow the same seam since 2026-08-17: `.config/shell/bm-dirs`,
+`bm-files` and `bm-progs` are gitignored, and `bmd`/`bmf`/`bmp` append to
+them freely. The tracked `bm-*.example` files are the seed — `post_pull`
+and `bootstrap` copy each one into place when the live file is missing and
+run `shortcuts` so the aliases exist. Change defaults in the `.example`,
+never expect the live file to be in the repo.
+
 The rule that decides it: **this repo is public, so nothing in it may say
 anything about who Leon works for or what he works on.** No employer
 names, no account names, no project or repo names, and no directory
 bookmarks pointing at work trees — one had slipped into
-`.config/shell/bm-dirs` and was removed on 2026-08-13. Personal paths are
-fine; `$HOME/akira` is this person's own.
+`.config/shell/bm-dirs` and was removed on 2026-08-13, which is why the
+bookmark files stopped being tracked. Personal paths are fine;
+`$HOME/akira` is this person's own.
 
 ## Conventions
 

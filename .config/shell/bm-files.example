@@ -1,11 +1,5 @@
-# These files automatically update when edited/saved in vim:
-
-# keys	filename				description
-bf	$HOME/.config/shell/bm-files	# This file, a list of bookmarked files
-bd	$HOME/.config/shell/bm-dirs		# A list of bookmarked directories similar to this file
-
-# These do not update automatically, but on the next new instance of a program:
-
+# File bookmarks, `name path # note` per line; `name` becomes an $EDITOR alias.
+# bmf <name> <file> appends.
 cfz	$HOME/.zshrc						      # zsh (shell) config
 cfv	$HOME/.config/nvim/init.vim		# vim/neovim config
 cfa	$HOME/.config/shell/aliasrc		# aliases used by zsh (and potentially other shells)
@@ -13,4 +7,3 @@ cfp	$HOME/.config/shell/profile		# profile file for login settings for zsh
 cfl	$HOME/.config/lf/lfrc		      # lf (file browser) config
 cfx	$HOME/.config/x11/xprofile	  # sxiv (image viewer) key/script handler
 zht $HOME/.cache/zshistory
-sdh $HOME/.local/share/sdcv_history

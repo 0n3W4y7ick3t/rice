@@ -1,7 +1,7 @@
 // Waybar as a dwmblocks replacement: the sb-* scripts from
-// ~/.local/bin/statusbar (already on PATH via shell/profile's find over
-// ~/.local/bin) run unchanged. Click/scroll handlers pass BLOCK_BUTTON=1..5
-// exactly like dwmblocks did; `barsig N` maps to each module's "signal".
+// ~/.scripts/statusbar (on PATH via shell/profile) run unchanged.
+// Click/scroll handlers pass BLOCK_BUTTON=1..5 exactly like dwmblocks did;
+// `barsig N` maps to each module's "signal".
 {
     "layer": "top",
     "position": "top",

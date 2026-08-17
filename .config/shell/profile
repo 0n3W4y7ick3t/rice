@@ -59,7 +59,7 @@ export XMODIFIERS=@im=fcitx
 export AWT_TOOLKIT="MToolkit wmname LG3D"  # May have to install wmname
 export _JAVA_AWT_WM_NONREPARENTING=1       # Legacy fix for Java apps under XWayland.
 
-export PATH=$HOME/.scripts:${$(find ~/.local/bin -type d -printf %p:)%%:}:$CARGO_HOME/bin:$GOPATH/bin:$PATH
+export PATH=$HOME/.scripts:$HOME/.scripts/statusbar:${$(find ~/.local/bin -type d -printf %p:)%%:}:$CARGO_HOME/bin:$GOPATH/bin:$PATH
 
 [ ! -f $XDG_CONFIG_HOME/shell/shortcutrc ] && shortcuts >/dev/null 2>&1 &
 

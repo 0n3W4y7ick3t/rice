@@ -2,12 +2,46 @@
 
 # Flag for the current fcitx5 input method. Prints nothing when fcitx5 is
 # not running so waybar hides the module (hide-empty-text).
+# Event-driven, not polled: sb-fcitx5-watcher pokes `barsig 12` whenever
+# fcitx5's tray item changes icon (IM switch, Shift sub-mode, window focus).
 
 command -v fcitx5-remote >/dev/null || exit 0
 im=$(fcitx5-remote --check -n 2>/dev/null) || exit 0
 
+# Start the watcher if it's not already running. setsid -f (not `&`): a
+# plain background job keeps waybar's stdout pipe open and the module never
+# gets EOF, so it stays blank.
+pidof -x sb-fcitx5-watcher >/dev/null 2>&1 ||
+  setsid -f sb-fcitx5-watcher >/dev/null 2>&1 </dev/null
+
 case $BLOCK_BUTTON in
   1) fcitx5-remote -t && im=$(fcitx5-remote -n) ;;   # toggle active/inactive
+esac
+
+# fcitx5-remote only knows the IM; the sub-mode (pinyin 中/英, mozc あ/A) is
+# visible solely as the tray icon of fcitx5's StatusNotifierItem. Fail-soft:
+# without a tray watcher this just maps by IM name.
+sni_icon() {
+  items=$(busctl --user call org.kde.StatusNotifierWatcher /StatusNotifierWatcher \
+    org.freedesktop.DBus.Properties Get ss org.kde.StatusNotifierWatcher \
+    RegisteredStatusNotifierItems 2>/dev/null) || return 1
+  for it in $items; do
+    case $it in \":*/*\") ;; *) continue ;; esac
+    it=${it#\"}; it=${it%\"}
+    name=${it%%/*}; path=/${it#*/}
+    id=$(busctl --user get-property "$name" "$path" org.kde.StatusNotifierItem Id 2>/dev/null)
+    [ "$id" = 's "Fcitx"' ] || continue
+    icon=$(busctl --user get-property "$name" "$path" org.kde.StatusNotifierItem IconName 2>/dev/null) || return 1
+    icon=${icon#s \"}; echo "${icon%\"}"
+    return 0
+  done
+  return 1
+}
+
+# A keyboard icon while pinyin/mozc is active means their Latin sub-mode.
+case $(sni_icon) in
+  input-keyboard*|fcitx-keyboard*|fcitx_mozc_alpha*|fcitx_mozc_direct*)
+    case $im in keyboard-*) ;; *) im=keyboard-us ;; esac ;;
 esac
 
 case "$im" in

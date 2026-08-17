@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# sb-fcitx5-watcher - poke the waybar fcitx5 module whenever fcitx5's tray
+# item changes icon. fcitx5 has no D-Bus signal for the current input method,
+# but its StatusNotifierItem (published only while a tray watcher -- waybar's
+# tray module -- exists) emits NewIcon on every IM change, sub-mode toggle
+# (Shift: 中/英, JP/EN) and window focus change. The watcher's own
+# Registered/Unregistered signals cover fcitx5 restarts.
+
+dbus-monitor --session \
+  "type='signal',interface='org.kde.StatusNotifierItem',member='NewIcon'" \
+  "type='signal',interface='org.kde.StatusNotifierWatcher'" |
+while read -r line; do
+  case $line in
+    *member=NewIcon*|*member=StatusNotifierItem*) barsig 12 ;;
+  esac
+done

@@ -41,3 +41,12 @@ window#waybar #window {
 .modules-right * {
     margin: 0 3px;
 }
+
+/* The tray is only there so fcitx5 publishes its StatusNotifierItem (see
+   config.jsonc); collapse it so nothing shows. */
+#tray, #tray * {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+}

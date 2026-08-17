@@ -17,6 +17,7 @@
         "custom/cpu",
         "custom/forecast",
         "custom/moonphase",
+        "tray",
         "custom/fcitx5",
         "custom/clock"
     ],
@@ -153,11 +154,22 @@
         "on-scroll-down": "BLOCK_BUTTON=5 sb-moonphase"
     },
 
-    // fcitx5 has no "current IM changed" D-Bus signal, so poll like the clock.
-    // Hidden while fcitx5 is not running (script prints nothing).
+    // Not a visible tray: it exists only as the StatusNotifierWatcher that
+    // makes fcitx5 publish its tray item, which is the one place fcitx5
+    // exposes the current IM *and* sub-mode (pinyin 中/英, mozc あ/A) with a
+    // change signal. style.css collapses it to nothing.
+    "tray": {
+        "icon-size": 1,
+        "spacing": 0
+    },
+
+    // Event-driven, not polled: sb-fcitx5-watcher (started by sb-fcitx5)
+    // pokes barsig 12 whenever fcitx5's tray item changes icon -- IM switch,
+    // Shift sub-mode toggle, window focus. Hidden while fcitx5 is not
+    // running (script prints nothing).
     "custom/fcitx5": {
         "exec": "sb-fcitx5",
-        "interval": 1,
+        "interval": "once",
         "signal": 12,
         "hide-empty-text": true,
         "on-click": "BLOCK_BUTTON=1 sb-fcitx5"

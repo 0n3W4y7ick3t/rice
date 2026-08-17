@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Flag for the current fcitx5 input method. Prints nothing when fcitx5 is
+# not running so waybar hides the module (hide-empty-text).
+
+command -v fcitx5-remote >/dev/null || exit 0
+im=$(fcitx5-remote --check -n 2>/dev/null) || exit 0
+
+case $BLOCK_BUTTON in
+  1) fcitx5-remote -t && im=$(fcitx5-remote -n) ;;   # toggle active/inactive
+esac
+
+case "$im" in
+  keyboard-es*) echo 🇪🇸 ;;   # before the catch-all keyboard-* rule
+  keyboard-*) echo 🇺🇸 ;;
+  pinyin)     echo 🇨🇳 ;;
+  mozc)       echo 🇯🇵 ;;
+  *)          echo "$im" ;;   # unmapped IM: show its name rather than a wrong flag
+esac

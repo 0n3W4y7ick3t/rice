@@ -17,6 +17,7 @@
         "custom/cpu",
         "custom/forecast",
         "custom/moonphase",
+        "custom/fcitx5",
         "custom/clock"
     ],
 
@@ -150,6 +151,16 @@
         "on-click-right": "BLOCK_BUTTON=3 sb-moonphase",
         "on-scroll-up": "BLOCK_BUTTON=4 sb-moonphase",
         "on-scroll-down": "BLOCK_BUTTON=5 sb-moonphase"
+    },
+
+    // fcitx5 has no "current IM changed" D-Bus signal, so poll like the clock.
+    // Hidden while fcitx5 is not running (script prints nothing).
+    "custom/fcitx5": {
+        "exec": "sb-fcitx5",
+        "interval": 1,
+        "signal": 12,
+        "hide-empty-text": true,
+        "on-click": "BLOCK_BUTTON=1 sb-fcitx5"
     },
 
     "custom/clock": {

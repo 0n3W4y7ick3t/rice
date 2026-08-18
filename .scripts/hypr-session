@@ -16,8 +16,9 @@ State lives in $XDG_STATE_HOME/hypr-session (override: $HYPR_SESSION_DIR).
 Disable restore entirely:  touch <state dir>/disabled
 Extra excluded classes:    HYPR_SESSION_EXCLUDE="class1,class2"
 
-Windows on special workspaces are never saved: the scratchpads are
-`on-created-empty` in hyprland.conf and respawn themselves.
+Terminals keep their original flags (--class spterm, -e bc ...) and get their
+cwd re-injected, so class-keyed windowrules and the scratchpads on special
+workspaces come back as they were.
 """
 
 import json
@@ -137,26 +138,64 @@ def find_descendant(pid, names, max_depth=5):
 
 # ----------------------------------------------------------------------- save
 
+CWD_FLAGS = {"-d", "--directory", "--working-directory", "-D"}
+
+
+def terminal_of(pid):
+    """A terminal started with --class X reports X, not kitty; use the comm."""
+    comm = proc_comm(pid) or ""
+    for cls, (binary, _, _) in TERMINALS.items():
+        if comm == binary:
+            return cls
+    return None
+
+
+def split_terminal_argv(argv):
+    """argv -> (flags before -e/--, program part from -e/-- on), minus cwd flags."""
+    flags, prog = argv[1:], []
+    for i, a in enumerate(argv[1:], 1):
+        if a in ("-e", "--"):
+            flags, prog = argv[1:i], argv[i:]
+            break
+    clean, skip = [], False
+    for a in flags:
+        if skip:
+            skip = False
+            continue
+        if a in CWD_FLAGS:
+            skip = True
+            continue
+        if any(a.startswith(f + "=") for f in CWD_FLAGS if f.startswith("--")):
+            continue
+        clean.append(a)
+    return clean, prog
+
+
 def relaunch_command(client):
     """Build the shell command that recreates this window's process."""
     pid = client["pid"]
     cls = client.get("class", "")
 
-    if cls in TERMINALS:
-        binary, cwd_flag, exec_flag = TERMINALS[cls]
+    term = TERMINALS.get(cls) or TERMINALS.get(terminal_of(pid))
+    if term:
+        binary, cwd_flag, exec_flag = term
+        # keep the original flags (--class spterm, -T ...) so windowrules
+        # keyed on class still match; only the cwd is ours to set
+        flags, prog = split_terminal_argv(proc_cmdline(pid) or [binary])
         tui = find_descendant(pid, TUI_PROGRAMS)
         if tui is not None:
             argv = proc_cmdline(tui) or [proc_comm(tui)]
             # drop session-specific temp-file args (yazi --cwd-file=...)
             argv = [a for a in argv if not a.startswith("--cwd-file")]
             cwd = proc_cwd(tui) or os.path.expanduser("~")
-            cmd = [binary, cwd_flag, cwd]
+            cmd = [binary] + flags + [cwd_flag, cwd]
             if exec_flag:
                 cmd.append(exec_flag)
             return shlex.join(cmd + argv)
         sh = find_descendant(pid, SHELLS)
         cwd = (proc_cwd(sh) if sh else None) or proc_cwd(pid) or os.path.expanduser("~")
-        return shlex.join([binary, cwd_flag, cwd])
+        # explicit non-TUI program (`-e bc -lq`, `-e less file`): keep it verbatim
+        return shlex.join([binary] + flags + [cwd_flag, cwd] + prog)
 
     argv = proc_cmdline(pid)
     if not argv:
@@ -177,8 +216,6 @@ def save():
             continue
         # windows with no class are invisible helpers (e.g. tray bridges)
         if not c.get("class") or c["class"] in EXCLUDE_CLASSES:
-            continue
-        if c["workspace"].get("name", "").startswith("special:"):
             continue
         cmd = relaunch_command(c)
         if not cmd:

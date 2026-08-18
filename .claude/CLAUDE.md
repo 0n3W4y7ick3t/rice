@@ -67,11 +67,12 @@ refuses here, so the upstream script cannot be used as-is). `sysact` runs
 `hypr-session save` before leave/reboot/shutdown, `exec-once` runs
 `hypr-session restore` on login and a `daemon` re-saves every 60 s so a
 power-button shutdown is at most a minute stale. Relaunch commands come
-from `/proc/<pid>/cmdline`, kitty reopens in its cwd. State is
+from `/proc/<pid>/cmdline`; terminals keep their original flags
+(`--class spterm`, `-e bc -lq`) and get their cwd re-injected, so the
+class-keyed windowrules and the scratchpads on special workspaces come
+back as they were (verified: no `on-created-empty` double-spawn). State is
 `~/.local/state/hypr-session/session.json`; `touch
-~/.local/state/hypr-session/disabled` skips the next restore. Scratchpad
-(special-workspace) windows are deliberately not saved — they are
-`on-created-empty` and respawn themselves.
+~/.local/state/hypr-session/disabled` skips the next restore.
 
 ## Hard-won gotchas
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # A wmenu wrapper script for system functions.
+# leave/reboot/shutdown snapshot the window session first (see hypr-session).
 case "$(readlink -f /sbin/init)" in
   *systemd*) ctl='systemctl' ;;
   *) ctl='loginctl' ;;
@@ -9,11 +10,11 @@ esac
 case "$(printf "🎩 htop\n🔒 blurlock\n🚪 leave Hyprland\n🌀 renew Hyprland\n💤 sleep\n🔃 reboot\n🔚 shutdown\n📺 display off\n" | wmenu -i -p 'Action: ')" in
   '🎩 htop') "${TERMINAL:-kitty}" -e htop ;;
   '🔒 blurlock') blurlock ;;
-  '🚪 leave Hyprland') hyprctl dispatch exit ;;
+  '🚪 leave Hyprland') hypr-session save; hyprctl dispatch exit ;;
   '🌀 renew Hyprland') hyprctl reload ;;
   '💤 sleep') blurlock $ctl suspend -i ;;
-  '🔃 reboot') $ctl reboot -i ;;
-  '🔚 shutdown') $ctl poweroff -i ;;
+  '🔃 reboot') hypr-session save; $ctl reboot -i ;;
+  '🔚 shutdown') hypr-session save; $ctl poweroff -i ;;
   '📺 display off') hyprctl dispatch dpms off ;;
   *) exit 1 ;;
 esac

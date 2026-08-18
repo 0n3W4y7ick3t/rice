@@ -60,6 +60,19 @@ No display manager anywhere. Logs that survive a failed start:
 - `~/.cache/hyprland/hyprlandCrashReport*.txt` — Hyprland's own reporter
 - `$XDG_RUNTIME_DIR/hypr/<sig>/hyprland.log` is tmpfs — gone after reboot
 
+**Window session restore** (2026-08-18): `.scripts/hypr-session` is a
+vendored, MIT-licensed copy of hypr-session-restore ported to the classic
+hyprlang dispatch syntax (this config is not a Lua root — `hyprctl eval`
+refuses here, so the upstream script cannot be used as-is). `sysact` runs
+`hypr-session save` before leave/reboot/shutdown, `exec-once` runs
+`hypr-session restore` on login and a `daemon` re-saves every 60 s so a
+power-button shutdown is at most a minute stale. Relaunch commands come
+from `/proc/<pid>/cmdline`, kitty reopens in its cwd. State is
+`~/.local/state/hypr-session/session.json`; `touch
+~/.local/state/hypr-session/disabled` skips the next restore. Scratchpad
+(special-workspace) windows are deliberately not saved — they are
+`on-created-empty` and respawn themselves.
+
 ## Hard-won gotchas
 
 **`AQ_DRM_DEVICES` is a colon-separated list.** The by-path node names

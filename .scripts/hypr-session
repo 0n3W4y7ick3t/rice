@@ -1,0 +1,364 @@
+#!/usr/bin/env python3
+"""hypr-session — reopen last session's windows on Hyprland login.
+
+Adapted from UpayanChatterjee/hypr-session-restore (MIT, commit d281be7),
+ported from the Lua-root dispatch syntax to the classic hyprlang one this
+config uses (`hyprctl dispatch exec "[workspace 2 silent] cmd"`).
+
+save            snapshot mapped windows (workspace, geometry, relaunch command)
+restore [--force]
+                relaunch every saved window silently on its original workspace;
+                --force skips the "session already populated" guard
+daemon          run `save` every SAVE_INTERVAL seconds as a safety net for
+                shutdowns that bypass sysact (power button, crashes)
+
+State lives in $XDG_STATE_HOME/hypr-session (override: $HYPR_SESSION_DIR).
+Disable restore entirely:  touch <state dir>/disabled
+Extra excluded classes:    HYPR_SESSION_EXCLUDE="class1,class2"
+
+Windows on special workspaces are never saved: the scratchpads are
+`on-created-empty` in hyprland.conf and respawn themselves.
+"""
+
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+
+STATE_DIR = os.environ.get("HYPR_SESSION_DIR") or os.path.join(
+    os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+    "hypr-session",
+)
+SESSION_FILE = os.path.join(STATE_DIR, "session.json")
+DISABLE_FLAG = os.path.join(STATE_DIR, "disabled")
+
+# Windows of these classes are never saved/restored (bars, tray bridges,
+# anything autostart already launches).
+EXCLUDE_CLASSES = {
+    "org.quickshell",
+    "xembedsniproxy",
+}
+EXCLUDE_CLASSES |= {
+    c.strip() for c in os.environ.get("HYPR_SESSION_EXCLUDE", "").split(",") if c.strip()
+}
+
+# Terminal handling: if a known TUI runs inside, relaunch it in its cwd;
+# otherwise reopen the terminal in the shell's cwd.
+# class -> (binary, cwd flag, exec flag or None)
+TERMINALS = {
+    "kitty": ("kitty", "-d", None),
+    "foot": ("foot", "-D", None),
+    "Alacritty": ("alacritty", "--working-directory", "-e"),
+}
+TUI_PROGRAMS = {"yazi", "nvim", "vim", "btop", "htop", "ranger", "lf", "ncmpcpp", "pulsemixer"}
+SHELLS = {"fish", "zsh", "bash", "sh", "nu"}
+
+SAVE_INTERVAL = 60
+DAEMON_INITIAL_DELAY = 90
+SWEEP_TIMEOUT = 20
+SPAWN_STAGGER = 0.3
+
+
+def log(msg):
+    print(f"hypr-session: {msg}", file=sys.stderr, flush=True)
+
+
+def hyprctl_json(cmd):
+    out = subprocess.run(["hyprctl", "-j", cmd], capture_output=True, text=True, timeout=10)
+    return json.loads(out.stdout)
+
+
+def dispatch(*args):
+    """hyprctl dispatch <name> <arg> — classic hyprlang form."""
+    subprocess.run(["hyprctl", "dispatch", *args], capture_output=True, text=True, timeout=10)
+
+
+def dispatch_batch(cmds):
+    """One IPC round-trip for several dispatchers: [(name, arg), ...]."""
+    if not cmds:
+        return
+    batch = "; ".join(f"dispatch {name} {arg}" for name, arg in cmds)
+    subprocess.run(["hyprctl", "--batch", batch], capture_output=True, text=True, timeout=10)
+
+
+# ---------------------------------------------------------------- /proc utils
+
+def proc_cmdline(pid):
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as f:
+            parts = f.read().split(b"\0")
+        return [p.decode("utf-8", "replace") for p in parts if p]
+    except OSError:
+        return None
+
+
+def proc_cwd(pid):
+    try:
+        return os.readlink(f"/proc/{pid}/cwd")
+    except OSError:
+        return None
+
+
+def proc_comm(pid):
+    try:
+        with open(f"/proc/{pid}/comm") as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def proc_children(pid):
+    pids = []
+    try:
+        for task in os.listdir(f"/proc/{pid}/task"):
+            try:
+                with open(f"/proc/{pid}/task/{task}/children") as f:
+                    pids += [int(p) for p in f.read().split()]
+            except OSError:
+                pass
+    except OSError:
+        pass
+    return pids
+
+
+def find_descendant(pid, names, max_depth=5):
+    """BFS the process tree under pid for a comm in `names`."""
+    queue = [(c, 1) for c in proc_children(pid)]
+    while queue:
+        cur, depth = queue.pop(0)
+        if proc_comm(cur) in names:
+            return cur
+        if depth < max_depth:
+            queue += [(c, depth + 1) for c in proc_children(cur)]
+    return None
+
+
+# ----------------------------------------------------------------------- save
+
+def relaunch_command(client):
+    """Build the shell command that recreates this window's process."""
+    pid = client["pid"]
+    cls = client.get("class", "")
+
+    if cls in TERMINALS:
+        binary, cwd_flag, exec_flag = TERMINALS[cls]
+        tui = find_descendant(pid, TUI_PROGRAMS)
+        if tui is not None:
+            argv = proc_cmdline(tui) or [proc_comm(tui)]
+            # drop session-specific temp-file args (yazi --cwd-file=...)
+            argv = [a for a in argv if not a.startswith("--cwd-file")]
+            cwd = proc_cwd(tui) or os.path.expanduser("~")
+            cmd = [binary, cwd_flag, cwd]
+            if exec_flag:
+                cmd.append(exec_flag)
+            return shlex.join(cmd + argv)
+        sh = find_descendant(pid, SHELLS)
+        cwd = (proc_cwd(sh) if sh else None) or proc_cwd(pid) or os.path.expanduser("~")
+        return shlex.join([binary, cwd_flag, cwd])
+
+    argv = proc_cmdline(pid)
+    if not argv:
+        return None
+    # some apps (Spotify) rewrite argv into one space-joined string; quoting
+    # that would turn it into a single bogus path
+    if len(argv) == 1 and " " in argv[0]:
+        return argv[0]
+    return shlex.join(argv)
+
+
+def save():
+    clients = hyprctl_json("clients")
+    windows = []
+    spawned_pids = set()
+    for c in clients:
+        if not c.get("mapped") or c.get("pid", -1) <= 0:
+            continue
+        # windows with no class are invisible helpers (e.g. tray bridges)
+        if not c.get("class") or c["class"] in EXCLUDE_CLASSES:
+            continue
+        if c["workspace"].get("name", "").startswith("special:"):
+            continue
+        cmd = relaunch_command(c)
+        if not cmd:
+            continue
+        pid = c["pid"]
+        windows.append({
+            "class": c.get("class", ""),
+            "title": c.get("title", ""),
+            "workspace": c["workspace"],
+            "at": c["at"],
+            "size": c["size"],
+            "floating": c.get("floating", False),
+            "pinned": c.get("pinned", False),
+            "fullscreen": c.get("fullscreen", 0),
+            "monitor": c.get("monitor", 0),
+            "cmd": cmd,
+            # one relaunch per process; extra windows of the same pid are
+            # placed by the sweep pass (single-instance apps reopen them)
+            "spawn": pid not in spawned_pids,
+        })
+        spawned_pids.add(pid)
+
+    os.makedirs(STATE_DIR, exist_ok=True)
+    tmp = SESSION_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"saved_at": time.time(), "windows": windows}, f, indent=2)
+    os.replace(tmp, SESSION_FILE)
+    return len(windows)
+
+
+# -------------------------------------------------------------------- restore
+
+def ws_selector(ws):
+    """workspace dict from hyprctl -> workspace selector string."""
+    name = ws.get("name", "")
+    wid = ws.get("id", 0)
+    if name.startswith("special"):
+        return name
+    if name == str(wid):
+        return str(wid)
+    return f"name:{name}"
+
+
+def exec_rules(win):
+    """Classic exec-rule prefix: rules apply to the first window of the spawned pid."""
+    rules = [f"workspace {ws_selector(win['workspace'])} silent"]
+    if win["floating"]:
+        rules.append("float")
+        rules.append(f"move {win['at'][0]} {win['at'][1]}")
+        rules.append(f"size {win['size'][0]} {win['size'][1]}")
+    if win["pinned"]:
+        rules.append("pin")
+    return "[" + ";".join(rules) + "]"
+
+
+def fix_window(win, address):
+    """Silently move/shape an existing window to match its saved state."""
+    target = f"address:{address}"
+    cmds = [("movetoworkspacesilent", f"{ws_selector(win['workspace'])},{target}")]
+    if win["floating"]:
+        cmds.append(("setfloating", target))
+        cmds.append(("movewindowpixel", f"exact {win['at'][0]} {win['at'][1]},{target}"))
+        cmds.append(("resizewindowpixel", f"exact {win['size'][0]} {win['size'][1]},{target}"))
+    if win["pinned"]:
+        cmds.append(("pin", target))
+    fs = win.get("fullscreen", 0)
+    if fs:
+        # fullscreenstate acts on the focused window only
+        cmds.append(("focuswindow", target))
+        cmds.append(("fullscreenstate", "2" if fs & 2 else "1"))
+    dispatch_batch(cmds)
+
+
+def current_clients():
+    return {
+        c["address"]: c
+        for c in hyprctl_json("clients")
+        if c.get("mapped") and c.get("class") and c["class"] not in EXCLUDE_CLASSES
+    }
+
+
+def restore(force=False):
+    if os.path.exists(DISABLE_FLAG):
+        log("disabled flag present, skipping restore")
+        return
+    try:
+        with open(SESSION_FILE) as f:
+            session = json.load(f)
+    except (OSError, ValueError):
+        log("no readable session file, nothing to restore")
+        return
+    windows = session.get("windows", [])
+    if not windows:
+        log("saved session is empty")
+        return
+
+    initial = current_clients()
+    if len(initial) > 3 and not force:
+        log("session already populated, aborting (use --force to override)")
+        return
+
+    # tiled windows first (left-to-right, top-to-bottom approximates the old
+    # tiling), floating after so they stack above
+    order = sorted(
+        range(len(windows)),
+        key=lambda i: (
+            windows[i]["workspace"].get("id", 0),
+            windows[i]["floating"],
+            windows[i]["at"][0],
+            windows[i]["at"][1],
+        ),
+    )
+
+    spawned = 0
+    for i in order:
+        win = windows[i]
+        if not win["spawn"]:
+            continue
+        dispatch("exec", f"{exec_rules(win)} {win['cmd']}")
+        spawned += 1
+        time.sleep(SPAWN_STAGGER)
+    log(f"spawned {spawned} of {len(windows)} saved windows")
+
+    # Sweep: exec rules track the spawned PID, so windows from forking /
+    # single-instance apps (and second windows of one process) come up
+    # unplaced. Match them by class and move them silently.
+    pending = [windows[i] for i in order]
+    deadline = time.time() + SWEEP_TIMEOUT
+    seen = set(initial)
+    while pending and time.time() < deadline:
+        time.sleep(1)
+        for addr, client in current_clients().items():
+            if addr in seen:
+                continue
+            match = None
+            for win in pending:
+                if win["class"] != client.get("class", ""):
+                    continue
+                match = win
+                if client["workspace"].get("id") == win["workspace"].get("id"):
+                    break  # already in place: prefer this pairing
+            if match is None:
+                continue
+            pending.remove(match)
+            seen.add(addr)
+            misplaced = client["workspace"].get("id") != match["workspace"].get("id")
+            geometry_off = match["floating"] and (
+                client.get("floating") != match["floating"] or client["at"] != match["at"]
+            )
+            if misplaced or geometry_off or match.get("fullscreen", 0) or match["pinned"]:
+                fix_window(match, addr)
+    if pending:
+        log(f"{len(pending)} saved window(s) never appeared: "
+            + ", ".join(sorted({w['class'] for w in pending})))
+
+
+def daemon():
+    time.sleep(DAEMON_INITIAL_DELAY)
+    while True:
+        try:
+            save()
+        except Exception as e:
+            log(f"save failed: {e}")
+        time.sleep(SAVE_INTERVAL)
+
+
+def main():
+    args = sys.argv[1:]
+    action = args[0] if args else ""
+    if action == "save":
+        n = save()
+        print(f"saved {n} windows to {SESSION_FILE}")
+    elif action == "restore":
+        restore(force="--force" in args[1:])
+    elif action == "daemon":
+        daemon()
+    else:
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

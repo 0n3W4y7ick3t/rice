@@ -21,6 +21,14 @@ local ts = require('nvim-treesitter')
 -- start would spam download/compile errors for each missing parser: warn
 -- once instead. The CLI comes from mise (bootstrap does it; by hand:
 -- mise use -g 'ubi:tree-sitter/tree-sitter[exe=tree-sitter]@latest').
+-- mise only activates in interactive shells; nvim started from a launcher
+-- would not see the shim, so look there before giving up.
+if vim.fn.executable('tree-sitter') == 0 then
+  local shims = (os.getenv('XDG_DATA_HOME') or (os.getenv('HOME') .. '/.local/share')) .. '/mise/shims'
+  if vim.fn.executable(shims .. '/tree-sitter') == 1 then
+    vim.env.PATH = shims .. ':' .. vim.env.PATH
+  end
+end
 if vim.fn.executable('tree-sitter') == 1 then
   ts.install(require('treesitter-langs'))
 else

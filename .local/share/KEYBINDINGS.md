@@ -14,6 +14,7 @@
 | `Super + Space` | `layoutmsg swapwithmaster` |
 | `Super + Shift + Space` | `togglefloating` |
 | `Super + Q` | `killactive` |
+| `Super + Shift + Q` | `hypr-quit  (really quit the app; tray apps only hide on mod+Q)` |
 | `Super + F` | `fullscreen 0` |
 | `Super + H` | `layoutmsg mfact -0.05` |
 | `Super + L` | `layoutmsg mfact +0.05` |

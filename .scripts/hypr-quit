@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Really quit the focused app. killactive only asks the window to close, and
+# tray apps (slack, telegram) answer that by hiding and keep notifying; this
+# sends SIGTERM to the window's process instead, so the app actually exits.
+# Note: one pid may own several windows (chrome) -- the whole app quits.
+
+set -eu
+
+pid=$(hyprctl activewindow -j | jq -r '.pid // empty')
+[ -n "$pid" ] && [ "$pid" -gt 0 ] || exit 0
+kill -TERM "$pid"

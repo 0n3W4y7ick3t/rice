@@ -7,12 +7,17 @@
 # forwarded (URLs, flags).
 #
 #   chrome-proxy [url...]
-#   PROXY=socks5://host:port chrome-proxy        # other proxy
+#   PROXY=http://host:port chrome-proxy          # other proxy (any scheme)
 #   CHROME_PROXY_DIR=~/.config/chrome-proxy      # profile location (default)
+#
+# The http scheme on sing-box's mixed port, not socks5: Chrome sends the
+# hostname in CONNECT so DNS happens inside the tunnel. With socks5 Chrome
+# resolves locally unless --host-resolver-rules is added, and that flag makes
+# Chrome show an "unsupported command-line flag" bar.
 
 set -eu
 
-proxy="${PROXY:-socks5://127.0.0.1:10808}"
+proxy="${PROXY:-http://127.0.0.1:10808}"
 dir="${CHROME_PROXY_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/chrome-proxy}"
 
 for c in google-chrome-stable google-chrome chromium; do
@@ -32,10 +37,8 @@ if ! (exec 3<>"/dev/tcp/$host/$port") 2>/dev/null; then
 fi
 
 mkdir -p "$dir"
-# host-resolver-rules: stop Chrome from resolving DNS locally for socks
 exec "$chrome" \
   --user-data-dir="$dir" \
   --proxy-server="$proxy" \
-  --host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE 127.0.0.1" \
   --class=chrome-proxy \
   "$@"

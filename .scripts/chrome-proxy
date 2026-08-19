@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Chrome through the local sing-box socks proxy. A separate user-data-dir is
+# required: Chrome hands a new --proxy-server to an already running instance
+# of the same profile and silently drops it, so this is its own Chrome
+# (own logins, own extensions), always proxied. Anything you pass is
+# forwarded (URLs, flags).
+#
+#   chrome-proxy [url...]
+#   PROXY=socks5://host:port chrome-proxy        # other proxy
+#   CHROME_PROXY_DIR=~/.config/chrome-proxy      # profile location (default)
+
+set -eu
+
+proxy="${PROXY:-socks5://127.0.0.1:10808}"
+dir="${CHROME_PROXY_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/chrome-proxy}"
+
+for c in google-chrome-stable google-chrome chromium; do
+  command -v "$c" >/dev/null 2>&1 && { chrome=$c; break; }
+done
+[ -n "${chrome:-}" ] || { notify-send "chrome-proxy" "no chrome/chromium found" 2>/dev/null; echo "no chrome/chromium found" >&2; exit 1; }
+
+# quick check so a dead proxy fails loudly instead of as a blank Chrome
+host=${proxy#*://}; host=${host%%:*}; port=${proxy##*:}
+if ! (exec 3<>"/dev/tcp/$host/$port") 2>/dev/null; then
+  # /dev/tcp is bash-only; retry with bash if this shell lacks it
+  if ! bash -c "exec 3<>/dev/tcp/$host/$port" 2>/dev/null; then
+    notify-send "chrome-proxy" "proxy $proxy not reachable" 2>/dev/null
+    echo "proxy $proxy not reachable (systemctl --user status sing-box-client?)" >&2
+    exit 1
+  fi
+fi
+
+mkdir -p "$dir"
+# host-resolver-rules: stop Chrome from resolving DNS locally for socks
+exec "$chrome" \
+  --user-data-dir="$dir" \
+  --proxy-server="$proxy" \
+  --host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE 127.0.0.1" \
+  --class=chrome-proxy \
+  "$@"

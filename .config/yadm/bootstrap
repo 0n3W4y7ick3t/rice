@@ -32,6 +32,30 @@ for f in bm-dirs bm-files bm-progs; do
 done
 XDG_CONFIG_HOME="$XDG_CONFIG_HOME" "$HOME/.scripts/shortcuts" || true
 
+# nvim: lazy.nvim self-bootstraps and installs plugins on first start; the
+# main-branch nvim-treesitter then needs the tree-sitter CLI to build parsers
+# (mise, never a distro package). Build them headless now so the first
+# interactive nvim is quiet. Fail-soft: nvim or mise missing just skips.
+if command -v nvim >/dev/null 2>&1; then
+  if ! command -v tree-sitter >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    mise use -g 'ubi:tree-sitter/tree-sitter[exe=tree-sitter]@latest' || true
+  fi
+  # python provider venv (init.lua pins python3_host_prog to it): built on the
+  # system python so a mise python upgrade cannot break it; wilder's cmdline
+  # completion is a python remote plugin and needs pynvim + the manifest.
+  venv="$XDG_DATA_HOME/nvim/venv"
+  if [ ! -x "$venv/bin/python" ]; then
+    py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3 || true)
+    [ -n "$py" ] && "$py" -m venv "$venv" >/dev/null 2>&1 || true
+  fi
+  [ -x "$venv/bin/python" ] && "$venv/bin/python" -m pip install -q --disable-pip-version-check pynvim >/dev/null 2>&1 || true
+  PATH="$XDG_DATA_HOME/mise/shims:$PATH" nvim --headless '+Lazy! sync' +qa >/dev/null 2>&1 || true
+  nvim --headless +UpdateRemotePlugins +qa >/dev/null 2>&1 || true
+  PATH="$XDG_DATA_HOME/mise/shims:$PATH" nvim --headless \
+    -c 'lua require("nvim-treesitter").install(require("treesitter-langs")):wait(900000)' +qa \
+    >/dev/null 2>&1 || echo "bootstrap: treesitter parsers not built (run nvim and :TSInstall later)"
+fi
+
 if [ "$CLASS" = "server" ]; then
   echo "bootstrap: server class, skipping GUI setup"
   exit 0

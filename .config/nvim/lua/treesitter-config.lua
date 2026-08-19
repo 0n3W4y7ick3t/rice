@@ -16,12 +16,19 @@ require 'treesitter-context'.setup {
 -- ===== nvim-treesitter (main branch API) =====
 local ts = require('nvim-treesitter')
 
--- ensure_installed replacement; async no-op if already installed.
--- markdown_inline is pulled in automatically by markdown's `requires`.
-ts.install({
-  'c', 'cpp', 'python', 'go', 'bash', 'lua', 'vim',
-  'vimdoc', 'query', 'markdown', 'rust', 'javascript', 'yaml', 'typescript',
-})
+-- ensure_installed replacement; async no-op if already installed. The main
+-- branch compiles parsers with the tree-sitter CLI, so without it every
+-- start would spam download/compile errors for each missing parser: warn
+-- once instead. The CLI comes from mise (bootstrap does it; by hand:
+-- mise use -g 'ubi:tree-sitter/tree-sitter[exe=tree-sitter]@latest').
+if vim.fn.executable('tree-sitter') == 1 then
+  ts.install(require('treesitter-langs'))
+else
+  vim.schedule(function()
+    vim.notify('nvim-treesitter: tree-sitter CLI not found; parsers will not be built '
+      .. "(mise use -g 'ubi:tree-sitter/tree-sitter[exe=tree-sitter]@latest')", vim.log.levels.WARN)
+  end)
+end
 
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('TreesitterSetup', {}),

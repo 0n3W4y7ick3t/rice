@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Daily rehearsal of a memorized gpg --symmetric passphrase: decrypting the
+# configured blob to /dev/null proves the file is intact and the passphrase
+# still remembered. `passdrill check` (hyprland exec-once) nudges once a
+# calendar day until the drill is done. --no-symkey-cache keeps gpg-agent
+# from caching the passphrase, so every drill is a real recall.
+#
+# The blob path comes from $PASSDRILL_BLOB, exported by the untracked
+# machine-local profile seam; unset (or missing file) means this script is
+# a silent no-op, so the repo carries no hint of where or whether such a
+# blob exists.
+#
+# Plaintext contract: this script NEVER reads the decrypted output. gpg's
+# stdout goes straight to /dev/null (kernel redirect -- no variable, pipe,
+# file, or terminal ever carries it) and the script consumes only the exit
+# code. Verifying a passphrase without decrypting is impossible in
+# OpenPGP; discarding the output like this is the minimal-exposure check.
+
+set -eu
+
+blob="${PASSDRILL_BLOB:-}"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/passdrill"
+stamp="$state/last"
+
+[ -n "$blob" ] && [ -f "$blob" ] || exit 0
+
+case "${1:-}" in
+  check)
+    [ -f "$stamp" ] && [ "$(cat "$stamp")" = "$(date +%F)" ] && exit 0
+    notify-send -u critical "🔑 passdrill" "Daily passphrase rehearsal due: run passdrill"
+    ;;
+  '')
+    if gpg --no-symkey-cache -d "$blob" >/dev/null 2>&1; then
+      mkdir -p "$state"
+      date +%F > "$stamp"
+      notify-send "🔑 passdrill" "✅ blob decrypts, passphrase confirmed"
+      echo "passdrill: OK"
+    else
+      notify-send -u critical "🔑 passdrill" "❌ decrypt FAILED: wrong passphrase or damaged blob"
+      echo "passdrill: FAILED" >&2
+      exit 1
+    fi
+    ;;
+  *) echo "usage: passdrill [check]" >&2; exit 2 ;;
+esac

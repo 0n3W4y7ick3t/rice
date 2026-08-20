@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# A wmenu prompt to unmount drives.
+# A wmenu prompt to unmount drives and MTP devices (aft-mtp-mount).
 # Provides you with mounted partitions, select one to unmount.
 # Drives mounted at /, /boot and /home will not be options to unmount.
 
@@ -12,33 +12,35 @@ unmountusb() {
   sudo -A umount "$chosen" && notify-send "💻 USB unmounting" "$chosen unmounted."
 }
 
-unmountandroid() { \
-  chosen="$(awk '/simple-mtpfs/ {print $2}' /etc/mtab | wmenu -i -p "Unmount which device?")" || exit 1
+unmountmtp() { \
+  chosen="$(awk '/^aft-mtp-mount/ {print $2}' /etc/mtab | wmenu -i -p "Unmount which MTP device?")" || exit 1
   [ -z "$chosen" ] && exit
-  sudo -A umount -l "$chosen" && notify-send "🤖 Android unmounting" "$chosen unmounted."
+  # aft-mtp-mount is a user FUSE mount: fusermount, not sudo umount
+  { fusermount3 -u "$chosen" 2>/dev/null || fusermount -u "$chosen"; } &&
+    notify-send "📲 MTP unmounting" "$chosen unmounted."
 }
 
 asktype() { \
-  choice="$(printf "USB\\nAndroid" | wmenu -i -p "Unmount a USB drive or Android device?")" || exit 1
+  choice="$(printf "USB\\nMTP" | wmenu -i -p "Unmount a USB drive or MTP device?")" || exit 1
   case "$choice" in
     USB) unmountusb ;;
-    Android) unmountandroid ;;
+    MTP) unmountmtp ;;
   esac
 }
 
 drives=$(lsblk -nrpo "name,type,size,mountpoint,label" | awk -F':' '{gsub(/ /,":")}$4!~/\/boot|\/efi|\/home$|SWAP/&&length($4)>1{printf "%s (%s) %s\n",$4,$3,$5}')
 
-if ! grep simple-mtpfs /etc/mtab; then
+if ! grep -q '^aft-mtp-mount' /etc/mtab; then
   [ -z "$drives" ] && echo "No drives to unmount." &&  exit
   echo "Unmountable USB drive detected."
   unmountusb
 else
   if [ -z "$drives" ]
   then
-    echo "Unmountable Android device detected."
-           unmountandroid
+    echo "Unmountable MTP device detected."
+    unmountmtp
   else
-    echo "Unmountable USB drive(s) and Android device(s) detected."
+    echo "Unmountable USB drive(s) and MTP device(s) detected."
     asktype
   fi
 fi

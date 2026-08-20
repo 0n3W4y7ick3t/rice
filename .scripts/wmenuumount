@@ -4,12 +4,12 @@
 # Provides you with mounted partitions, select one to unmount.
 # Drives mounted at /, /boot and /home will not be options to unmount.
 
-unmountusb() {
+unmountdisk() {
   [ -z "$drives" ] && exit
   chosen="$(echo "$drives" | wmenu -i -p "Unmount which drive?")" || exit 1
   chosen="$(echo "$chosen" | awk '{print $1}')"
   [ -z "$chosen" ] && exit
-  sudo -A umount "$chosen" && notify-send "💻 USB unmounting" "$chosen unmounted."
+  sudo -A umount "$chosen" && notify-send "💻 Disk unmounting" "$chosen unmounted."
 }
 
 unmountmtp() { \
@@ -21,9 +21,9 @@ unmountmtp() { \
 }
 
 asktype() { \
-  choice="$(printf "USB\\nMTP" | wmenu -i -p "Unmount a USB drive or MTP device?")" || exit 1
+  choice="$(printf "Disk\\nMTP" | wmenu -i -p "Unmount a disk or MTP device?")" || exit 1
   case "$choice" in
-    USB) unmountusb ;;
+    Disk) unmountdisk ;;
     MTP) unmountmtp ;;
   esac
 }
@@ -32,15 +32,15 @@ drives=$(lsblk -nrpo "name,type,size,mountpoint,label" | awk -F':' '{gsub(/ /,":
 
 if ! grep -q '^aft-mtp-mount' /etc/mtab; then
   [ -z "$drives" ] && echo "No drives to unmount." &&  exit
-  echo "Unmountable USB drive detected."
-  unmountusb
+  echo "Unmountable disk detected."
+  unmountdisk
 else
   if [ -z "$drives" ]
   then
     echo "Unmountable MTP device detected."
     unmountmtp
   else
-    echo "Unmountable USB drive(s) and MTP device(s) detected."
+    echo "Unmountable disk(s) and MTP device(s) detected."
     asktype
   fi
 fi

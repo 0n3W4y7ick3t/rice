@@ -1,10 +1,12 @@
 #!/bin/sh
 
-# Gives a wmenu prompt to mount unmounted drives and MTP devices (Android
-# phones, Garmin watches — anything aft-mtp-cli -l sees). If they're in
-# /etc/fstab, they'll be mounted automatically. Otherwise, you'll be
-# prompted to give a mountpoint from already existsing directories. If you
-# input a novel directory, it will prompt you to create that directory.
+# Gives a wmenu prompt to mount unmounted disk partitions (USB, SATA,
+# NVMe — anything lsblk shows without a mountpoint) and MTP devices
+# (Android phones, Garmin watches — anything aft-mtp-cli -l sees). If
+# they're in /etc/fstab, they'll be mounted automatically. Otherwise,
+# you'll be prompted to give a mountpoint from already existsing
+# directories. If you input a novel directory, it will prompt you to
+# create that directory.
 
 getmount() { \
   [ -z "$chosen" ] && exit 1
@@ -17,10 +19,10 @@ getmount() { \
   fi
 }
 
-mountusb() { \
-  chosen="$(echo "$usbdrives" | wmenu -i -p "Mount which drive?")" || exit 1
+mountdisk() { \
+  chosen="$(echo "$diskdrives" | wmenu -i -p "Mount which drive?")" || exit 1
   chosen="$(echo "$chosen" | awk '{print $1}')"
-  sudo -A mount "$chosen" 2>/dev/null && notify-send "💻 USB mounting" "$chosen mounted." && exit 0
+  sudo -A mount "$chosen" 2>/dev/null && notify-send "💻 Disk mounting" "$chosen mounted." && exit 0
   alreadymounted=$(lsblk -nrpo "name,type,mountpoint" | awk '$3!~/\/boot|\/home$|SWAP/&&length($3)>1{printf "-not ( -path *%s -prune ) ",$3}')
   getmount "/mnt /media $HOME -maxdepth 5 -type d $alreadymounted"
   partitiontype="$(lsblk -no "fstype" "$chosen")"
@@ -29,7 +31,7 @@ mountusb() { \
     "exfat") sudo -A mount "$chosen" "$mp" -o uid="$(id -u)",gid="$(id -g)";;
     *) sudo -A mount "$chosen" "$mp"; user="$(whoami)"; ug="$(groups | awk '{print $1}')"; sudo -A chown "$user":"$ug" "$mp";;
   esac
-  notify-send "💻 USB mounting" "$chosen mounted to $mp."
+  notify-send "💻 Disk mounting" "$chosen mounted to $mp."
 }
 
 mountmtp() { \
@@ -44,26 +46,26 @@ mountmtp() { \
 }
 
 asktype() { \
-  choice="$(printf "USB\\nMTP" | wmenu -i -p "Mount a USB drive or MTP device?")" || exit 1
+  choice="$(printf "Disk\\nMTP" | wmenu -i -p "Mount a disk or MTP device?")" || exit 1
   case $choice in
-    USB) mountusb ;;
+    Disk) mountdisk ;;
     MTP) mountmtp ;;
   esac
 }
 
 mtpdrives=$(aft-mtp-cli -l 2>/dev/null)
-usbdrives="$(lsblk -rpo "name,type,size,mountpoint" | grep 'part\|rom' | awk '$4==""{printf "%s (%s)\n",$1,$3}')"
+diskdrives="$(lsblk -rpo "name,type,size,mountpoint" | grep 'part\|rom' | awk '$4==""{printf "%s (%s)\n",$1,$3}')"
 
-if [ -z "$usbdrives" ]; then
-  [ -z "$mtpdrives" ] && echo "No USB drive or MTP device detected" && exit
+if [ -z "$diskdrives" ]; then
+  [ -z "$mtpdrives" ] && echo "No disk or MTP device detected" && exit
   echo "MTP device(s) detected."
   mountmtp
 else
   if [ -z "$mtpdrives" ]; then
-    echo "USB drive(s) detected."
-    mountusb
+    echo "Disk(s) detected."
+    mountdisk
   else
-    echo "Mountable USB drive(s) and MTP device(s) detected."
+    echo "Mountable disk(s) and MTP device(s) detected."
     asktype
   fi
 fi

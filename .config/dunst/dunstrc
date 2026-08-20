@@ -29,4 +29,4 @@
     background = "#1cc24d"
     foreground = "#ebdbb2"
     frame_color = "#fabd2f"
-    timeout = 10
+    timeout = 0  # sticky until dismissed; a critical that self-dismisses gets missed

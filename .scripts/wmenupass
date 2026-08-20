@@ -3,5 +3,6 @@
 # This script is the SUDO_ASKPASS variable, meaning that it will be used as a
 # password prompt if needed.
 
-# red prompt: it overlays waybar's strip and would otherwise read as the bar
-wmenu -P -p "$1" -M 7F1D1D -m FFFFFF <&- && echo 2>/dev/null
+# whole bar red: it overlays waybar's strip and would otherwise read as
+# the bar or be overlooked entirely
+wmenu -P -p "$1" -N 7F1D1D -n FECACA -M DC2626 -m FFFFFF -S DC2626 -s FFFFFF <&- && echo 2>/dev/null

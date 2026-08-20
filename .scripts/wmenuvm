@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# A wmenu prompt to control libvirt VMs (virt-manager domains): pick a VM,
+# then start / shutdown / destroy it. Talks to qemu:///system, where
+# virt-manager keeps its domains.
+
+uri=qemu:///system
+
+vms="$(virsh -c "$uri" list --all | awk 'NR>2 && NF {state=""; for (i=3; i<=NF; i++) state=state (i>3?" ":"") $i; printf "%s [%s]\n", $2, state}')"
+[ -z "$vms" ] && notify-send "🖥️ VM control" "No VMs found on $uri." && exit 1
+
+chosen="$(echo "$vms" | wmenu -i -p 'VM: ')" || exit 1
+vm="${chosen% \[*}"
+
+case "$(printf "▶ start\n⏻ shutdown\n⚡ destroy\n" | wmenu -i -p "$vm: ")" in
+  '▶ start') action=start ;;
+  '⏻ shutdown') action=shutdown ;;
+  '⚡ destroy') action=destroy ;;
+  *) exit 1 ;;
+esac
+
+if out="$(virsh -c "$uri" "$action" "$vm" 2>&1)"; then
+  notify-send "🖥️ VM control" "$out"
+else
+  notify-send "🖥️ VM control" "❌ $out"
+fi

@@ -146,7 +146,8 @@
 | `Super + V` | `clippick` |
 | `Super + Shift + V` | `clippick-img  (image clipboard history with preview)` |
 | `Super + F1` | `zathura ~/.local/share/KEYBINDINGS.pdf  (keybindings cheatsheet)` |
-| `Super + F2` | `kitty --class floatterm -e less -Srf ~/.local/share/weatherreport` |
+| `Super + F2` | `kitty --class floatterm -o remember_window_size=no -o initial_window_width=126c -o initial_window_height=41c -e less -Srf ~/.local/share/weatherreport` |
+| `Super + F3` | `wmenuvm  (libvirt VM start/shutdown/destroy)` |
 | `Super + F4` | `kitty -e pulsemixer` |
 | `Super + F5` | `hyprctl reload` |
 | `Super + F6` | `wmenubluetooth` |

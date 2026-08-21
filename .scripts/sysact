@@ -10,11 +10,11 @@ esac
 case "$(printf "🎩 htop\n🔒 blurlock\n🚪 leave Hyprland\n🌀 renew Hyprland\n💤 sleep\n🔃 reboot\n🔚 shutdown\n📺 display off\n" | wmenu -i -p 'Action: ')" in
   '🎩 htop') "${TERMINAL:-kitty}" -e htop ;;
   '🔒 blurlock') blurlock ;;
-  '🚪 leave Hyprland') hypr-session save; hyprctl dispatch exit ;;
+  '🚪 leave Hyprland') hypr-session save; hyprctl dispatch 'hl.dsp.exit()' ;;
   '🌀 renew Hyprland') hyprctl reload ;;
   '💤 sleep') blurlock $ctl suspend -i ;;
   '🔃 reboot') hypr-session save; $ctl reboot -i ;;
   '🔚 shutdown') hypr-session save; $ctl poweroff -i ;;
-  '📺 display off') hyprctl dispatch dpms off ;;
+  '📺 display off') hyprctl dispatch 'hl.dsp.dpms({ action = "off" })' ;;
   *) exit 1 ;;
 esac

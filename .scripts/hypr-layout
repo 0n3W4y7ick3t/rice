@@ -11,35 +11,35 @@ usage="usage: hypr-layout tile|bstack|spiral|dwindle|deck|monocle|centered|cente
 
 case "${1:?$usage}" in
   tile)
-    hyprctl keyword general:layout master >/dev/null
-    hyprctl dispatch layoutmsg orientationleft >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
+    hyprctl dispatch 'hl.dsp.layout("orientationleft")' >/dev/null
     icon='[]=' ;;
   bstack)
-    hyprctl keyword general:layout master >/dev/null
-    hyprctl dispatch layoutmsg orientationtop >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
+    hyprctl dispatch 'hl.dsp.layout("orientationtop")' >/dev/null
     icon='TTT' ;;
   spiral)
-    hyprctl keyword general:layout dwindle >/dev/null
-    hyprctl keyword dwindle:force_split 0 >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "dwindle" } })' >/dev/null
+    hyprctl eval 'hl.config({ dwindle = { force_split = 0 } })' >/dev/null
     icon='[@]' ;;
   dwindle)
-    hyprctl keyword general:layout dwindle >/dev/null
-    hyprctl keyword dwindle:force_split 2 >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "dwindle" } })' >/dev/null
+    hyprctl eval 'hl.config({ dwindle = { force_split = 2 } })' >/dev/null
     icon='[\]' ;;
   deck)
-    hyprctl keyword general:layout master >/dev/null
-    hyprctl dispatch layoutmsg orientationleft >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
+    hyprctl dispatch 'hl.dsp.layout("orientationleft")' >/dev/null
     icon='[D]' ;;
   monocle)
-    hyprctl keyword general:layout master >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
     icon='[M]' ;;
   centered)
-    hyprctl keyword general:layout master >/dev/null
-    hyprctl dispatch layoutmsg orientationcenter >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
+    hyprctl dispatch 'hl.dsp.layout("orientationcenter")' >/dev/null
     icon='|M|' ;;
   centerfloat)
-    hyprctl keyword general:layout master >/dev/null
-    hyprctl dispatch layoutmsg orientationcenter >/dev/null
+    hyprctl eval 'hl.config({ general = { layout = "master" } })' >/dev/null
+    hyprctl dispatch 'hl.dsp.layout("orientationcenter")' >/dev/null
     icon='>M>' ;;
   *) echo "$usage" >&2; exit 1 ;;
 esac

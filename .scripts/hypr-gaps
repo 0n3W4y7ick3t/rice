@@ -9,13 +9,18 @@ state=/tmp/hyprgaps
 def_in="4 3 4 3"
 def_out="10 8 10 8"
 
-setgaps() {
-  hyprctl keyword general:gaps_in "$1" >/dev/null
-  hyprctl keyword general:gaps_out "$2" >/dev/null
+# "t r b l" -> lua css_gaps table (the lua config manager has no `keyword`;
+# runtime overrides go through `hyprctl eval` + hl.config)
+luagaps() {
+  echo "$1" | awk '{printf "{ top = %d, right = %d, bottom = %d, left = %d }", $1, $2, $3, $4}'
 }
 
-# Read current gaps as "t r b l" from hyprctl
-curgaps() { hyprctl -j getoption "general:$1" | jq -r '.custom'; }
+setgaps() {
+  hyprctl eval "hl.config({ general = { gaps_in = $(luagaps "$1"), gaps_out = $(luagaps "$2") } })" >/dev/null
+}
+
+# Read current gaps as "t r b l" from hyprctl (.css since the lua manager)
+curgaps() { hyprctl -j getoption "general:$1" | jq -r '.css'; }
 
 # Add a delta to all four values, clamping at 0
 adjust() { echo "$1" | awk -v d="$2" '{for(i=1;i<=NF;i++){$i+=d; if($i<0)$i=0}; print}'; }
@@ -43,7 +48,7 @@ case "${1:?usage: hypr-gaps toggle|default|inc|dec|smart}" in
       hyprctl reload >/dev/null
       rm -f "$state"
     else
-      hyprctl keyword workspace "w[tv1], gapsout:0, gapsin:0" >/dev/null
+      hyprctl eval 'hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })' >/dev/null
       echo smart > "$state"
     fi ;;
   *) echo "usage: hypr-gaps toggle|default|inc|dec|smart" >&2; exit 1 ;;

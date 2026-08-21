@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """hypr-session — reopen last session's windows on Hyprland login.
 
-Adapted from UpayanChatterjee/hypr-session-restore (MIT, commit d281be7),
-ported from the Lua-root dispatch syntax to the classic hyprlang one this
-config uses (`hyprctl dispatch exec "[workspace 2 silent] cmd"`).
+Adapted from UpayanChatterjee/hypr-session-restore (MIT, commit d281be7).
+Dispatches use the Lua-manager syntax (`hyprctl dispatch 'hl.dsp...'`) --
+the config has been a Lua root since 2026-08-21, and the lua config manager
+rejects the classic hyprlang dispatch form entirely.
 
 save            snapshot mapped windows (workspace, geometry, relaunch command)
 restore [--force]
@@ -71,17 +72,27 @@ def hyprctl_json(cmd):
     return json.loads(out.stdout)
 
 
-def dispatch(*args):
-    """hyprctl dispatch <name> <arg> — classic hyprlang form."""
-    subprocess.run(["hyprctl", "dispatch", *args], capture_output=True, text=True, timeout=10)
+def dispatch(expr):
+    """hyprctl dispatch <lua-expr>, e.g. 'hl.dsp.exec_cmd("kitty")'."""
+    out = subprocess.run(["hyprctl", "dispatch", expr], capture_output=True, text=True, timeout=10)
+    if out.stdout.strip() != "ok":
+        log(f"dispatch failed: {expr}: {out.stdout.strip() or out.stderr.strip()}")
 
 
-def dispatch_batch(cmds):
-    """One IPC round-trip for several dispatchers: [(name, arg), ...]."""
-    if not cmds:
+def dispatch_batch(exprs):
+    """One IPC round-trip for several dispatchers: [lua-expr, ...].
+
+    Lua exprs here never contain ';' (hyprctl's batch separator)."""
+    if not exprs:
         return
-    batch = "; ".join(f"dispatch {name} {arg}" for name, arg in cmds)
+    batch = "; ".join(f"dispatch {e}" for e in exprs)
     subprocess.run(["hyprctl", "--batch", batch], capture_output=True, text=True, timeout=10)
+
+
+def lua_str(s):
+    """Lua string literal. json.dumps escapes are a valid Lua subset for the
+    shell commands we relaunch (no control characters in practice)."""
+    return json.dumps(s, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------- /proc utils
@@ -260,32 +271,33 @@ def ws_selector(ws):
 
 
 def exec_rules(win):
-    """Classic exec-rule prefix: rules apply to the first window of the spawned pid."""
-    rules = [f"workspace {ws_selector(win['workspace'])} silent"]
+    """Lua rule-effects table for exec_cmd: rules apply to the first window
+    of the spawned pid."""
+    rules = [f'workspace = "{ws_selector(win["workspace"])} silent"']
     if win["floating"]:
-        rules.append("float")
-        rules.append(f"move {win['at'][0]} {win['at'][1]}")
-        rules.append(f"size {win['size'][0]} {win['size'][1]}")
+        rules.append("float = true")
+        rules.append(f"move = {{{win['at'][0]}, {win['at'][1]}}}")
+        rules.append(f"size = {{{win['size'][0]}, {win['size'][1]}}}")
     if win["pinned"]:
-        rules.append("pin")
-    return "[" + ";".join(rules) + "]"
+        rules.append("pin = true")
+    return "{ " + ", ".join(rules) + " }"
 
 
 def fix_window(win, address):
     """Silently move/shape an existing window to match its saved state."""
-    target = f"address:{address}"
-    cmds = [("movetoworkspacesilent", f"{ws_selector(win['workspace'])},{target}")]
+    target = f'window = "address:{address}"'
+    cmds = [f'hl.dsp.window.move({{ workspace = "{ws_selector(win["workspace"])}", follow = false, {target} }})']
     if win["floating"]:
-        cmds.append(("setfloating", target))
-        cmds.append(("movewindowpixel", f"exact {win['at'][0]} {win['at'][1]},{target}"))
-        cmds.append(("resizewindowpixel", f"exact {win['size'][0]} {win['size'][1]},{target}"))
+        cmds.append(f'hl.dsp.window.float({{ action = "on", {target} }})')
+        cmds.append(f"hl.dsp.window.move({{ x = {win['at'][0]}, y = {win['at'][1]}, {target} }})")
+        cmds.append(f"hl.dsp.window.resize({{ x = {win['size'][0]}, y = {win['size'][1]}, {target} }})")
     if win["pinned"]:
-        cmds.append(("pin", target))
+        cmds.append(f'hl.dsp.window.pin({{ action = "on", {target} }})')
     fs = win.get("fullscreen", 0)
     if fs:
-        # fullscreenstate acts on the focused window only
-        cmds.append(("focuswindow", target))
-        cmds.append(("fullscreenstate", "2" if fs & 2 else "1"))
+        # fullscreen_state acts on the focused window only
+        cmds.append(f"hl.dsp.focus({{ {target} }})")
+        cmds.append(f"hl.dsp.window.fullscreen_state({{ internal = {2 if fs & 2 else 1}, client = -1 }})")
     dispatch_batch(cmds)
 
 
@@ -334,7 +346,7 @@ def restore(force=False):
         win = windows[i]
         if not win["spawn"]:
             continue
-        dispatch("exec", f"{exec_rules(win)} {win['cmd']}")
+        dispatch(f"hl.dsp.exec_cmd({lua_str(win['cmd'])}, {exec_rules(win)})")
         spawned += 1
         time.sleep(SPAWN_STAGGER)
     log(f"spawned {spawned} of {len(windows)} saved windows")

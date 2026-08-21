@@ -77,14 +77,14 @@ prompt() {
           wl-paste -l 2>/dev/null | grep -q "^image/" && break
           sleep 0.05
         done
-        hyprctl dispatch focuswindow "address:$target" >/dev/null 2>&1
+        hyprctl dispatch "hl.dsp.focus({ window = \"address:$target\" })" >/dev/null 2>&1
         for _ in 1 2 3 4 5 6 7 8 9 10; do
           [ "$(hyprctl activewindow -j 2>/dev/null | jq -r .address)" = "$target" ] && break
           sleep 0.03
         done
         # `activewindow` is load-bearing: sendshortcut with `address:`
         # silently drops for wayland-native windows
-        hyprctl dispatch sendshortcut "CTRL,V,activewindow" >/dev/null 2>&1
+        hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "CTRL", key = "V", window = "activewindow" })' >/dev/null 2>&1
       fi;;
   esac
 }

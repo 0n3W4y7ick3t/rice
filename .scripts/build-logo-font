@@ -210,7 +210,12 @@ def main():
     fb.setupGlyf({g: Glyph() for g in order})
     fb.setupHorizontalMetrics({g: (ADVANCE, 0) for g in order})
     fb.setupHorizontalHeader(ascent=1900, descent=-500)
-    fb.setupNameTable({"familyName": "logos", "styleName": "Regular"})
+    fb.setupNameTable({
+        "familyName": "logos", "styleName": "Regular",
+        "copyright": "Logos are trademarks/copyright of their respective "
+                     "owners. Personal, non-commercial build assembled from "
+                     "CoinGecko, financialmodelingprep and Wikimedia images.",
+    })
     fb.setupOS2(sTypoAscender=1900, sTypoDescender=-500,
                 usWinAscent=1900, usWinDescent=500)
     fb.setupPost()

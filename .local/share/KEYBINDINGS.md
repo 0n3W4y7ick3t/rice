@@ -69,6 +69,7 @@
 | `Super + Shift + 8` | `window.move workspace=8 follow=false` |
 | `Super + Shift + 9` | `window.move workspace=9 follow=false` |
 | `Super + 0` | `hypr-windows` |
+| `Super + Shift + 0` | `hyprexpo:expo toggle` |
 | `Super + Tab` | `focus workspace=previous` |
 | `Super + G` | `focus workspace=r-1` |
 | `Super + ;` | `focus workspace=r+1` |
@@ -194,9 +195,3 @@
 | `Super + RMB` | `window.resize` |
 | `Super + Scroll Up` | `hypr-gaps inc` |
 | `Super + Scroll Down` | `hypr-gaps dec` |
-
-## Machine: desktop
-
-| Keys | Action |
-| --- | --- |
-| `Super + Shift + 0` | `hyprexpo:expo toggle` |

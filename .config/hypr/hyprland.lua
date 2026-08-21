@@ -182,8 +182,28 @@ hl.bind(MOD .. " + SHIFT + 7", hl.dsp.window.move({ workspace = 7, follow = fals
 hl.bind(MOD .. " + SHIFT + 8", hl.dsp.window.move({ workspace = 8, follow = false }))
 hl.bind(MOD .. " + SHIFT + 9", hl.dsp.window.move({ workspace = 9, follow = false }))
 hl.bind(MOD .. " + 0", hl.dsp.exec_cmd("hypr-windows"))
--- MOD + SHIFT + 0 is hyprexpo's overview -- bound in machine.lua where the
--- plugin actually exists (desktop only).
+-- hyprexpo overview. The plugin itself is loaded per machine (machine.lua:
+-- portage .so path on the desktop, hyprpm on the laptop); the guard makes
+-- this a dead key anywhere it is missing. Plugin lua functions act
+-- immediately when called (unlike hl.dsp.*) -- no hl.dispatch here.
+hl.bind(MOD .. " + SHIFT + 0", function() if hl.plugin.hyprexpo then hl.plugin.hyprexpo.expo("toggle") end end) -- hyprexpo:expo toggle
+-- Plugin config keys exist only once a .so registers them; the config is
+-- re-evaluated on plugin load, so this block is skipped on the first pass
+-- and applied on the second (wiki Using-Plugins pattern).
+if hl.plugin.hyprexpo then
+    -- no gap_size: the sandwichfarm fork registers gaps_in/gaps_out instead,
+    -- and the old hyprlang config's gap_size=8 was silently ignored for the
+    -- same reason -- the look everyone knows is the fork's defaults.
+    hl.config({
+        plugin = {
+            hyprexpo = {
+                columns = 3,
+                bg_col = "rgb(1A1B26)",
+                workspace_method = "center current",
+            },
+        },
+    })
+end
 hl.bind(MOD .. " + Tab", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(MOD .. " + G", hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(MOD .. " + semicolon", hl.dsp.focus({ workspace = "r+1" }))

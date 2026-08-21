@@ -57,27 +57,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("gentoo-pipewire-launcher") -- Gentoo OpenRC pipewire session
 end)
 
--- hyprland-plugin/hyprexpo-sandwichfarm; re-emerge after every hyprland bump
+-- hyprland-plugin/hyprexpo-sandwichfarm; re-emerge after every hyprland bump.
+-- Bind and plugin config live in hyprland.lua behind hl.plugin.hyprexpo
+-- guards; only the loading is per-machine (the laptop uses hyprpm instead).
 hl.plugin.load("/usr/lib/hyprland-plugins/hyprexpo.so")
-
--- Plugin config values exist only once the .so is loaded; the config is
--- re-evaluated on plugin load, so the guarded block below is skipped on the
--- first pass and applied on the second (wiki Using-Plugins pattern). The
--- bind guards at press time, so a missing plugin degrades to a dead key
--- instead of a lua error. Plugin lua functions act immediately when called
--- (unlike hl.dsp.* which return dispatcher tables) -- no hl.dispatch here.
-hl.bind(MOD .. " + SHIFT + 0", function() if hl.plugin.hyprexpo then hl.plugin.hyprexpo.expo("toggle") end end) -- hyprexpo:expo toggle
-if hl.plugin.hyprexpo then
-    -- no gap_size here: the sandwichfarm fork registers gaps_in/gaps_out
-    -- instead, and the old hyprlang config's gap_size=8 was silently ignored
-    -- for the same reason -- the look everyone knows is the fork's defaults.
-    hl.config({
-        plugin = {
-            hyprexpo = {
-                columns = 3,
-                bg_col = "rgb(1A1B26)",
-                workspace_method = "center current",
-            },
-        },
-    })
-end

@@ -28,3 +28,11 @@ hl.config({
 
 -- 3-finger horizontal swipe switches workspaces
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+
+-- hyprexpo comes from hyprpm here (no portage .so path like the desktop);
+-- reload loads the enabled plugins at startup, -n notifies on success.
+-- Rebuild after every hyprland upgrade: hyprpm update. Bind and plugin
+-- config live in hyprland.lua behind hl.plugin.hyprexpo guards.
+hl.on("hyprland.start", function()
+    hl.exec_cmd("hyprpm reload -n")
+end)

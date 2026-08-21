@@ -5,17 +5,20 @@
 # so the deployed $HOME root stays free of non-dot files, and deliberately NOT
 # in .config/hypr: the keybindings CI triggers on .config/hypr/**, so a doc
 # there would re-trigger the workflow on every regenerated-doc commit.
-# Top-level `# comment` lines become
-# section titles; a trailing " # comment" on a bind line becomes its
-# description. Output order follows config order so CI can diff it.
+# Top-level `-- comment` lines become section titles; a trailing " -- comment"
+# on a bind line becomes its description. Output order follows config order so
+# CI can diff it.
 #
-# Reads hyprland.conf PLUS every machine.conf##class.* alternate, each under
+# Reads hyprland.lua PLUS every machine.lua##class.* alternate, each under
 # its own "Machine: <class>" heading, so machine-specific binds (hyprexpo on
 # the desktop) are documented instead of silently missing. The alternates are
-# read, never the deployed `machine.conf` symlink: the symlink exists only on
+# read, never the deployed `machine.lua` symlink: the symlink exists only on
 # a deployed machine and points at one class, so using it would make the
 # output depend on which machine ran the script and CI could never match.
-# All files go to one awk so $mod, defined in hyprland.conf, resolves in them.
+# All files go to one awk so MOD, defined in hyprland.lua, resolves in them.
+#
+# The parser is line-based on purpose: one hl.bind() per line, no loops --
+# the config keeps that shape so this script and the CI diff stay trivial.
 #
 # Usage: hypr-keybindings-doc [-c config]... [--pdf]
 #   -c may be repeated; giving any -c replaces the default set entirely.
@@ -25,9 +28,9 @@ set -eu
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$script_dir/.." && pwd)"
 
-conf="$HOME/.config/hypr/hyprland.conf"
+conf="$HOME/.config/hypr/hyprland.lua"
 # In-repo / CI use: fall back to the copy next to this script.
-[ -f "$conf" ] || conf="$root/.config/hypr/hyprland.conf"
+[ -f "$conf" ] || conf="$root/.config/hypr/hyprland.lua"
 pdf=0
 confs=""
 
@@ -46,7 +49,7 @@ else
   confs="$conf
 "
   # Sorted by the glob, so the order is the same here and in CI.
-  for m in "$(dirname "$conf")"/machine.conf##class.*; do
+  for m in "$(dirname "$conf")"/machine.lua##class.*; do
     [ -f "$m" ] && confs="$confs$m
 "
   done
@@ -54,7 +57,7 @@ fi
 
 [ -f "$conf" ] || { echo "config not found: $conf" >&2; exit 1; }
 
-# emit md|typ: parse bind lines and render markdown tables or typst rows.
+# emit md|typ: parse hl.bind lines and render markdown tables or typst rows.
 emit() {
   mode="$1"
   # $confs is a newline-separated list built above; split it into args.
@@ -88,13 +91,12 @@ emit() {
     if (length(k) == 1) return toupper(k)
     return k
   }
+  # keys arrive already " + "-joined ("SUPER + SHIFT + K"); prettify the mods.
   function humanmods(m) {
-    m = trim(m)
-    gsub(/\$mod/, "Super", m)
+    gsub(/SUPER/, "Super", m)
     gsub(/SHIFT/, "Shift", m)
     gsub(/CTRL|CONTROL/, "Ctrl", m)
     gsub(/ALT/, "Alt", m)
-    gsub(/[ \t]+/, " + ", m)
     return m
   }
   # markdown code span; use double backticks when content has a backtick
@@ -109,20 +111,21 @@ emit() {
     gsub(/"/, "\\\"", s)
     return "raw(\"" s "\")"
   }
-  # Resolve hyprlang $vars ($browser -> google-chrome-stable) so the doc names
-  # the command a reader would actually type, not the indirection. Definitions
-  # sit at the top of the config, so a single pass sees them before any bind.
-  # The identifier regex is greedy, so $browser never matches as $b + "rowser".
-  function expand(s,   out, pre, name, rest) {
+  # Resolve a lua concat expression: split on .., unquote string pieces,
+  # substitute known variables (MOD -> SUPER, term -> kitty, ...) so the doc
+  # names the command a reader would actually type, not the indirection.
+  # Definitions sit at the top of the config, so a single pass sees them
+  # before any bind.
+  function resolve(expr,   out, n, parts, i, p) {
+    n = split(expr, parts, /\.\./)
     out = ""
-    while (match(s, /\$[A-Za-z_][A-Za-z0-9_]*/)) {
-      pre  = substr(s, 1, RSTART - 1)
-      name = substr(s, RSTART + 1, RLENGTH - 1)
-      rest = substr(s, RSTART + RLENGTH)
-      out  = out pre ((name in vars) ? vars[name] : "$" name)
-      s    = rest
+    for (i = 1; i <= n; i++) {
+      p = trim(parts[i])
+      if (p ~ /^"/) { sub(/^"/, "", p); sub(/"$/, "", p) }
+      else if (p in vars) p = vars[p]
+      out = out p
     }
-    return out s
+    return out
   }
   function open_section(t) {
     if (mode == "md") {
@@ -151,40 +154,66 @@ emit() {
     mach = "Machine: " mach
     pending = ""; cmt = 0
   }
-  # Section titles are standalone "# Foo" lines. A comment BLOCK of two or
-  # more lines is prose and must not open a section -- before this, the last
-  # line of any explanatory block above a bind silently became a heading, so
-  # a two-line note turned "## plugin actually exists (desktop only)." into a
-  # section and CI failed on a stale doc it could not explain.
-  !/^#/ { cmt = 0 }
-  /^#/  { cmt++ }
-  # $name = value  -> remember it for expand() above.
-  /^\$[A-Za-z_][A-Za-z0-9_]* *=/ {
-    name = $0; sub(/^\$/, "", name); sub(/ *=.*/, "", name)
-    val  = $0; sub(/^[^=]*= */, "", val); sub(/[ \t]+#.*$/, "", val)
-    vars[trim(name)] = trim(val)
+  # Section titles are standalone top-level "-- Foo" lines. A comment BLOCK of
+  # two or more lines is prose and must not open a section (see the .conf-era
+  # version of this script for the stale-heading incident that rule fixed).
+  # Indented comments inside hl.config tables never match: ^-- is anchored.
+  !/^--/ { cmt = 0 }
+  /^--/  { cmt++ }
+  # variable definitions: `local term = "kitty"` and the MOD global.
+  /^local [A-Za-z_][A-Za-z0-9_]* *= *"/ {
+    name = $0; sub(/^local +/, "", name); sub(/ *=.*/, "", name)
+    val = $0; sub(/^[^=]*= *"/, "", val); sub(/".*$/, "", val)
+    vars[trim(name)] = val
     next
   }
-  /^# / { pending = (cmt == 1) ? substr($0, 3) : ""; next }
-  /^bind[a-z]* *=/ {
+  /^[A-Za-z_][A-Za-z0-9_]* *= *"/ {
+    name = $0; sub(/ *=.*/, "", name)
+    val = $0; sub(/^[^=]*= *"/, "", val); sub(/".*$/, "", val)
+    vars[trim(name)] = val
+    next
+  }
+  /^-- / { pending = (cmt == 1) ? substr($0, 4) : ""; next }
+  /^hl\.bind\(/ {
     line = $0
     desc = ""
-    if (match(line, / # /)) {
-      desc = substr(line, RSTART + 3)
+    if (match(line, / -- /)) {
+      desc = substr(line, RSTART + 4)
       line = substr(line, 1, RSTART - 1)
     }
-    sub(/^bind[a-z]* *= */, "", line)
-    n = split(line, p, ",")
-    mods = humanmods(p[1])
-    key = humankey(p[2])
-    disp = trim(p[3])
-    args = ""
-    for (i = 4; i <= n; i++) args = args (i > 4 ? "," : "") p[i]
-    args = trim(args)
+    sub(/^hl\.bind\(/, "", line)
+    sub(/\)[ \t]*$/, "", line)          # closing paren of hl.bind
+    idx = index(line, ",")
+    keyexpr = substr(line, 1, idx - 1)
+    action = trim(substr(line, idx + 1))
+    sub(/, *\{[^{}]*\}$/, "", action)   # flags table (locked/repeating/mouse)
 
+    keys = resolve(keyexpr)
+    n = split(keys, kp, / \+ /)
+    key = humankey(kp[n])
+    mods = ""
+    for (i = 1; i < n; i++) mods = mods (i > 1 ? " + " : "") trim(kp[i])
+    mods = humanmods(mods)
     keys = (mods == "") ? key : mods " + " key
-    action = (disp == "exec") ? args : (args == "" ? disp : disp " " args)
-    action = expand(action)
+
+    if (action ~ /^function\(\)/) {
+      # lua-function bind: the trailing comment is the only readable rendering
+      action = (desc != "") ? desc : "lua function"
+      desc = ""
+    } else {
+      sub(/^hl\.dsp\./, "", action)
+      name = action; sub(/\(.*/, "", name)
+      args = action; sub(/^[^(]*\(/, "", args); sub(/\)$/, "", args)
+      if (name == "exec_cmd") {
+        action = resolve(args)
+      } else {
+        gsub(/[{}"]/, "", args)
+        gsub(/ *= */, "=", args)
+        gsub(/, */, " ", args)
+        args = trim(args)
+        action = (args == "") ? name : name " " args
+      }
+    }
     if (desc != "") action = action "  (" desc ")"
 
     if (mach != "") { close_section(); open_section(mach); mach = ""; pending = "" }
@@ -201,7 +230,7 @@ md="$root/.local/share/KEYBINDINGS.md"
 {
   echo "# Keybindings"
   echo
-  echo "<!-- auto-generated by .scripts/hypr-keybindings-doc from .config/hypr/hyprland.conf — do not edit -->"
+  echo "<!-- auto-generated by .scripts/hypr-keybindings-doc from .config/hypr/hyprland.lua — do not edit -->"
   emit md
 } > "$md"
 echo "wrote $md"

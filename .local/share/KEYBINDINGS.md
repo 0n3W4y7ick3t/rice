@@ -106,6 +106,7 @@
 | `Super + Shift + D` | `passmenu` |
 | `Super + W` | `google-chrome-stable` |
 | `Super + E` | `kitty -e lf` |
+| `Super + Shift + E` | `kitty -e neomutt  (email client)` |
 | `Super + R` | `kitty -e htop` |
 | `Super + Shift + R` | `ranbg` |
 | `Super + C` | `code` |

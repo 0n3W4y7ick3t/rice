@@ -69,7 +69,7 @@ vim.opt.colorcolumn = "80"
 
 -- regenerate the keybindings doc (md + pdf) after saving hyprland configs
 vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = { "*/hypr/hyprland.conf", "*/hypr/machine.conf*" },
+  pattern = { "*/hypr/hyprland.lua", "*/hypr/machine.lua*" },
   callback = function()
     local function done(code)
       vim.schedule(function()

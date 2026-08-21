@@ -1,17 +1,22 @@
 #!/bin/sh
 
-# 📈 Stock & index quotes from Yahoo's spark endpoint (batched, keyless;
-# needs a browser-ish user agent). Bar shows the day change of $baronly;
-# left click pops the full watchlist, middle click refreshes now. Sends
-# a notification when a symbol's day change crosses its threshold
-# (4h cooldown; a closed market never re-alerts because the value
-# stops moving).
+# 📈 Stocks, indices, and commodities from Yahoo's spark endpoint
+# (batched, keyless; needs a browser-ish user agent). Bar shows the day
+# change of $baronly; left click pops the full watchlist, middle click
+# refreshes now. Sends a notification when a symbol's day change crosses
+# its threshold (4h cooldown; a closed market never re-alerts because
+# the value stops moving). Logos come from the crypto-emoji font map
+# (see ~/.scripts/build-crypto-emoji-font), looked up by symbol.
 
 # symbol label threshold%
 watchlist="^GSPC SPX 2
 ^NDX NDX 2.5
 ^DJI DOW 2
 ^N225 N225 2.5
+GC=F GOLD 2.5
+SI=F SILV 4
+CL=F OIL 4
+TLT BONDS 3
 NVDA NVDA 5
 AAPL AAPL 4
 MSFT MSFT 4
@@ -25,10 +30,13 @@ cooldown=14400
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-stocks"
 datafile="$cache/quotes.tsv" # symbol, last price, day change %
+iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/crypto-emoji/map"
 mkdir -p "$cache/alerted"
 
 syms=$(printf '%s\n' "$watchlist" |
-  awk '{gsub(/\^/, "%5E", $1); printf "%s%s", s, $1; s=","}')
+  awk '{gsub(/\^/, "%5E", $1); gsub(/=/, "%3D", $1); printf "%s%s", s, $1; s=","}')
+
+geticon() { [ -f "$iconmap" ] && awk -v k="$1" '$1 == k {print $2; exit}' "$iconmap" ;}
 
 getquotes() {
   if curl -sfm 7 -A "Mozilla/5.0" \
@@ -56,6 +64,11 @@ fmt() { # adaptive precision: 24.8k / 6788 / 217.49
     else printf "%.2f", n}'
 }
 
+shortlbl() { # bar-only abbreviations; popup keeps the full labels
+  case $1 in SPX) echo SP ;; NDX) echo ND ;; DOW) echo DW ;; NVDA) echo NV ;;
+    *) echo "$1" ;; esac
+}
+
 showbar() {
   [ -s "$datafile" ] || return 0
   out=""
@@ -63,20 +76,25 @@ showbar() {
     sym=$(printf '%s\n' "$watchlist" | awk -v l="$l" '$2 == l {print $1}')
     c=$(row "$sym" | cut -f3)
     [ -n "$c" ] || continue
-    out="$out $l $(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')%"
+    # logo only; the short text label steps in when no glyph exists
+    icon=$(geticon "$sym")
+    [ -n "$icon" ] || icon=$(shortlbl "$l")
+    out="$out $icon$(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')"
   done
-  lead=📈
-  case $(row "^GSPC" | cut -f3) in -*) lead=📉 ;; esac
-  [ -n "$out" ] && printf '%s%s\n' "$lead" "$out"
+  [ -n "$out" ] && printf '%s\n' "${out# }"
 }
+
+# overall trend icon follows the S&P (popup title)
+trend() { case $(row "^GSPC" | cut -f3) in -*) echo 📉 ;; *) echo 📈 ;; esac ;}
 
 showall() {
   [ -s "$datafile" ] || return 0
-  notify-send "📈 Markets (day)" "$(printf '%s\n' "$watchlist" |
+  notify-send -t 20000 "$(trend) Markets (day)" "$(printf '%s\n' "$watchlist" |
     while read -r sym label _; do
       p=$(row "$sym" | cut -f2)
       [ -n "$p" ] || continue
-      printf '%-5s $%-8s %s\n' "$label" "$(fmt "$p")" \
+      icon=$(geticon "$sym")
+      printf '%s %-5s $%-8s %s\n' "${icon:-  }" "$label" "$(fmt "$p")" \
         "$(awk -v c="$(row "$sym" | cut -f3)" 'BEGIN{printf "%+.1f%%", c}')"
     done)"
 }

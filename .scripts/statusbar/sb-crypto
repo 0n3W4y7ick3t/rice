@@ -5,28 +5,34 @@
 # middle click refreshes now. Sends a notification when a coin's 24h
 # change crosses its per-coin threshold (4h cooldown, re-arms below
 # 80% of the threshold so a hovering value doesn't flap).
+# Coin logos come from the crypto-emoji font and its map, both built by
+# ~/.scripts/build-crypto-emoji-font; icons are looked up by ticker, so
+# coins added here get a logo automatically if the map covers them.
 
-# id ticker icon threshold% (icon "-" means show the ticker instead)
-watchlist="bitcoin BTC ₿ 5
-ethereum ETH Ξ 5
-solana SOL ◎ 8
-hyperliquid HYPE - 10
-pump-fun PUMP - 15
-binancecoin BNB - 8
-ripple XRP - 10
-tron TRX - 10
-backpack BP - 15
-dogecoin DOGE - 12
-sui SUI - 12"
+# id ticker threshold%
+watchlist="bitcoin BTC 5
+ethereum ETH 5
+solana SOL 8
+hyperliquid HYPE 10
+pump-fun PUMP 15
+binancecoin BNB 8
+ripple XRP 10
+tron TRX 10
+backpack BP 15
+dogecoin DOGE 12
+sui SUI 12"
 baronly="BTC ETH SOL"
 signal=15
 cooldown=14400
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-crypto"
 datafile="$cache/prices.tsv" # id, usd price, 24h change %
+iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/crypto-emoji/map"
 mkdir -p "$cache/alerted"
 
 ids=$(printf '%s\n' "$watchlist" | awk '{printf "%s%s", s, $1; s=","}')
+
+geticon() { [ -f "$iconmap" ] && awk -v k="$1" '$1 == k {print $2; exit}' "$iconmap" ;}
 
 getprices() {
   if curl -sfm 7 "https://api.coingecko.com/api/v3/simple/price?ids=$ids&vs_currencies=usd&include_24hr_change=true" |
@@ -51,26 +57,39 @@ fmt() { # adaptive precision: 76.2k / 2369 / 1.31 / 0.0039
     else printf "%.4f", n}'
 }
 
+barfmt() { # extra tight for the bar: 77k / 2.4k / 91 / 1.4 / 0.004
+  awk -v n="$1" 'BEGIN{
+    if (n >= 10000) printf "%.0fk", n/1000
+    else if (n >= 1000) printf "%.1fk", n/1000
+    else if (n >= 10) printf "%.0f", n
+    else if (n >= 1) printf "%.1f", n
+    else printf "%.3f", n}'
+}
+
 showbar() {
   [ -s "$datafile" ] || return 0
   out=""
   for t in $baronly; do
-    set -- $(printf '%s\n' "$watchlist" | awk -v t="$t" '$2 == t {print $1, $3}')
-    icon=$2
-    [ "$icon" = "-" ] && icon="$t "
-    p=$(row "$1" | cut -f2)
-    [ -n "$p" ] && out="$out $icon$(fmt "$p")"
+    id=$(printf '%s\n' "$watchlist" | awk -v t="$t" '$2 == t {print $1}')
+    p=$(row "$id" | cut -f2)
+    [ -n "$p" ] || continue
+    icon=$(geticon "$t")
+    out="$out $icon$(barfmt "$p")"
   done
-  [ -n "$out" ] && printf '💹%s\n' "$out"
+  [ -n "$out" ] && printf '%s\n' "${out# }"
 }
+
+# overall trend icon follows BTC, the market bellwether (popup title)
+trend() { case $(row bitcoin | cut -f3) in -*) echo 📉 ;; *) echo 📈 ;; esac ;}
 
 showall() {
   [ -s "$datafile" ] || return 0
-  notify-send "💹 Crypto (24h)" "$(printf '%s\n' "$watchlist" |
-    while read -r id tick _ _; do
+  notify-send -t 20000 "$(trend) Crypto (24h)" "$(printf '%s\n' "$watchlist" |
+    while read -r id tick _; do
       p=$(row "$id" | cut -f2)
       [ -n "$p" ] || continue
-      printf '%-5s $%-8s %s\n' "$tick" "$(fmt "$p")" \
+      icon=$(geticon "$tick")
+      printf '%s %-5s $%-8s %s\n' "${icon:-  }" "$tick" "$(fmt "$p")" \
         "$(awk -v c="$(row "$id" | cut -f3)" 'BEGIN{printf "%+.1f%%", c}')"
     done)"
 }
@@ -78,7 +97,7 @@ showall() {
 checkalerts() {
   [ -s "$datafile" ] || return 0
   now=$(date +%s)
-  moves=$(printf '%s\n' "$watchlist" | while read -r id tick _ th; do
+  moves=$(printf '%s\n' "$watchlist" | while read -r id tick th; do
     c=$(row "$id" | cut -f3)
     [ -n "$c" ] || continue
     state="$cache/alerted/$tick"

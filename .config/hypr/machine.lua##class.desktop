@@ -28,10 +28,6 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.5 })
 -- Only ws1 gets a default so login always lands on the TV, the main display.
 hl.workspace_rule({ workspace = "1", monitor = "desc:LG Electronics LG TV SSCR2", default = true })
 
--- Throw the current workspace to the other monitor (MOD+left/right focuses it)
-hl.bind(MOD .. " + SHIFT + left", hl.dsp.workspace.move({ monitor = "-1" }))
-hl.bind(MOD .. " + SHIFT + right", hl.dsp.workspace.move({ monitor = "+1" }))
-
 -- NVIDIA
 -- The RTX 5080 sits at PCI 01:00.0, the AMD iGPU at 0d:00.0 (probed since
 -- CONFIG_FW_LOADER_COMPRESS let its firmware load), so there are two DRM

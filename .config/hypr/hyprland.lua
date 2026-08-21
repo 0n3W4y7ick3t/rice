@@ -194,11 +194,18 @@ hl.bind(MOD .. " + Next", hl.dsp.focus({ workspace = "r+1" }))
 hl.bind(MOD .. " + SHIFT + Prior", hl.dsp.window.move({ workspace = "r-1" }))
 hl.bind(MOD .. " + SHIFT + Next", hl.dsp.window.move({ workspace = "r+1" }))
 
+-- plain = focus the other monitor, shift = throw the whole workspace there,
+-- ctrl = carry just the active window (all no-ops on a single monitor, so
+-- these live in the shared config; 2026-08-21 rework of the old
+-- focus/movewindow pair that shadowed the desktop's workspace throw)
+
 -- Monitors
 hl.bind(MOD .. " + left", hl.dsp.focus({ monitor = "-1" }))
 hl.bind(MOD .. " + right", hl.dsp.focus({ monitor = "+1" }))
-hl.bind(MOD .. " + SHIFT + left", hl.dsp.window.move({ monitor = "-1" }))
-hl.bind(MOD .. " + SHIFT + right", hl.dsp.window.move({ monitor = "+1" }))
+hl.bind(MOD .. " + SHIFT + left", hl.dsp.workspace.move({ monitor = "-1" }))
+hl.bind(MOD .. " + SHIFT + right", hl.dsp.workspace.move({ monitor = "+1" }))
+hl.bind(MOD .. " + CTRL + left", hl.dsp.window.move({ monitor = "-1" }))
+hl.bind(MOD .. " + CTRL + right", hl.dsp.window.move({ monitor = "+1" }))
 
 -- Terminals and scratchpads
 hl.bind(MOD .. " + Return", hl.dsp.exec_cmd(term))

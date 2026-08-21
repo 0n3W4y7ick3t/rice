@@ -85,8 +85,10 @@
 | --- | --- |
 | `Super + left` | `focus monitor=-1` |
 | `Super + right` | `focus monitor=+1` |
-| `Super + Shift + left` | `window.move monitor=-1` |
-| `Super + Shift + right` | `window.move monitor=+1` |
+| `Super + Shift + left` | `workspace.move monitor=-1` |
+| `Super + Shift + right` | `workspace.move monitor=+1` |
+| `Super + Ctrl + left` | `window.move monitor=-1` |
+| `Super + Ctrl + right` | `window.move monitor=+1` |
 
 ## Terminals and scratchpads
 
@@ -197,6 +199,4 @@
 
 | Keys | Action |
 | --- | --- |
-| `Super + Shift + left` | `workspace.move monitor=-1` |
-| `Super + Shift + right` | `workspace.move monitor=+1` |
 | `Super + Shift + 0` | `hyprexpo:expo toggle` |

@@ -1,0 +1,122 @@
+#!/bin/sh
+
+# 💹 Crypto prices from CoinGecko (one batched, keyless call).
+# Bar shows the coins in $baronly; left click pops the full watchlist,
+# middle click refreshes now. Sends a notification when a coin's 24h
+# change crosses its per-coin threshold (4h cooldown, re-arms below
+# 80% of the threshold so a hovering value doesn't flap).
+
+# id ticker icon threshold% (icon "-" means show the ticker instead)
+watchlist="bitcoin BTC ₿ 5
+ethereum ETH Ξ 5
+solana SOL ◎ 8
+hyperliquid HYPE - 10
+pump-fun PUMP - 15
+binancecoin BNB - 8
+ripple XRP - 10
+tron TRX - 10
+backpack BP - 15
+dogecoin DOGE - 12
+sui SUI - 12"
+baronly="BTC ETH SOL"
+signal=15
+cooldown=14400
+
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-crypto"
+datafile="$cache/prices.tsv" # id, usd price, 24h change %
+mkdir -p "$cache/alerted"
+
+ids=$(printf '%s\n' "$watchlist" | awk '{printf "%s%s", s, $1; s=","}')
+
+getprices() {
+  if curl -sfm 7 "https://api.coingecko.com/api/v3/simple/price?ids=$ids&vs_currencies=usd&include_24hr_change=true" |
+    jq -r 'to_entries[] | select(.value.usd? != null) |
+      [.key, .value.usd, .value.usd_24h_change // 0] | @tsv' > "$datafile.tmp" &&
+    [ -s "$datafile.tmp" ]; then
+    mv "$datafile.tmp" "$datafile"
+  else
+    rm -f "$datafile.tmp"
+    return 1
+  fi
+}
+
+row() { awk -F'\t' -v id="$1" '$1 == id' "$datafile" ;}
+
+fmt() { # adaptive precision: 76.2k / 2369 / 1.31 / 0.0039
+  awk -v n="$1" 'BEGIN{
+    if (n >= 100000) printf "%.0fk", n/1000
+    else if (n >= 10000) printf "%.1fk", n/1000
+    else if (n >= 100) printf "%.0f", n
+    else if (n >= 1) printf "%.2f", n
+    else printf "%.4f", n}'
+}
+
+showbar() {
+  [ -s "$datafile" ] || return 0
+  out=""
+  for t in $baronly; do
+    set -- $(printf '%s\n' "$watchlist" | awk -v t="$t" '$2 == t {print $1, $3}')
+    icon=$2
+    [ "$icon" = "-" ] && icon="$t "
+    p=$(row "$1" | cut -f2)
+    [ -n "$p" ] && out="$out $icon$(fmt "$p")"
+  done
+  [ -n "$out" ] && printf '💹%s\n' "$out"
+}
+
+showall() {
+  [ -s "$datafile" ] || return 0
+  notify-send "💹 Crypto (24h)" "$(printf '%s\n' "$watchlist" |
+    while read -r id tick _ _; do
+      p=$(row "$id" | cut -f2)
+      [ -n "$p" ] || continue
+      printf '%-5s $%-8s %s\n' "$tick" "$(fmt "$p")" \
+        "$(awk -v c="$(row "$id" | cut -f3)" 'BEGIN{printf "%+.1f%%", c}')"
+    done)"
+}
+
+checkalerts() {
+  [ -s "$datafile" ] || return 0
+  now=$(date +%s)
+  moves=$(printf '%s\n' "$watchlist" | while read -r id tick _ th; do
+    c=$(row "$id" | cut -f3)
+    [ -n "$c" ] || continue
+    state="$cache/alerted/$tick"
+    r=$(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')
+    if awk -v c="$c" -v t="$th" 'BEGIN{a = c<0 ? -c : c; exit !(a >= t)}'; then
+      last=0 lastr=""
+      [ -f "$state" ] && { read -r last lastr < "$state" || :; }
+      [ $((now - last)) -lt "$cooldown" ] && continue
+      # unchanged value after a full cooldown means the market is closed
+      [ "$r" = "$lastr" ] && continue
+      printf '%s %s\n' "$now" "$r" > "$state"
+      printf '%-5s %s%%  $%s\n' "$tick" "$r" "$(fmt "$(row "$id" | cut -f2)")"
+    else
+      awk -v c="$c" -v t="$th" 'BEGIN{a = c<0 ? -c : c; exit !(a < t*0.8)}' &&
+        rm -f "$state"
+    fi
+  done)
+  [ -n "$moves" ] && notify-send "💹 Big move (24h)" "$moves"
+}
+
+case $BLOCK_BUTTON in
+  1) showall; exit ;;
+  2) if getprices; then
+       barsig $signal
+       notify-send -u low "💹 Crypto updated."
+     else
+       notify-send -u low "💹 Crypto update failed."
+     fi; exit ;;
+  3) notify-send "💹 Crypto module" "\- Shows $baronly spot price (USD).
+- Left click: full watchlist with 24h change.
+- Middle click: update now.
+- Alerts when a coin's 24h move crosses its threshold." ; exit ;;
+  6) setsid -f "$TERMINAL" -e "$EDITOR" "$0"; exit ;;
+esac
+
+# refresh when the cache is missing or about a poll interval old; on a
+# failed fetch keep showing whatever we already have (like sb-forecast)
+age=$(( $(date +%s) - $(stat -c %Y "$datafile" 2>/dev/null || echo 0) ))
+[ "$age" -ge 110 ] && getprices
+checkalerts
+showbar

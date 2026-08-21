@@ -15,6 +15,8 @@
         "custom/battery",
         "custom/memory",
         "custom/cpu",
+        "custom/crypto",
+        "custom/stocks",
         "custom/forecast",
         "custom/moonphase",
         "tray",
@@ -141,6 +143,32 @@
         "on-click-right": "BLOCK_BUTTON=3 sb-forecast",
         "on-scroll-up": "BLOCK_BUTTON=4 sb-forecast",
         "on-scroll-down": "BLOCK_BUTTON=5 sb-forecast"
+    },
+
+    // Price tickers (CoinGecko / Yahoo). Hidden until the first successful
+    // fetch; alert thresholds and watchlists live in the scripts themselves.
+    "custom/crypto": {
+        "exec": "sb-crypto",
+        "interval": 120,
+        "signal": 15,
+        "hide-empty-text": true,
+        "on-click": "BLOCK_BUTTON=1 sb-crypto",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-crypto",
+        "on-click-right": "BLOCK_BUTTON=3 sb-crypto",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-crypto",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-crypto"
+    },
+
+    "custom/stocks": {
+        "exec": "sb-stocks",
+        "interval": 300,
+        "signal": 13,
+        "hide-empty-text": true,
+        "on-click": "BLOCK_BUTTON=1 sb-stocks",
+        "on-click-middle": "BLOCK_BUTTON=2 sb-stocks",
+        "on-click-right": "BLOCK_BUTTON=3 sb-stocks",
+        "on-scroll-up": "BLOCK_BUTTON=4 sb-stocks",
+        "on-scroll-down": "BLOCK_BUTTON=5 sb-stocks"
     },
 
     "custom/moonphase": {

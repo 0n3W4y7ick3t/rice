@@ -1,0 +1,128 @@
+#!/bin/sh
+
+# 📈 Stock & index quotes from Yahoo's spark endpoint (batched, keyless;
+# needs a browser-ish user agent). Bar shows the day change of $baronly;
+# left click pops the full watchlist, middle click refreshes now. Sends
+# a notification when a symbol's day change crosses its threshold
+# (4h cooldown; a closed market never re-alerts because the value
+# stops moving).
+
+# symbol label threshold%
+watchlist="^GSPC SPX 2
+^NDX NDX 2.5
+^DJI DOW 2
+^N225 N225 2.5
+NVDA NVDA 5
+AAPL AAPL 4
+MSFT MSFT 4
+TSLA TSLA 6
+GOOGL GOOGL 4
+AMZN AMZN 4
+META META 5"
+baronly="SPX NDX NVDA"
+signal=13
+cooldown=14400
+
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-stocks"
+datafile="$cache/quotes.tsv" # symbol, last price, day change %
+mkdir -p "$cache/alerted"
+
+syms=$(printf '%s\n' "$watchlist" |
+  awk '{gsub(/\^/, "%5E", $1); printf "%s%s", s, $1; s=","}')
+
+getquotes() {
+  if curl -sfm 7 -A "Mozilla/5.0" \
+      "https://query1.finance.yahoo.com/v8/finance/spark?symbols=$syms&range=1d&interval=5m" |
+    jq -r 'to_entries[] | select(.value.chartPreviousClose? != null) |
+      [.key, (.value.close | map(select(. != null)) | last),
+       .value.chartPreviousClose] | @tsv' |
+    awk -F'\t' '$2 != "" && $3 > 0 {
+      printf "%s\t%s\t%+.2f\n", $1, $2, ($2 - $3) / $3 * 100}' > "$datafile.tmp" &&
+    [ -s "$datafile.tmp" ]; then
+    mv "$datafile.tmp" "$datafile"
+  else
+    rm -f "$datafile.tmp"
+    return 1
+  fi
+}
+
+row() { awk -F'\t' -v s="$1" '$1 == s' "$datafile" ;}
+
+fmt() { # adaptive precision: 24.8k / 6788 / 217.49
+  awk -v n="$1" 'BEGIN{
+    if (n >= 100000) printf "%.0fk", n/1000
+    else if (n >= 10000) printf "%.1fk", n/1000
+    else if (n >= 1000) printf "%.0f", n
+    else printf "%.2f", n}'
+}
+
+showbar() {
+  [ -s "$datafile" ] || return 0
+  out=""
+  for l in $baronly; do
+    sym=$(printf '%s\n' "$watchlist" | awk -v l="$l" '$2 == l {print $1}')
+    c=$(row "$sym" | cut -f3)
+    [ -n "$c" ] || continue
+    out="$out $l $(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')%"
+  done
+  lead=📈
+  case $(row "^GSPC" | cut -f3) in -*) lead=📉 ;; esac
+  [ -n "$out" ] && printf '%s%s\n' "$lead" "$out"
+}
+
+showall() {
+  [ -s "$datafile" ] || return 0
+  notify-send "📈 Markets (day)" "$(printf '%s\n' "$watchlist" |
+    while read -r sym label _; do
+      p=$(row "$sym" | cut -f2)
+      [ -n "$p" ] || continue
+      printf '%-5s $%-8s %s\n' "$label" "$(fmt "$p")" \
+        "$(awk -v c="$(row "$sym" | cut -f3)" 'BEGIN{printf "%+.1f%%", c}')"
+    done)"
+}
+
+checkalerts() {
+  [ -s "$datafile" ] || return 0
+  now=$(date +%s)
+  moves=$(printf '%s\n' "$watchlist" | while read -r sym label th; do
+    c=$(row "$sym" | cut -f3)
+    [ -n "$c" ] || continue
+    state="$cache/alerted/$label"
+    r=$(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')
+    if awk -v c="$c" -v t="$th" 'BEGIN{a = c<0 ? -c : c; exit !(a >= t)}'; then
+      last=0 lastr=""
+      [ -f "$state" ] && { read -r last lastr < "$state" || :; }
+      [ $((now - last)) -lt "$cooldown" ] && continue
+      # unchanged value after a full cooldown means the market is closed
+      [ "$r" = "$lastr" ] && continue
+      printf '%s %s\n' "$now" "$r" > "$state"
+      printf '%-5s %s%%  $%s\n' "$label" "$r" "$(fmt "$(row "$sym" | cut -f2)")"
+    else
+      awk -v c="$c" -v t="$th" 'BEGIN{a = c<0 ? -c : c; exit !(a < t*0.8)}' &&
+        rm -f "$state"
+    fi
+  done)
+  [ -n "$moves" ] && notify-send "📈 Big move (day)" "$moves"
+}
+
+case $BLOCK_BUTTON in
+  1) showall; exit ;;
+  2) if getquotes; then
+       barsig $signal
+       notify-send -u low "📈 Markets updated."
+     else
+       notify-send -u low "📈 Markets update failed."
+     fi; exit ;;
+  3) notify-send "📈 Markets module" "\- Shows $baronly day change.
+- Left click: full watchlist with prices.
+- Middle click: update now.
+- Alerts when a day move crosses a symbol's threshold." ; exit ;;
+  6) setsid -f "$TERMINAL" -e "$EDITOR" "$0"; exit ;;
+esac
+
+# refresh when the cache is missing or about a poll interval old; on a
+# failed fetch keep showing whatever we already have (like sb-forecast)
+age=$(( $(date +%s) - $(stat -c %Y "$datafile" 2>/dev/null || echo 0) ))
+[ "$age" -ge 290 ] && getquotes
+checkalerts
+showbar

@@ -18,7 +18,6 @@
         "custom/crypto",
         "custom/stocks",
         "custom/forecast",
-        "custom/moonphase",
         "tray",
         "custom/fcitx5",
         "custom/clock"
@@ -136,7 +135,7 @@
 
     "custom/forecast": {
         "exec": "sb-forecast",
-        "interval": 18000,
+        "interval": 1800,
         "signal": 5,
         "on-click": "BLOCK_BUTTON=1 sb-forecast",
         "on-click-middle": "BLOCK_BUTTON=2 sb-forecast",

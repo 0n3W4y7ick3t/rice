@@ -28,6 +28,12 @@ baronly="SPX NDX NVDA"
 signal=13
 cooldown=14400
 
+# per-machine overrides (untracked seam, like ~/.zshrc.local):
+# set sb_stocks_baronly there to change what this machine's bar shows
+seam="${XDG_CONFIG_HOME:-$HOME/.config}/shell/statusbar.local"
+[ -f "$seam" ] && . "$seam"
+baronly="${sb_stocks_baronly:-$baronly}"
+
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-stocks"
 datafile="$cache/quotes.tsv" # symbol, last price, day change %
 iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/logos/map"

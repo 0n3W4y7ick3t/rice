@@ -25,6 +25,12 @@ baronly="BTC ETH SOL"
 signal=15
 cooldown=14400
 
+# per-machine overrides (untracked seam, like ~/.zshrc.local):
+# set sb_crypto_baronly there to change what this machine's bar shows
+seam="${XDG_CONFIG_HOME:-$HOME/.config}/shell/statusbar.local"
+[ -f "$seam" ] && . "$seam"
+baronly="${sb_crypto_baronly:-$baronly}"
+
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-crypto"
 datafile="$cache/prices.tsv" # id, usd price, 24h change %
 iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/logos/map"

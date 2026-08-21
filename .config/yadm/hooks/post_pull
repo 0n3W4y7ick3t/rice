@@ -26,5 +26,13 @@ command -v yadm >/dev/null 2>&1 &&
 # machine.conf symlink being recreated. Force alt first, then reload: alt is
 # idempotent, and its own post_alt hook does the reload.
 command -v yadm >/dev/null 2>&1 && yadm alt >/dev/null 2>&1
+
+# statusbar.local follows the bm-* seam, but its seed is class-specific
+# (statusbar.local.example is a ##class.* alternate), so it can only be
+# copied after alt has materialized it.
+[ -f "$HOME/.config/shell/statusbar.local" ] ||
+  cp "$HOME/.config/shell/statusbar.local.example" \
+    "$HOME/.config/shell/statusbar.local" 2>/dev/null
+
 command -v hyprctl >/dev/null 2>&1 || exit 0
 hyprctl reload >/dev/null 2>&1 || true

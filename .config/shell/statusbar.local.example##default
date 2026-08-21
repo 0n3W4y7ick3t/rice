@@ -1,0 +1,6 @@
+# Per-machine statusbar overrides, sourced by the sb-* scripts.
+# Untracked seam like bm-dirs: edit freely, it is never committed.
+# Available knobs:
+#sb_crypto_baronly="BTC"      # coins on the bar (default: BTC ETH SOL)
+#sb_stocks_baronly="SPX"      # tickers on the bar (default: SPX NDX NVDA)
+#sb_clock_compact=1           # drop the month from the clock

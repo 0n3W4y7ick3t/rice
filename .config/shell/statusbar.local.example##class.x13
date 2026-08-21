@@ -1,0 +1,6 @@
+# Per-machine statusbar overrides, sourced by the sb-* scripts.
+# Untracked seam like bm-dirs; the x13 seed compacts everything for the
+# small screen. Edit freely, it is never committed.
+sb_crypto_baronly="BTC"
+sb_stocks_baronly="SPX"
+sb_clock_compact=1

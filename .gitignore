@@ -9,6 +9,8 @@ KEYBINDINGS.pdf
 # *.example is the seed post_pull/bootstrap copy on first deploy.
 .config/shell/bm-*
 !.config/shell/bm-*.example
+# Statusbar overrides: same seam, seeded from the class-specific example.
+.config/shell/statusbar.local
 # Claude state is machine-local (claude-sync owns what syncs), but the repo
 # context file is tracked here.
 .claude/*

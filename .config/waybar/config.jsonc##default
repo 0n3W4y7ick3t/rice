@@ -18,10 +18,10 @@
         "custom/crypto",
         "custom/stocks",
         "custom/forecast",
-        "custom/moonphase",
         "tray",
         "custom/fcitx5",
-        "custom/clock"
+        "custom/clock",
+        "custom/moonphase"
     ],
 
     // occupied workspaces only; hyprland.conf must also drop persistent:true

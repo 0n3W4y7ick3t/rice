@@ -2,6 +2,7 @@
 
 clock=$(date '+%I')
 
+# kept for easy re-enabling; currently not shown in the output
 case "$clock" in
   "00") icon="🕛" ;;
   "01") icon="🕐" ;;
@@ -27,11 +28,11 @@ case $BLOCK_BUTTON in
 esac
 
 # per-machine overrides (untracked seam): sb_clock_compact=1 drops the
-# clock emoji and the month for small screens
+# month for small screens
 seam="${XDG_CONFIG_HOME:-$HOME/.config}/shell/statusbar.local"
 [ -f "$seam" ] && . "$seam"
 if [ -n "$sb_clock_compact" ]; then
   date "+%d %a %H:%M:%S"
 else
-  date "+%m/%d %a %H:%M:%S$icon"
+  date "+%m/%d %a %H:%M:%S"
 fi

@@ -61,4 +61,13 @@ if [ "$CLASS" = "server" ]; then
   exit 0
 fi
 
+# Statusbar logo font: the yadm-tracked logos.ttf works as cloned; refresh
+# it here (latest top-50 coins and logos) when a python with fonttools and
+# pillow is available. Fail-soft: without the deps the tracked copy stays,
+# which is the offline fallback.
+if PATH="$XDG_DATA_HOME/mise/shims:$PATH" python3 -c 'import fontTools, PIL' >/dev/null 2>&1; then
+  PATH="$XDG_DATA_HOME/mise/shims:$PATH" "$HOME/.scripts/build-logo-font" --refresh ||
+    echo "bootstrap: logo font refresh failed, tracked copy kept"
+fi
+
 echo "bootstrap: done (class: ${CLASS:-unset})"

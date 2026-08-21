@@ -1,7 +1,5 @@
 🛢️ cl=f commodity; token logo
 🛢️ bz=f commodity; token logo
-🪙 gc=f commodity; token logo
-🪩 si=f commodity; token logo
 󲀀 btc crypto bitcoin; token logo
 󲀁 eth crypto ethereum; token logo
 󲀂 usdt crypto tether; token logo
@@ -170,3 +168,5 @@
 󳀀 gentoo logo GENTOO; token logo
 󳀁 arch logo ARCH; token logo
 󳀂 kali logo KALI; token logo
+󳀃 gc=f commodity gold; token logo
+󳀄 si=f commodity silver; token logo

@@ -37,7 +37,12 @@ STOCKS = {
     "GS": "GS", "MS": "MS", "AXP": "AXP", "IBM": "IBM", "SBUX": "SBUX",
 }
 # instruments with no logo API: real color emoji straight into the map
-EMOJI = {"GC=F": "🪙", "SI=F": "🪩", "CL=F": "🛢️", "BZ=F": "🛢️"}
+EMOJI = {"CL=F": "🛢️", "BZ=F": "🛢️"}
+# gold/silver: a stacked-ingots badge composed from a single ingot icon
+# (silver is the same stack desaturated, so the pair matches)
+INGOT_URL = ("https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/"
+             "Gold_ingot_icon.svg/330px-Gold_ingot_icon.svg.png")
+BULLION = {"GC=F": "gold", "SI=F": "silver"}
 # non-market color logos (used by the wmenuunicode picker/emoji list)
 EXTRA = {
     "GENTOO": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Gentoo_Linux_logo_matte.svg/330px-Gentoo_Linux_logo_matte.svg.png",
@@ -88,6 +93,34 @@ def cg_markets(qs):
         "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&" + qs))
 
 
+def make_bullion(refresh):
+    # compose the 2+1 stacked-ingots badges into the image cache
+    from PIL import Image
+    targets = {s: os.path.join(CACHE, s.replace("^", "_") + ".img")
+               for s in BULLION}
+    if not refresh and all(os.path.exists(p) for p in targets.values()):
+        return
+    base_path = os.path.join(CACHE, "_ingot.img")
+    if refresh or not os.path.exists(base_path):
+        open(base_path, "wb").write(fetch(INGOT_URL))
+    ingot = Image.open(base_path).convert("RGBA")
+    ingot.thumbnail((72, 72), Image.LANCZOS)
+    wi, hi = ingot.size
+    stack = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    stack.alpha_composite(ingot, (W // 2 - wi + 6, H - hi))       # bottom left
+    stack.alpha_composite(ingot, (W // 2 - 6, H - hi))            # bottom right
+    stack.alpha_composite(ingot, (W // 2 - wi // 2, H - 2 * hi + 12))  # top
+    for sym, metal in BULLION.items():
+        img = stack
+        if metal == "silver":
+            r, g, b, a = stack.split()
+            gray = Image.merge("RGB", (r, g, b)).convert("L")
+            gray = gray.point(lambda v: min(255, int(v * 1.15) + 10))
+            img = Image.merge("RGBA", (gray, gray,
+                                       gray.point(lambda v: min(255, v + 6)), a))
+        img.save(targets[sym], "PNG", optimize=True)
+
+
 def main():
     refresh = "--refresh" in sys.argv
     os.makedirs(CACHE, exist_ok=True)
@@ -124,6 +157,10 @@ def main():
         if key not in entries:
             entries[key] = [chr(nextcp(MISC_BASE, 0xF3100)), "img:" + key]
         img_urls[key] = url
+    for sym, metal in BULLION.items():
+        if sym not in entries or entries[sym][1] == "emoji":
+            entries[sym] = [chr(nextcp(MISC_BASE, 0xF3100)), "gen:" + metal]
+    make_bullion(refresh)
 
     # download (cache by key); a failed fetch falls back to the cached copy
     images = {}

@@ -1,0 +1,87 @@
+-- Desktop PC (neverland): two 4K panels behind identical connector names, so we
+-- match by EDID description rather than connector. To swap which display is
+-- primary, exchange the desc values (position/scale stay with the line, and the
+-- ws1 default rule below follows the primary desc).
+--
+-- Layout: 27" Dell in portrait on the LEFT, 42" LG TV landscape on the RIGHT.
+--   Dell  3840x2160 @ scale 1.6,   rotated -> logical 1350x2400 at 0x0
+--   LG TV 3840x2160 @ scale 1.333            logical 2880x1620 at 1350x0
+--
+-- Both panels ran scale 2 until 2026-08-14, which made the UI oversized.
+-- Chosen by eye: 1.6 for the Dell (27" 4K, ~163 PPI), 1.333 for the TV
+-- (42" 4K, ~105 PPI; 1.5 still too big, 1.25 too small). Apps whose text
+-- ends up small get per-app zoom (e.g. vscode zoomLevel).
+--
+-- transform 3 (270 deg), not 1: the panel is physically rotated 90 deg
+-- clockwise, and Wayland's transform compensates in the opposite direction.
+hl.monitor({ output = "desc:Dell Inc. DELL U2723QX BHD5YN3", mode = "3840x2160@60", position = "0x0", scale = 1.6, transform = 3 })
+-- vrr off: this panel gamma-flickers at the low end of its VRR range, which
+-- fullscreen ~24fps video hits constantly (2026-08-14). vrr = 2 if gaming ever
+-- wants it back. Separate issue: HDMI FRL retrains blank the screen -- see
+-- dmesg "FRL link training failed" if flashes persist with vrr off.
+hl.monitor({ output = "desc:LG Electronics LG TV SSCR2", mode = "3840x2160@120", position = "auto-right", scale = 1.333333, vrr = 0 })
+-- Fallback for anything unmatched
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.5 })
+
+-- Workspaces are assigned to monitors dynamically (stock behavior): they live
+-- where they were created, and the Dell takes the lowest free ID on connect.
+-- Only ws1 gets a default so login always lands on the TV, the main display.
+hl.workspace_rule({ workspace = "1", monitor = "desc:LG Electronics LG TV SSCR2", default = true })
+
+-- Throw the current workspace to the other monitor (MOD+left/right focuses it)
+hl.bind(MOD .. " + SHIFT + left", hl.dsp.workspace.move({ monitor = "-1" }))
+hl.bind(MOD .. " + SHIFT + right", hl.dsp.workspace.move({ monitor = "+1" }))
+
+-- NVIDIA
+-- The RTX 5080 sits at PCI 01:00.0, the AMD iGPU at 0d:00.0 (probed since
+-- CONFIG_FW_LOADER_COMPRESS let its firmware load), so there are two DRM
+-- cards. AQ_DRM_DEVICES pins aquamarine to the 5080, but it is NOT set here:
+-- the variable is a colon-separated list and the stable by-path node name
+-- contains colons (pci-0000:01:00.0), which aquamarine splits into garbage —
+-- and /dev/dri/cardN is not stable across boots. ~/.config/shell/profile
+-- resolves the by-path link to the real cardN and exports it at login.
+hl.env("LIBVA_DRIVER_NAME", "nvidia")
+hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
+
+hl.config({
+    xwayland = {
+        force_zero_scaling = true,
+    },
+})
+
+-- Gentoo-only bits. These lived in the main config until 2026-08-13, where
+-- they were dead weight at best on the Arch laptop and a real config error at
+-- worst: the plugin path does not exist there, so MOD+SHIFT+0 raised "Invalid
+-- dispatcher" on every start.
+--
+-- pipewire: OpenRC has no user session to socket-activate it, so the launcher
+-- script starts the whole graph. systemd does that itself.
+hl.on("hyprland.start", function()
+    hl.exec_cmd("gentoo-pipewire-launcher") -- Gentoo OpenRC pipewire session
+end)
+
+-- hyprland-plugin/hyprexpo-sandwichfarm; re-emerge after every hyprland bump
+hl.plugin.load("/usr/lib/hyprland-plugins/hyprexpo.so")
+
+-- Plugin config values exist only once the .so is loaded; the config is
+-- re-evaluated on plugin load, so the guarded block below is skipped on the
+-- first pass and applied on the second (wiki Using-Plugins pattern). The
+-- bind guards at press time, so a missing plugin degrades to a dead key
+-- instead of a lua error. Plugin lua functions act immediately when called
+-- (unlike hl.dsp.* which return dispatcher tables) -- no hl.dispatch here.
+hl.bind(MOD .. " + SHIFT + 0", function() if hl.plugin.hyprexpo then hl.plugin.hyprexpo.expo("toggle") end end) -- hyprexpo:expo toggle
+if hl.plugin.hyprexpo then
+    -- no gap_size here: the sandwichfarm fork registers gaps_in/gaps_out
+    -- instead, and the old hyprlang config's gap_size=8 was silently ignored
+    -- for the same reason -- the look everyone knows is the fork's defaults.
+    hl.config({
+        plugin = {
+            hyprexpo = {
+                columns = 3,
+                bg_col = "rgb(1A1B26)",
+                workspace_method = "center current",
+            },
+        },
+    })
+end

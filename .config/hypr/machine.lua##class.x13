@@ -1,0 +1,30 @@
+-- ThinkPad X13: internal panel only. Hyprland's own monitor rules handle
+-- hotplug -- they match on connector or EDID and apply when an output appears,
+-- which is all a laptop with one external display needs. kanshi used to run
+-- here and set the scale too; two owners of one value, and kanshi silently won
+-- (hyprctl said "ok" and nothing moved). Bring it back only for logic Hyprland
+-- cannot express: disabling eDP-1 only when a specific dock is attached, or
+-- several distinct multi-output arrangements.
+--
+-- 1.333333, not 1.25: on a 13.4" 1920x1200 panel the smaller scale was too
+-- tight. Hyprland only accepts scales where 1920/s and 1200/s are both whole,
+-- so the legal neighbours here are 1.25 (1536x960), 1.333333 (1440x900) and
+-- 1.5 (1280x800) -- 1.75 does not exist for this panel.
+hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.333333 })
+
+-- When the 27" arrives: plug it in, read its description from
+-- `hyprctl monitors`, and add a rule matching it by EDID rather than by
+-- connector (DP-1/HDMI-A-1 numbering moves between ports and boots), e.g.
+-- hl.monitor({ output = "desc:<make model serial>", mode = "preferred", position = "auto", scale = 1.25 })
+
+hl.config({
+    input = {
+        touchpad = {
+            natural_scroll = false,
+            tap_to_click = true,
+        },
+    },
+})
+
+-- 3-finger horizontal swipe switches workspaces
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })

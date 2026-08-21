@@ -3,8 +3,8 @@
 # The famous "get a menu of emojis to copy" script.
 
 # Get user selection via wmenu from the emoji file plus the generated
-# token-logo list (see build-crypto-emoji-font).
-chosen=$(cut -d ';' -f1 ~/.local/share/emoji ~/.local/share/crypto-emoji/picker 2>/dev/null |
+# logo list (see build-logo-font).
+chosen=$(cut -d ';' -f1 ~/.local/share/emoji ~/.local/share/logos/picker 2>/dev/null |
   wmenu -i -l 30 | sed "s/ .*//")
 
 # Exit if none chosen.

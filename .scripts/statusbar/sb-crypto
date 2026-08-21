@@ -5,9 +5,9 @@
 # middle click refreshes now. Sends a notification when a coin's 24h
 # change crosses its per-coin threshold (4h cooldown, re-arms below
 # 80% of the threshold so a hovering value doesn't flap).
-# Coin logos come from the crypto-emoji font and its map, both built by
-# ~/.scripts/build-crypto-emoji-font; icons are looked up by ticker, so
-# coins added here get a logo automatically if the map covers them.
+# Coin logos come from the logo font and its map, both built by
+# ~/.scripts/build-logo-font; icons are looked up by ticker, so coins
+# added here get a logo automatically if the map covers them.
 
 # id ticker threshold%
 watchlist="bitcoin BTC 5
@@ -27,7 +27,7 @@ cooldown=14400
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-crypto"
 datafile="$cache/prices.tsv" # id, usd price, 24h change %
-iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/crypto-emoji/map"
+iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/logos/map"
 mkdir -p "$cache/alerted"
 
 ids=$(printf '%s\n' "$watchlist" | awk '{printf "%s%s", s, $1; s=","}')

@@ -5,8 +5,8 @@
 # change of $baronly; left click pops the full watchlist, middle click
 # refreshes now. Sends a notification when a symbol's day change crosses
 # its threshold (4h cooldown; a closed market never re-alerts because
-# the value stops moving). Logos come from the crypto-emoji font map
-# (see ~/.scripts/build-crypto-emoji-font), looked up by symbol.
+# the value stops moving). Logos come from the logo font map
+# (see ~/.scripts/build-logo-font), looked up by symbol.
 
 # symbol label threshold%
 watchlist="^GSPC SPX 2
@@ -30,7 +30,7 @@ cooldown=14400
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/sb-stocks"
 datafile="$cache/quotes.tsv" # symbol, last price, day change %
-iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/crypto-emoji/map"
+iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/logos/map"
 mkdir -p "$cache/alerted"
 
 syms=$(printf '%s\n' "$watchlist" |

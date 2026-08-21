@@ -20,7 +20,7 @@
 !/.config/dunst/
 !/.config/gammastep/
 !/.config/wal/
-!/.local/bin/statusbar/
+!/.scripts/statusbar/
 !/.local/share/applications/
 
 # GUI scripts

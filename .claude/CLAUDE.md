@@ -81,7 +81,12 @@ hypr-gaps, hypr-layout, hypr-windows, clippick, clippick-img,
 wmenuscreenshots). The first post-migration login proved why: restore's
 classic dispatches all failed silently and the 60 s daemon then overwrote
 the good snapshot with the empty session — dispatch() now logs failures
-instead of swallowing them. `sysact` runs
+instead of swallowing them. Two more residues surfaced 2026-08-24:
+`hypridle.conf`'s dpms commands (its .conf is hypridle's own format, but
+the commands it runs are shell — they needed the Lua dispatch form too;
+note `hl.dsp.dpms` takes `{ action = "on"|"off" }`, a bare string silently
+toggles), and waybar's hardcoded workspace-click dispatch (fixed upstream
+in git only — the x13 runs AUR waybar-git until the 0.16 release). `sysact` runs
 `hypr-session save` before leave/reboot/shutdown, `exec-once` runs
 `hypr-session restore` on login and a `daemon` re-saves every 60 s so a
 power-button shutdown is at most a minute stale. Relaunch commands come

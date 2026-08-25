@@ -112,6 +112,20 @@ missing the variable stays unset and aquamarine probes every card).
 **fcitx5 on Wayland**: `XMODIFIERS` only (profile exports it). Forcing
 `GTK_IM_MODULE`/`QT_IM_MODULE` breaks the candidate popup — details in
 deployLinux CLAUDE.md. Mozc is enabled via `.config/fcitx5/profile`.
+One deliberate exception since 2026-08-25: Telegram is launched with
+`QT_IM_MODULE=fcitx`, because the Qt IM module is the only path that
+delivers the field's text to the autolang addon (Qt's own wayland
+text-input does not, and Chromium's is broken upstream). Candidate popups
+verified fine there on Arch/fcitx5 5.1.21. Note this env is lost across a
+hypr-session restore (relaunch comes from `/proc` cmdline, which never
+carries env) — after a reboot Telegram falls back to hints-only until
+relaunched with the variable.
+
+The autolang addon itself (public repo 0n3W4y7ick3t/fcitx5-autolang) picks
+the IM from the text already in the focused field; the chatlang script
+below hints it per Telegram chat. Build per machine into `~/.local` — the
+profile's `FCITX_ADDON_DIRS` export is what lets fcitx5 find user-built
+addons, since it never searches user dirs for addon libraries on its own.
 
 ## Repo-meta files keep the home root clean
 
@@ -160,6 +174,12 @@ them freely. The tracked `bm-*.example` files are the seed — `post_pull`
 and `bootstrap` copy each one into place when the live file is missing and
 run `shortcuts` so the aliases exist. Change defaults in the `.example`,
 never expect the live file to be in the repo.
+
+`~/.config/fcitx5/chatlang-map` joined the seam on 2026-08-25: per-chat
+input-method hints (friend name → IM, read by `.scripts/fcitx5-chatlang`
+from Hyprland title events into the autolang addon's D-Bus `SetLocalIM`)
+are personal names, so the live map is untracked and the tracked
+`chatlang-map.example` is the seed.
 
 The rule that decides it: **this repo is public, so nothing in it may say
 anything about who Leon works for or what he works on.** No employer

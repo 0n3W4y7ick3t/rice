@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Per-window/per-chat input method hints for the fcitx5-autolang addon.
+
+Watches Hyprland's event socket for active-window and title changes, matches
+them against a map file, and hints the addon over D-Bus so the input method
+is right before you type anything (e.g. per-friend chats in Telegram, whose
+window title carries the chat name).
+
+Map file: ~/.config/fcitx5/chatlang-map (untracked; names are personal).
+One rule per line, tab-separated, first match wins:
+
+    <window class>\t<title substring or *>\t<input method>
+
+The addon applies the hint to that window only (local switch), and text
+already in the field still wins over the hint.
+"""
+
+import os
+import socket
+import subprocess
+import sys
+
+MAP_PATH = os.path.join(
+    os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")),
+    "fcitx5/chatlang-map",
+)
+
+
+def load_rules():
+    rules = []
+    try:
+        with open(MAP_PATH, encoding="utf-8") as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split("\t")
+                if len(parts) == 3:
+                    rules.append(parts)
+    except FileNotFoundError:
+        pass
+    return rules
+
+
+def hint(window_class, im):
+    subprocess.run(
+        ["busctl", "--user", "call", "org.fcitx.Fcitx5", "/autolang",
+         "org.fcitx.Fcitx5.Autolang", "SetLocalIM", "ss", window_class, im],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+    )
+
+
+def main():
+    sock_path = os.path.join(
+        os.environ["XDG_RUNTIME_DIR"], "hypr",
+        os.environ["HYPRLAND_INSTANCE_SIGNATURE"], ".socket2.sock",
+    )
+    active_addr = ""
+    active_class = ""
+    last_sent = None
+
+    def apply(window_class, title):
+        nonlocal last_sent
+        for rule_class, pattern, im in load_rules():
+            if rule_class != window_class:
+                continue
+            if pattern == "*" or pattern in title:
+                if last_sent != (window_class, title, im):
+                    last_sent = (window_class, title, im)
+                    hint(window_class, im)
+                return
+
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+        s.connect(sock_path)
+        buf = b""
+        while True:
+            chunk = s.recv(4096)
+            if not chunk:
+                return
+            buf += chunk
+            while b"\n" in buf:
+                line, buf = buf.split(b"\n", 1)
+                event, _, data = line.decode("utf-8", "replace").partition(">>")
+                if event == "activewindowv2":
+                    active_addr = data
+                elif event == "activewindow":
+                    active_class, _, title = data.partition(",")
+                    apply(active_class, title)
+                elif event == "windowtitlev2":
+                    addr, _, title = data.partition(",")
+                    if addr == active_addr:
+                        apply(active_class, title)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)

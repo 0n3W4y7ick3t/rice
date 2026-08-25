@@ -1,0 +1,7 @@
+# Per-window input method hints for fcitx5-chatlang (copy to chatlang-map).
+# <window class><TAB><title substring or *><TAB><input method>, first match wins.
+# The title substring is matched against the window title, so a Telegram chat
+# name selects the input method for that friend before you type anything.
+#org.telegram.desktop	SomeJapaneseFriend	mozc
+#org.telegram.desktop	SomeEnglishFriend	keyboard-us
+#org.telegram.desktop	*	pinyin

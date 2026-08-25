@@ -56,6 +56,12 @@ export MOZ_ENABLE_WAYLAND=1                # Native wayland Firefox.
 # fcitx5 via wayland text-input-v3; no GTK/QT_IM_MODULE needed.
 # export QT_IM_MODULE=fcitx only if a Qt app misbehaves.
 export XMODIFIERS=@im=fcitx
+# User-built fcitx5 addons (fcitx5-autolang). FCITX_ADDON_DIRS replaces the
+# default list, so the system dir has to be re-added; Gentoo is lib64, Arch lib.
+for _d in /usr/lib64/fcitx5 /usr/lib/fcitx5; do
+    [ -d "$_d" ] && { export FCITX_ADDON_DIRS="$HOME/.local/lib/fcitx5:$_d"; break; }
+done
+unset _d
 export AWT_TOOLKIT="MToolkit wmname LG3D"  # May have to install wmname
 export _JAVA_AWT_WM_NONREPARENTING=1       # Legacy fix for Java apps under XWayland.
 

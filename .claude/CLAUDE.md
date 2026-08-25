@@ -112,14 +112,14 @@ missing the variable stays unset and aquamarine probes every card).
 **fcitx5 on Wayland**: `XMODIFIERS` only (profile exports it). Forcing
 `GTK_IM_MODULE`/`QT_IM_MODULE` breaks the candidate popup — details in
 deployLinux CLAUDE.md. Mozc is enabled via `.config/fcitx5/profile`.
-One deliberate exception since 2026-08-25: Telegram is launched with
-`QT_IM_MODULE=fcitx`, because the Qt IM module is the only path that
-delivers the field's text to the autolang addon (Qt's own wayland
-text-input does not, and Chromium's is broken upstream). Candidate popups
-verified fine there on Arch/fcitx5 5.1.21. Note this env is lost across a
-hypr-session restore (relaunch comes from `/proc` cmdline, which never
-carries env) — after a reboot Telegram falls back to hints-only until
-relaunched with the variable.
+Since 2026-08-25 the profile exports `QT_IM_MODULE=fcitx` globally after
+all: the Qt IM module is the only path that delivers a field's text to the
+autolang addon (Qt's own wayland text-input does not, and Chromium's is
+broken upstream), and a login-profile export is the only form that
+survives hypr-session restore (relaunch comes from `/proc` cmdline, which
+never carries env). Candidate popups verified fine on Arch/fcitx5 5.1.21;
+revert in the profile if a Qt app misbehaves. `GTK_IM_MODULE` stays unset
+— GTK's own text-input-v3 works and carries the text.
 
 The autolang addon itself (public repo 0n3W4y7ick3t/fcitx5-autolang) picks
 the IM from the text already in the focused field; the chatlang script

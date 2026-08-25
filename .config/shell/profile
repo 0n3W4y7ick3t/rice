@@ -53,9 +53,13 @@ export LESSOPEN="| /usr/bin/highlight -O ansi %s 2>/dev/null"
 export QT_QPA_PLATFORMTHEME="gtk2"         # Have QT use gtk2 theme.
 export QT_QPA_PLATFORM="wayland;xcb"       # Prefer wayland, fall back to X.
 export MOZ_ENABLE_WAYLAND=1                # Native wayland Firefox.
-# fcitx5 via wayland text-input-v3; no GTK/QT_IM_MODULE needed.
-# export QT_IM_MODULE=fcitx only if a Qt app misbehaves.
+# fcitx5: XMODIFIERS for XIM clients. QT_IM_MODULE routes Qt apps through
+# fcitx5-qt (flipped 2026-08-25): Qt's own wayland text-input never delivers
+# surrounding text, which the autolang addon needs — revert here if candidate
+# popups misbehave. GTK_IM_MODULE stays unset: GTK's text-input-v3 works and
+# forcing the module broke the popup (see deployLinux CLAUDE.md).
 export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
 # User-built fcitx5 addons (fcitx5-autolang). FCITX_ADDON_DIRS replaces the
 # default list, so the system dir has to be re-added; Gentoo is lib64, Arch lib.
 for _d in /usr/lib64/fcitx5 /usr/lib/fcitx5; do

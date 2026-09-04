@@ -1,9 +1,19 @@
 #!/bin/sh
 
 # sudo not required for some system commands
-for command in mount umount sv pacman emerge updatedb su shutdown poweroff reboot ; do
+for command in mount umount sv emerge updatedb su shutdown poweroff reboot ; do
   alias $command="sudo $command"
 done; unset command
+
+# pacman: sudo only for operations that write; queries stay unprivileged
+# (a blanket sudo alias also leaks into non-interactive shells with no sudo cache)
+pacman() {
+  case "$1" in
+    ""|-Q*|-T*|-S[silgp]*|-F|-F[!y]*|-V|-h|--help|--version|--query*|--files*)
+      command pacman "$@" ;;
+    *) sudo pacman "$@" ;;
+  esac
+}
 
 # These common commands are just too long! Abbreviate them.
 alias \

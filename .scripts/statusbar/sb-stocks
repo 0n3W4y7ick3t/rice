@@ -45,10 +45,13 @@ syms=$(printf '%s\n' "$watchlist" |
 geticon() { [ -f "$iconmap" ] && awk -v k="$1" '$1 == k {print $2; exit}' "$iconmap" ;}
 
 getquotes() {
+  # price = last bar, or Yahoo's fullday price when the window has no bars
+  # (futures between sessions send close: null)
   if curl -sfm 7 -A "Mozilla/5.0" \
       "https://query1.finance.yahoo.com/v8/finance/spark?symbols=$syms&range=1d&interval=5m" |
     jq -r 'to_entries[] | select(.value.chartPreviousClose? != null) |
-      [.key, ((.value.close // []) | map(select(. != null)) | last),
+      [.key, (((.value.close // []) | map(select(. != null)) | last)
+              // .value.fulldayPrice),
        .value.chartPreviousClose] | @tsv' |
     awk -F'\t' '$2 != "" && $3 > 0 {
       printf "%s\t%s\t%+.2f\n", $1, $2, ($2 - $3) / $3 * 100}' > "$datafile.tmp" &&

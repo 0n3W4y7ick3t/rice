@@ -1,0 +1,91 @@
+#!/bin/sh
+
+# Launch gammastep with coordinates derived from the system timezone, so night
+# mode follows the clock: set the timezone on arrival and sunset moves with it.
+# tzdata ships coordinates for every zone in zone1970.tab, so this needs no
+# network and nothing to hand-edit when travelling.
+#
+#   gammastep-start [gammastep args...]   resolve, then exec gammastep
+#   gammastep-start --coords [ZONE]       print "lat:lon" and exit (dry run)
+#
+# Everything else (temperatures, fade, gamma) stays in config.ini; only the
+# location is overridden, via -l.
+
+zoneinfo=/usr/share/zoneinfo
+fallback="35.6544:139.7447" # Tokyo, when the zone cannot be resolved
+
+# The configured zone name. /etc/localtime comes first because neverland is
+# OpenRC and has no timedatectl.
+current_zone() {
+	link=$(readlink -f /etc/localtime 2>/dev/null)
+	case "$link" in
+	"$zoneinfo"/*)
+		printf '%s\n' "${link#"$zoneinfo"/}"
+		return 0
+		;;
+	esac
+	timedatectl show -p Timezone --value 2>/dev/null
+}
+
+# zone1970.tab lists canonical zones only, but /etc/localtime usually points at
+# a backward-compat link ("Japan", not "Asia/Tokyo") that matches nothing there.
+# Any miss is retried through tzdata.zi's link table ("L Asia/Tokyo Japan").
+zone_coords() {
+	[ -n "$1" ] || return 1
+	coords=$(awk -v z="$1" '$3 == z { print $2; exit }' "$zoneinfo/zone1970.tab" 2>/dev/null)
+	if [ -z "$coords" ]; then
+		canonical=$(awk -v z="$1" \
+			'($1 == "L" || $1 == "Link") && $3 == z { print $2; exit }' \
+			"$zoneinfo/tzdata.zi" 2>/dev/null)
+		[ -n "$canonical" ] || return 1
+		coords=$(awk -v z="$canonical" '$3 == z { print $2; exit }' \
+			"$zoneinfo/zone1970.tab" 2>/dev/null)
+	fi
+	[ -n "$coords" ] || return 1
+	printf '%s\n' "$coords"
+}
+
+# ISO 6709, in either width: +DDMM+DDDMM or +DDMMSS+DDDMMSS. Splitting on the
+# total length is what tells the two apart; both occur in zone1970.tab.
+coords_to_latlon() {
+	printf '%s\n' "$1" | awk '
+	function dms(s,   sign, body, dlen, d, m, sec) {
+		sign = (substr(s, 1, 1) == "-") ? -1 : 1
+		body = substr(s, 2)
+		# 4 or 6 digits is a latitude (2 degree digits), 5 or 7 a longitude (3)
+		dlen = (length(body) == 4 || length(body) == 6) ? 2 : 3
+		d = substr(body, 1, dlen) + 0
+		m = substr(body, dlen + 1, 2) + 0
+		sec = (length(body) > dlen + 2) ? substr(body, dlen + 3, 2) + 0 : 0
+		return sign * (d + m / 60 + sec / 3600)
+	}
+	{
+		if (length($0) == 11) latw = 5
+		else if (length($0) == 15) latw = 7
+		else exit 1
+		printf "%.4f:%.4f\n", dms(substr($0, 1, latw)), dms(substr($0, latw + 1))
+	}'
+}
+
+# Fail-soft throughout: a login must never end up without night mode.
+resolve() {
+	zone="${1:-$(current_zone)}"
+	latlon=""
+	coords=$(zone_coords "$zone") && latlon=$(coords_to_latlon "$coords")
+	if [ -z "$latlon" ]; then
+		printf '%s: cannot resolve %s, falling back to %s\n' \
+			"${0##*/}" "${zone:-<no timezone>}" "$fallback" >&2
+		latlon="$fallback"
+	fi
+	printf '%s\n' "$latlon"
+}
+
+case "$1" in
+--coords)
+	shift
+	resolve "$1"
+	exit 0
+	;;
+esac
+
+exec gammastep -l "$(resolve)" "$@"

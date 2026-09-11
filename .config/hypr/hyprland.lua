@@ -111,7 +111,10 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("fcitx5 -d")
     -- per-chat IM hints for the autolang addon (no-op without a chatlang-map)
     hl.exec_cmd("fcitx5-chatlang")
-    hl.exec_cmd("gammastep")
+    -- .scripts/gammastep-start: coordinates from the system timezone, so sunset
+    -- follows the clock when travelling. Its period hook flips the portal's
+    -- color-scheme, which is what turns Telegram dark at dusk.
+    hl.exec_cmd("gammastep-start")
     hl.exec_cmd("mpd")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")

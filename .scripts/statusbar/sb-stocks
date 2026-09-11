@@ -96,6 +96,12 @@ showbar() {
 # overall trend icon follows the S&P (popup title)
 trend() { case $(row "^GSPC" | cut -f3) in -*) echo 📉 ;; *) echo 📈 ;; esac ;}
 
+# alert icon from the batch itself, which may hold moves both ways
+movetrend() {
+  printf '%s\n' "$1" | awk '{ if ($2 ~ /^-/) d++; else u++ }
+    END{ print (d && u) ? "📊" : d ? "📉" : "📈" }'
+}
+
 showall() {
   [ -s "$datafile" ] || return 0
   notify-send -t 20000 "$(trend) Markets (day)" "$(printf '%s\n' "$watchlist" |
@@ -129,7 +135,7 @@ checkalerts() {
         rm -f "$state"
     fi
   done)
-  [ -n "$moves" ] && notify-send "📈 Big move (day)" "$moves"
+  [ -n "$moves" ] && notify-send "$(movetrend "$moves") Big move (day)" "$moves"
 }
 
 case $BLOCK_BUTTON in

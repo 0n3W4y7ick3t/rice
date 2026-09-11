@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# gammastep runs every executable here on a period change, and once at startup
+# with the old period "none". gammastep itself only tints the output; flipping
+# app themes is this hook's job, and it needs two separate mechanisms:
+#
+#   1. Portal consumers (Telegram, Chrome) subscribe to SettingChanged on
+#      org.freedesktop.appearance, which xdg-desktop-portal-gtk re-exports from
+#      the GTK color-scheme gsettings key.
+#   2. GTK3 itself (the portal file chooser) has no settings-portal support at
+#      all in 3.24, so its only dark-mode knob is settings.ini. That file is
+#      untracked runtime state for this reason; settings.ini.example is its seed.
+#
+# "transition" is ignored mid-session on purpose: acting only on the settled
+# periods flips once at civil dusk instead of twice around each edge. Too late
+# in practice -> tune elevation-high/elevation-low in ../config.ini.
+
+[ "$1" = period-changed ] || exit 0
+
+case "$3" in
+night) scheme=prefer-dark ;;
+daytime) scheme=prefer-light ;;
+transition)
+	# Only worth acting on at startup, i.e. a login during dawn or dusk: the
+	# settled period can be an hour off, and doing nothing would leave the
+	# previous session's scheme up that whole time. Direction comes from the
+	# clock, since a transition never spans noon outside polar latitudes.
+	[ "$2" = none ] || exit 0
+	hour=$(date +%H)
+	if [ "${hour#0}" -lt 12 ]; then scheme=prefer-light; else scheme=prefer-dark; fi
+	;;
+*) exit 0 ;;
+esac
+
+command -v gsettings >/dev/null 2>&1 &&
+	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
+
+gtk_ini="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
+if [ "$scheme" = prefer-dark ]; then dark=1; else dark=0; fi
+if [ -f "$gtk_ini" ] &&
+	! grep -q "^gtk-application-prefer-dark-theme=$dark\$" "$gtk_ini"; then
+	tmp="$gtk_ini.$$"
+	if grep -q '^gtk-application-prefer-dark-theme=' "$gtk_ini"; then
+		sed "s/^gtk-application-prefer-dark-theme=.*/gtk-application-prefer-dark-theme=$dark/" \
+			"$gtk_ini" >"$tmp"
+	else
+		# No key yet (a settings.ini predating this hook): add it under [Settings].
+		sed "0,/^\[Settings\]\$/s//[Settings]\ngtk-application-prefer-dark-theme=$dark/" \
+			"$gtk_ini" >"$tmp"
+	fi
+	mv -f "$tmp" "$gtk_ini"
+	# GTK3 reads settings.ini once at startup, so the long-lived portal keeps
+	# serving the old theme until it restarts. It is D-Bus activated and comes
+	# back on the next dialog, so killing it while idle is safe. The name is 22
+	# chars, past comm's 15-char cutoff, so -f is needed to match it at all --
+	# but -f alone also matches any shell whose command line merely mentions it
+	# (it killed the terminal this was tested from). -x anchors the match to the
+	# whole command line, which only the daemon itself satisfies.
+	pkill -xf '.*/xdg-desktop-portal-gtk' 2>/dev/null
+fi
+
+exit 0

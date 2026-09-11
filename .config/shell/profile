@@ -37,7 +37,11 @@ export PYTHON_VENV_DIR=$HOME/.local/share/pyenv
 # export BLOG_DIR="$HOME/foo/blog"
 
 # Other program settings:
-export GTK_THEME=Arc:dark # https://github.com/jnsh/arc-theme
+# No GTK_THEME pin. The env var hard-forces a theme on every GTK app and beats
+# every other source, which is what kept Chrome and the portal file chooser dark
+# around the clock. It also named Arc, which is not installed on the x13, so GTK
+# was silently falling back to Adwaita's dark variant there anyway.
+# Light/dark now follows the sun; see .config/gammastep/hooks/10-color-scheme.
 export DICS="/usr/share/stardict/dic/"
 export SUDO_ASKPASS="$HOME/.scripts/wmenupass"
 export FZF_DEFAULT_OPTS="--layout=reverse --height 40%"

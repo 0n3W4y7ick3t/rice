@@ -16,6 +16,7 @@ daemon          run `save` every SAVE_INTERVAL seconds as a safety net for
 State lives in $XDG_STATE_HOME/hypr-session (override: $HYPR_SESSION_DIR).
 Disable restore entirely:  touch <state dir>/disabled
 Extra excluded classes:    HYPR_SESSION_EXCLUDE="class1,class2"
+Bars, tray bridges and IME popups are excluded by default (EXCLUDE_CLASSES).
 
 Terminals keep their original flags (--class spterm, -e bc ...) and get their
 cwd re-injected, so class-keyed windowrules and the scratchpads on special
@@ -36,11 +37,12 @@ STATE_DIR = os.environ.get("HYPR_SESSION_DIR") or os.path.join(
 SESSION_FILE = os.path.join(STATE_DIR, "session.json")
 DISABLE_FLAG = os.path.join(STATE_DIR, "disabled")
 
-# Windows of these classes are never saved/restored (bars, tray bridges,
-# anything autostart already launches).
+# Windows of these classes are never saved/restored (bars, tray bridges, IME
+# popups -- anything autostart already launches).
 EXCLUDE_CLASSES = {
     "org.quickshell",
     "xembedsniproxy",
+    "fcitx",
 }
 EXCLUDE_CLASSES |= {
     c.strip() for c in os.environ.get("HYPR_SESSION_EXCLUDE", "").split(",") if c.strip()
@@ -65,6 +67,19 @@ SPAWN_STAGGER = 0.3
 
 def log(msg):
     print(f"hypr-session: {msg}", file=sys.stderr, flush=True)
+
+
+def tracked(client):
+    """True for real app windows, false for helpers we never save or move.
+
+    Some X11 helpers report a NUL-truncated WM_CLASS: fcitx5's input window
+    arrives as 'fcitx\\0fcit', so the class is cut at the NUL before matching,
+    otherwise the exclusion set can never hit it. That window used to be
+    snapshotted like an app window and re-parked on its recorded workspace at
+    every login, which kept an otherwise empty workspace alive for it.
+    """
+    cls = (client.get("class") or "").split("\0")[0]
+    return bool(cls) and cls not in EXCLUDE_CLASSES
 
 
 def hyprctl_json(cmd):
@@ -225,8 +240,7 @@ def save():
     for c in clients:
         if not c.get("mapped") or c.get("pid", -1) <= 0:
             continue
-        # windows with no class are invisible helpers (e.g. tray bridges)
-        if not c.get("class") or c["class"] in EXCLUDE_CLASSES:
+        if not tracked(c):
             continue
         cmd = relaunch_command(c)
         if not cmd:
@@ -305,7 +319,7 @@ def current_clients():
     return {
         c["address"]: c
         for c in hyprctl_json("clients")
-        if c.get("mapped") and c.get("class") and c["class"] not in EXCLUDE_CLASSES
+        if c.get("mapped") and tracked(c)
     }
 
 

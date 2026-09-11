@@ -32,7 +32,7 @@ esac
 seam="${XDG_CONFIG_HOME:-$HOME/.config}/shell/statusbar.local"
 [ -f "$seam" ] && . "$seam"
 if [ -n "$sb_clock_compact" ]; then
-  date "+%d %a %H:%M:%S"
+  date "+%d %a %I:%M:%S %p"
 else
-  date "+%m/%d %a %H:%M:%S"
+  date "+%m/%d %a %I:%M:%S %p"
 fi

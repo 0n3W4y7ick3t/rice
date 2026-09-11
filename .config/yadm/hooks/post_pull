@@ -16,6 +16,13 @@ done
 [ -n "$seeded" ] &&
   XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" "$HOME/.scripts/shortcuts" >/dev/null 2>&1
 
+# GTK3's settings.ini is runtime state now: the gammastep period hook rewrites
+# its prefer-dark key at dusk and dawn, because GTK 3.24 has no settings-portal
+# support and that key is its only dark-mode knob. Same seam as the bookmarks.
+[ -f "$HOME/.config/gtk-3.0/settings.ini" ] ||
+  cp "$HOME/.config/gtk-3.0/settings.ini.example" \
+    "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null
+
 # README.md and LICENSE stay tracked at the repo root for GitHub, but are
 # never materialized in $HOME. Re-applied on every pull so each machine
 # picks the rule up without a manual bootstrap; idempotent.

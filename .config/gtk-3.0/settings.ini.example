@@ -1,0 +1,26 @@
+# Seed for the untracked .config/gtk-3.0/settings.ini, copied into place by
+# post_pull/bootstrap when the live file is missing. The live file is runtime
+# state: the gammastep period hook rewrites gtk-application-prefer-dark-theme
+# at dusk and dawn, which is the only knob GTK3 has for dark mode (3.24 has no
+# XDG settings-portal support, so it cannot follow the portal like Telegram and
+# Chrome do). Change defaults here, not in the live file.
+#
+# Adwaita rather than Arc: it is built into GTK3 on every machine and ships a
+# dark variant (gtk-dark.css), so both machines behave identically.
+[Settings]
+gtk-application-prefer-dark-theme=1
+gtk-theme-name=Adwaita
+gtk-icon-theme-name=Adwaita
+gtk-font-name=Sans 10
+gtk-cursor-theme-size=0
+gtk-toolbar-style=GTK_TOOLBAR_TEXT
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+gtk-button-images=0
+gtk-menu-images=1
+gtk-enable-event-sounds=1
+gtk-enable-input-feedback-sounds=1
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle=hintfull
+gtk-xft-rgba=rgb
+gtk-cursor-theme-name=macOS

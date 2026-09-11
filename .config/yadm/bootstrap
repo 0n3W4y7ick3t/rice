@@ -37,6 +37,12 @@ done
     "$XDG_CONFIG_HOME/shell/statusbar.local" 2>/dev/null || true
 XDG_CONFIG_HOME="$XDG_CONFIG_HOME" "$HOME/.scripts/shortcuts" || true
 
+# GTK3 settings.ini: untracked runtime state (the gammastep period hook rewrites
+# its prefer-dark key), seeded from the tracked example like the bookmarks.
+[ -f "$XDG_CONFIG_HOME/gtk-3.0/settings.ini" ] ||
+  cp "$XDG_CONFIG_HOME/gtk-3.0/settings.ini.example" \
+    "$XDG_CONFIG_HOME/gtk-3.0/settings.ini" 2>/dev/null || true
+
 # nvim: lazy.nvim self-bootstraps and installs plugins on first start; the
 # main-branch nvim-treesitter then needs the tree-sitter CLI to build parsers
 # (mise, never a distro package). Build them headless now so the first

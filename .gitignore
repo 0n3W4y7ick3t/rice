@@ -11,6 +11,12 @@ KEYBINDINGS.pdf
 !.config/shell/bm-*.example
 # Statusbar overrides: same seam, seeded from the class-specific example.
 .config/shell/statusbar.local
+# GTK3 dark mode: gtk-application-prefer-dark-theme is the only knob GTK 3.24
+# has (no settings-portal support), so the gammastep hook rewrites the live
+# settings.ini at dusk and dawn. That makes it runtime state; the *.example is
+# the seed post_pull/bootstrap copies on first deploy.
+.config/gtk-3.0/settings.ini
+!.config/gtk-3.0/settings.ini.example
 # Claude state is machine-local (claude-sync owns what syncs), but the repo
 # context file is tracked here.
 .claude/*

@@ -1,4 +1,4 @@
-# ThinkPad X13: internal panel only. Hyprland's own monitor rules handle
+# ThinkPad X13: internal panel plus the portrait Dell. Hyprland's own rules handle
 # hotplug -- they match on connector or EDID and apply when an output appears,
 # which is all a laptop with one external display needs. kanshi used to run
 # here and set the scale too; two owners of one value, and kanshi silently won
@@ -12,10 +12,18 @@
 # 1.5 (1280x800) -- 1.75 does not exist for this panel.
 monitor = eDP-1, preferred, auto, 1.333333
 
-# When the 27" arrives: plug it in, read its description from
-# `hyprctl monitors`, and add a rule matching it by EDID rather than by
-# connector (DP-1/HDMI-A-1 numbering moves between ports and boots), e.g.
-# monitor = desc:<make model serial>, preferred, auto, 1.25
+# The 27" Dell in portrait, LEFT of the laptop panel. Matched by EDID, not by
+# connector: DP-1/HDMI-A-1 numbering moves between ports and boots. This is
+# physically the same panel as neverland's left monitor, so it keeps that
+# machine's tuned values -- scale 1.6 (3840x2160 -> 2400x1350, rotated to a
+# logical 1350x2400), and transform 3 (270 deg) rather than 1, because the
+# panel is physically rotated 90 deg clockwise and Wayland's transform
+# compensates in the opposite direction.
+#
+# auto-left drops it left of eDP-1 (which auto-places at 0x0) and top-aligns
+# the two, so the laptop panel sits beside the top 900 logical px of the tall
+# one; use -1350x-750 instead to centre it vertically.
+monitor = desc:Dell Inc. DELL U2723QX BHD5YN3, 3840x2160@60, auto-left, 1.6, transform, 3
 
 input {
     touchpad {

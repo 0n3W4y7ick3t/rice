@@ -135,6 +135,19 @@ mkdir -p "${log%/*}"
 [ -f "$log" ] && mv -f "$log" "$log.old"
 exec >"$log" 2>&1
 
+# hyprsunset autostarts alongside us, so at login the first apply below can beat
+# its IPC socket by a few hundred ms and warm nothing until the next tick. Wait
+# briefly for it so a night login is dark *and* warm at once. Bounded and
+# fail-soft: skipped when hyprsunset is absent, and it gives up after ~3s rather
+# than hold the theme hostage to the tint.
+if command -v hyprsunset >/dev/null 2>&1 && command -v hyprctl >/dev/null 2>&1; then
+	n=0
+	while [ "$n" -lt 30 ] && ! hyprctl hyprsunset temperature >/dev/null 2>&1; do
+		sleep 0.1
+		n=$((n + 1))
+	done
+fi
+
 # The tint daemon, and the instant dusk/dawn flip through its period hook.
 # Deliberately not respawned: if it dies the log records it, the tint waits
 # for the next login, and the theme below does not care.

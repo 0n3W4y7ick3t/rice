@@ -35,6 +35,20 @@ esac
 command -v gsettings >/dev/null 2>&1 &&
 	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
 
+# Screen warmth, on the same solar edge as the theme so the two never
+# disagree. hyprsunset drives it over CTM -- the path that works on this
+# NVIDIA box, unlike the gamma ramp gammastep itself would use (which reports
+# "zero outputs" here). Fail-soft: no hyprsunset, no hyprctl, or a login race
+# just leaves the screen neutral until the assert loop re-drives it.
+: "${NIGHT_TEMP:=4000}"
+if command -v hyprctl >/dev/null 2>&1; then
+	if [ "$scheme" = prefer-dark ]; then
+		hyprctl hyprsunset temperature "$NIGHT_TEMP" >/dev/null 2>&1
+	else
+		hyprctl hyprsunset identity >/dev/null 2>&1
+	fi
+fi
+
 gtk_ini="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
 if [ "$scheme" = prefer-dark ]; then dark=1; else dark=0; fi
 if [ -f "$gtk_ini" ] &&

@@ -5,11 +5,21 @@
 # tzdata ships coordinates for every zone in zone1970.tab, so this needs no
 # network and nothing to hand-edit when travelling.
 #
-#   gammastep-start [gammastep args...]   resolve, then exec gammastep
+#   gammastep-start [gammastep args...]   launch gammastep + assert the scheme
 #   gammastep-start --coords [ZONE]       print "lat:lon" and exit (dry run)
+#   gammastep-start --apply               re-assert the scheme for right now
 #
 # Everything else (temperatures, fade, gamma) stays in config.ini; only the
 # location is overridden, via -l.
+#
+# The colour scheme is asserted every 15 minutes instead of trusting the
+# daemon's dusk/dawn edge. gammastep exits for good on one failed gamma write
+# (redshift.c, "Temperature adjustment failed" -> return -1) and Hyprland
+# hands its autostart children stdout and stderr on /dev/null -- on 2026-09-15
+# it died that way minutes after login and the themes sat dark for eleven
+# hours with nothing anywhere saying why. Now a dead daemon only pauses the
+# screen tint: the loop below repairs the theme within a tick and the log says
+# what happened. `pkill -x gammastep` thus stops the tint but not the theme.
 
 zoneinfo=/usr/share/zoneinfo
 fallback="35.6544:139.7447" # Tokyo, when the zone cannot be resolved
@@ -80,12 +90,60 @@ resolve() {
 	printf '%s\n' "$latlon"
 }
 
+# Re-assert the scheme for the current period with no daemon involved: the
+# assert loop below, a pull that just seeded settings.ini (post_pull calls
+# --apply), or a daemon that died hours ago. gammastep's own solar maths names
+# the period (-p adjusts nothing), and "none" as the old period is what makes
+# the hook fall back to the clock during a transition, exactly as at login.
+apply_period() {
+	hook="${XDG_CONFIG_HOME:-$HOME/.config}/gammastep/hooks/10-color-scheme"
+	[ -x "$hook" ] || return 0
+	# The Notice lines go to stderr, and "Transition" carries a "(Day: 12.3%)"
+	# tail, so keep the first word only.
+	period=$(gammastep -l "$(resolve)" -p 2>&1 >/dev/null |
+		awk -F'Period: ' '/Period: /{ split($2, p, " "); print tolower(p[1]); exit }')
+	[ -n "$period" ] || return 1
+	# One log line per actual correction, none while everything is right. The
+	# scheme mapping is the hook's business; this repeats it only to log.
+	case "$period" in
+	night) want=prefer-dark ;;
+	daytime) want=prefer-light ;;
+	*) want= ;;
+	esac
+	if [ -n "$want" ] && command -v gsettings >/dev/null 2>&1; then
+		now=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)
+		[ "$now" = "'$want'" ] ||
+			printf '%s: asserting %s (was %s)\n' "$(date +%FT%T)" "$want" "$now"
+	fi
+	"$hook" period-changed none "$period"
+}
+
 case "$1" in
 --coords)
 	shift
 	resolve "$1"
 	exit 0
 	;;
+--apply)
+	apply_period
+	exit
+	;;
 esac
 
-exec gammastep -l "$(resolve)" "$@"
+log="${XDG_CACHE_HOME:-$HOME/.cache}/gammastep.log"
+mkdir -p "${log%/*}"
+[ -f "$log" ] && mv -f "$log" "$log.old"
+exec >"$log" 2>&1
+
+# The tint daemon, and the instant dusk/dawn flip through its period hook.
+# Deliberately not respawned: if it dies the log records it, the tint waits
+# for the next login, and the theme below does not care.
+gammastep -l "$(resolve)" "$@" &
+
+# Level-triggered theme correctness. Apply first, so a login where gammastep
+# is too broken to fire its startup hook still gets the right scheme at once.
+# GS_ASSERT_SECS exists so tests need not wait 15 minutes.
+while :; do
+	apply_period
+	sleep "${GS_ASSERT_SECS:-900}"
+done

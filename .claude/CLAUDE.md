@@ -154,10 +154,21 @@ for anything machine-local: SDKs installed from tarballs, a version
 manager's shell hook. Keep it untracked. Secret env vars go in
 `~/.config/shell/profile.local` (chmod 600, gitignored), sourced by the
 login profile so the whole graphical session inherits them — `.zshrc.local`
-is interactive-shells-only and too late for compositor-launched apps. The same goes for the version
-managers themselves (`~/.local/bin/mise`, `~/.local/share/cargo` for
-rustup) and their configs — a toolchain pin belongs to one machine and one
-project, so tracking it here would only churn the alternates.
+is interactive-shells-only and too late for compositor-launched apps. The
+version manager binaries stay untracked for the same reason
+(`~/.local/bin/mise`, `~/.local/share/cargo` for rustup), and so do
+per-project toolchain pins, which belong in each repo's own `mise.toml`
+rather than here.
+
+`.config/mise/config.toml` is the exception, tracked since 2026-09-16. The
+global tool set is meant to be identical on every machine, and it is now
+the only source of the mysql client: `dev-db/mariadb` left `@world` because
+portage 12.3 collides with `dev-db/mariadb-connector-c` over
+`/usr/lib64/mariadb/plugin/parsec.so`, so `conda:mysql-client` replaces it.
+Mind where that reaches, though — `mise activate` runs from `.zshrc.local`,
+so those tools exist in interactive shells only. A script Hyprland launches
+directly sees none of them, which matters for `dev-db-mirror` and friends
+now that no `mysqldump` remains in `/usr/bin`.
 
 The same seam pattern picks GitHub accounts: the tracked `.scripts/gh`
 wrapper maps directories to gh accounts through an untracked

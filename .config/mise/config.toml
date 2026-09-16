@@ -1,0 +1,7 @@
+[tools]
+"conda:mysql-client" = "latest"
+go = "1.24.11"
+"go:golang.org/x/tools/cmd/goimports" = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+node = "22"
+python = "3.13"

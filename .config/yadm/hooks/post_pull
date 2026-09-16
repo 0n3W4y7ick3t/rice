@@ -23,6 +23,12 @@ done
   cp "$HOME/.config/gtk-3.0/settings.ini.example" \
     "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null
 
+# That seed is dark whatever the hour, and the scheme otherwise only moves when
+# a running gammastep crosses a period, so a first deploy at noon would sit dark
+# until dusk. Re-assert it for the current period; fail-soft.
+command -v gammastep >/dev/null 2>&1 &&
+  "$HOME/.scripts/gammastep-start" --apply >/dev/null 2>&1
+
 # README.md and LICENSE stay tracked at the repo root for GitHub, but are
 # never materialized in $HOME. Re-applied on every pull so each machine
 # picks the rule up without a manual bootstrap; idempotent.

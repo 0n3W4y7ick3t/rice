@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Steam is the flatpak here; its exported launcher sits outside PATH, so
+# wmenuapps (which lists PATH executables) cannot see it. This shim gives
+# it a plain name. Arguments pass through, so steam:// urls work too.
+
+app=com.valvesoftware.Steam
+
+if ! flatpak info "$app" >/dev/null 2>&1; then
+  notify-send "steam" "flatpak $app is not installed"
+  exit 1
+fi
+
+exec flatpak run "$app" "$@"

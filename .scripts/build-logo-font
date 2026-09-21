@@ -17,7 +17,8 @@ CRYPTO_BASE, STOCK_BASE, MISC_BASE = 0xF2000, 0xF2800, 0xF3000
 COIN_TOP_N = 50
 # always include the sb-crypto watchlist coins (keep in sync)
 WATCH_IDS = ["bitcoin", "ethereum", "solana", "hyperliquid", "pump-fun",
-             "binancecoin", "ripple", "tron", "backpack", "dogecoin", "sui"]
+             "binancecoin", "ripple", "tron", "backpack", "dogecoin", "sui",
+             "zcash"]
 # stocks & index-proxy ETFs: display symbol -> financialmodelingprep symbol
 STOCKS = {
     "^GSPC": "SPY", "^NDX": "QQQ", "^DJI": "DIA", "^N225": "EWJ",

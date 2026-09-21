@@ -10,18 +10,18 @@
 # added here get a logo automatically if the map covers them.
 
 # id ticker threshold%
-watchlist="bitcoin BTC 5
-ethereum ETH 5
+watchlist="bitcoin BTC 6
+ethereum ETH 8
 binancecoin BNB 8
 ripple XRP 10
-solana SOL 8
-tron TRX 10
-zcash ZEC 12
+solana SOL 9
+tron TRX 3.5
+zcash ZEC 18
 hyperliquid HYPE 10
 dogecoin DOGE 12
-pump-fun PUMP 15
+pump-fun PUMP 18
 sui SUI 12
-backpack BP 15"
+backpack BP 18"
 baronly="BTC ETH SOL"
 signal=15
 cooldown=14400

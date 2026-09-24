@@ -5,3 +5,18 @@ go = "1.24.11"
 "go:golang.org/x/tools/gopls" = "latest"
 node = "22"
 python = "3.13"
+# dev CLIs (2026-09-24): on PATH in interactive shells only (mise activate runs
+# from .zshrc.local), so nothing a script or a Hyprland bind runs may move here.
+# kubectl follows the cluster's server minor (kubectl allows one minor of skew).
+kubectl = "1.35"
+k9s = "latest"
+minikube = "latest"
+lazygit = "latest"
+tealdeer = "latest"
+# clang (2026-09-24): a per-project C/C++ compiler, never the system compiler
+# (that is gcc, @system on Gentoo). It exists so a project that needs clang gets
+# it without pulling llvm-core/clang and a second llvm slot back into portage.
+# conda's clangxx prefix carries clang as a dependency, but mise exposes only
+# the package's own binary (clang++); the hook links clang in too. One prefix
+# instead of `clang` + `clangxx` saves 1.1 GB.
+"conda:clangxx" = { version = "latest", postinstall = 'mkdir -p "$MISE_TOOL_INSTALL_PATH/.mise-bins" && ln -sf ../bin/clang "$MISE_TOOL_INSTALL_PATH/.mise-bins/clang"' }

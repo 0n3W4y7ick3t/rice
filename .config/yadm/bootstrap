@@ -43,6 +43,10 @@ XDG_CONFIG_HOME="$XDG_CONFIG_HOME" "$HOME/.scripts/shortcuts" || true
   cp "$XDG_CONFIG_HOME/gtk-3.0/settings.ini.example" \
     "$XDG_CONFIG_HOME/gtk-3.0/settings.ini" 2>/dev/null || true
 
+# the tracked tool set (toolchains plus the interactive dev CLIs). mise itself
+# is installed by hand before bootstrap, see the wiki. Fail-soft.
+command -v mise >/dev/null 2>&1 && mise install || true
+
 # nvim: lazy.nvim self-bootstraps and installs plugins on first start; the
 # main-branch nvim-treesitter then needs the tree-sitter CLI to build parsers
 # (mise, never a distro package). Build them headless now so the first

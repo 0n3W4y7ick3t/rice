@@ -61,6 +61,8 @@ if command -v nvim >/dev/null 2>&1; then
   fi
   [ -x "$venv/bin/python" ] && "$venv/bin/python" -m pip install -q --disable-pip-version-check pynvim >/dev/null 2>&1 || true
   PATH="$XDG_DATA_HOME/mise/shims:$PATH" nvim --headless '+Lazy! sync' +qa >/dev/null 2>&1 || true
+  # clangd is mason's, there is no system clang; MasonInstall blocks when headless
+  nvim --headless -c 'MasonInstall clangd' -c qa >/dev/null 2>&1 || true
   nvim --headless +UpdateRemotePlugins +qa >/dev/null 2>&1 || true
   PATH="$XDG_DATA_HOME/mise/shims:$PATH" nvim --headless \
     -c 'lua require("nvim-treesitter").install(require("treesitter-langs")):wait(900000)' +qa \

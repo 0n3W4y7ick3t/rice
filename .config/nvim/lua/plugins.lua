@@ -393,9 +393,11 @@ require('lazy').setup({
           require('mason').setup()
           local mason_lspconfig = require 'mason-lspconfig'
           mason_lspconfig.setup {
-            ensure_installed = {},
+            -- clangd comes from mason: the system clang was dropped, its llvm
+            -- slot cost ~30 min per patch bump. gopls is mise's, rust_analyzer
+            -- rustup's, zls the system's.
+            ensure_installed = { 'clangd' },
             -- servers are configured and enabled explicitly below
-            -- (clangd/gopls/rust_analyzer/zls are managed by the system)
             automatic_enable = false,
           }
         end

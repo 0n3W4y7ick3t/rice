@@ -15,6 +15,31 @@ pacman() {
   esac
 }
 
+# System update. On Gentoo the compilers are held back by default: llvm (for
+# mesa) and gcc are ~15 min each per patch bump; llvm-runtimes track llvm's
+# version. Held packages skip rebuilds too. `wup all` takes everything.
+wup() {
+  if [ -x /usr/bin/emerge ]; then
+    if [ "$1" = all ]; then
+      shift; \sudo emerge -avDuN @world "$@"
+    else
+      \sudo emerge -avDuN @world --exclude 'llvm-core/* llvm-runtimes/* sys-devel/gcc' "$@"
+      wup_held
+    fi
+  elif [ -x /usr/bin/pacman ]; then
+    [ "$1" = all ] && shift
+    \sudo pacman -Syu "$@"
+  fi
+}
+# installed vs newest visible for what wup holds back
+wup_held() {
+  for atom in $(qlist -ICSe llvm-core/llvm) sys-devel/gcc; do
+    have=$(portageq best_version / "$atom")
+    want=$(portageq best_visible / ebuild "$atom")
+    [ "$have" = "$want" ] || echo "held back: $have -> ${want##*/}"
+  done
+}
+
 # These common commands are just too long! Abbreviate them.
 alias \
   cx="chmod +x" \

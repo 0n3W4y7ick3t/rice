@@ -31,9 +31,19 @@ command -v gammastep >/dev/null 2>&1 &&
 
 # README.md and LICENSE stay tracked at the repo root for GitHub, but are
 # never materialized in $HOME. Re-applied on every pull so each machine
-# picks the rule up without a manual bootstrap; idempotent.
-command -v yadm >/dev/null 2>&1 &&
-  yadm sparse-checkout set --no-cone '/*' '!/README.md' '!/LICENSE' >/dev/null 2>&1
+# picks the rule up without a manual bootstrap; idempotent. A server-class
+# machine uses sparse-checkout.server instead, which carries the same two
+# exclusions plus the GUI trees, so the pull must not overwrite it.
+if command -v yadm >/dev/null 2>&1; then
+  if [ "$(yadm config local.class 2>/dev/null)" = server ] &&
+    [ -f "$HOME/.config/yadm/sparse-checkout.server" ]; then
+    cp "$HOME/.config/yadm/sparse-checkout.server" \
+      "$(yadm rev-parse --git-dir)/info/sparse-checkout" &&
+      yadm sparse-checkout reapply >/dev/null 2>&1
+  else
+    yadm sparse-checkout set --no-cone '/*' '!/README.md' '!/LICENSE' >/dev/null 2>&1
+  fi
+fi
 
 # yadm runs its own alt *after* this hook, so reloading here would race the
 # machine.conf symlink being recreated. Force alt first, then reload: alt is

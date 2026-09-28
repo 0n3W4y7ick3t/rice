@@ -6,6 +6,10 @@
 
 /*
 
+# repo-only files, same rule as the desktop machines (post_pull hook)
+!/README.md
+!/LICENSE
+
 # GUI config trees
 !/.config/hypr/
 !/.config/waybar/

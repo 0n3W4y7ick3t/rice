@@ -51,3 +51,7 @@
 !/.scripts/otp
 !/.scripts/playback-control
 !/.scripts/pauseallmpv
+
+# nvim on servers is the lightweight init.vim##class.server; the lua setup stays out
+!/.config/nvim/init.lua
+!/.config/nvim/lua/

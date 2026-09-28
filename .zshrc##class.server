@@ -1,6 +1,10 @@
 ###             *** Leon Akashiya's zshrc ***             ###
 ### https://github.com/0n3W4y7ick3t/rice/blob/main/.zshrc ###
 
+# servers get plain interactive shells (tmux, ssh commands) that never ran the login profile
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+[ -d $XDG_CONFIG_HOME/zsh/themes/powerlevel10k ] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k $XDG_CONFIG_HOME/zsh/themes/powerlevel10k
 [ -d $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions ] || \
   git clone https://github.com/zsh-users/zsh-autosuggestions $XDG_CONFIG_HOME/zsh/plugins/zsh-autosuggestions

@@ -101,6 +101,10 @@ hl.window_rule({ match = { class = "^(clipimg)$" }, float = true, center = true,
 -- telegram requests activation on every incoming message; don't follow it,
 -- just flag urgent (misc focus_on_activate stays on for notification clicks)
 hl.window_rule({ match = { class = "^(org\\.telegram\\.desktop|TelegramDesktop)$" }, focus_on_activate = false })
+-- apps that remember a "maximized" state (kitty 0.49+ via remember_window_size,
+-- chromium/electron) re-request it on every new window; a tiler sizes windows
+-- itself. Only app requests are dropped -- mod+SHIFT+U / mod+F still work.
+hl.window_rule({ match = { class = ".*" }, suppress_event = "maximize" })
 
 -- Autostart
 hl.on("hyprland.start", function()

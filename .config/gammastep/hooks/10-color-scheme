@@ -67,8 +67,12 @@ if [ -f "$gtk_ini" ] &&
 	# chars, past comm's 15-char cutoff, so -f is needed to match it at all --
 	# but -f alone also matches any shell whose command line merely mentions it
 	# (it killed the terminal this was tested from). -x anchors the match to the
-	# whole command line, which only the daemon itself satisfies.
-	pkill -xf '.*/xdg-desktop-portal-gtk' 2>/dev/null
+	# whole command line, and [^ ]* rather than .* refuses anything with a space
+	# in it: two instances of this hook run at login (gammastep's startup hook
+	# and the launcher's first --apply), and with .* each one's pkill matched
+	# the other's command line, which ends in this very pattern -- the stray
+	# "Terminated pkill" lines in gammastep.log.
+	pkill -xf '[^ ]*/xdg-desktop-portal-gtk' 2>/dev/null
 fi
 
 # The gsettings flip reaches portal consumers only through the SettingChanged

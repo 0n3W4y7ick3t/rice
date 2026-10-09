@@ -4,9 +4,10 @@
 # with the old period "none". gammastep itself only tints the output; flipping
 # app themes is this hook's job, and it needs two separate mechanisms:
 #
-#   1. Portal consumers (Telegram, Chrome) subscribe to SettingChanged on
-#      org.freedesktop.appearance, which xdg-desktop-portal-gtk re-exports from
-#      the GTK color-scheme gsettings key.
+#   1. Portal consumers (Telegram, Chrome, Slack) subscribe to SettingChanged
+#      on org.freedesktop.appearance, which xdg-desktop-portal-gtk re-exports
+#      from the GTK color-scheme gsettings key. That daemon must be alive when
+#      the key changes, which is why the set happens last (see the bottom).
 #   2. GTK3 itself (the portal file chooser) has no settings-portal support at
 #      all in 3.24, so its only dark-mode knob is settings.ini. That file is
 #      untracked runtime state for this reason; settings.ini.example is its seed.
@@ -31,9 +32,6 @@ transition)
 	;;
 *) exit 0 ;;
 esac
-
-command -v gsettings >/dev/null 2>&1 &&
-	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
 
 # Screen warmth, on the same solar edge as the theme so the two never
 # disagree. hyprsunset drives it over CTM -- the path that works on this
@@ -64,13 +62,32 @@ if [ -f "$gtk_ini" ] &&
 	fi
 	mv -f "$tmp" "$gtk_ini"
 	# GTK3 reads settings.ini once at startup, so the long-lived portal keeps
-	# serving the old theme until it restarts. It is D-Bus activated and comes
-	# back on the next dialog, so killing it while idle is safe. The name is 22
+	# serving the old theme until it restarts. It is D-Bus activated, so killing
+	# it while idle is safe; the Settings call below brings it back. The name is 22
 	# chars, past comm's 15-char cutoff, so -f is needed to match it at all --
 	# but -f alone also matches any shell whose command line merely mentions it
 	# (it killed the terminal this was tested from). -x anchors the match to the
 	# whole command line, which only the daemon itself satisfies.
 	pkill -xf '.*/xdg-desktop-portal-gtk' 2>/dev/null
 fi
+
+# The gsettings flip reaches portal consumers only through the SettingChanged
+# that xdg-desktop-portal-gtk emits for it, and after the pkill above nothing
+# demands that daemon again. Set the key with it dead and the flip goes into
+# the void: gsettings, dconf and the portal all read right, the assert loop
+# finds nothing to fix, and Chrome and Slack keep the previous scheme until a
+# file dialog or an app start happens to wake it (2026-10-08: dark until
+# noon). Any Settings call through the frontend activates whichever backend
+# is configured. It must come before the set: a fresh daemon reads the current
+# value at init and would have nothing to announce. gdbus is part of glib,
+# like gsettings.
+command -v gdbus >/dev/null 2>&1 &&
+	gdbus call --session --timeout 5 --dest org.freedesktop.portal.Desktop \
+		--object-path /org/freedesktop/portal/desktop \
+		--method org.freedesktop.portal.Settings.ReadOne \
+		org.freedesktop.appearance color-scheme >/dev/null 2>&1
+
+command -v gsettings >/dev/null 2>&1 &&
+	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
 
 exit 0

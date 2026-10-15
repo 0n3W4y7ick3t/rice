@@ -1,30 +1,37 @@
 #!/bin/sh
 
-# 📈 Stocks, indices, and commodities from Yahoo's spark endpoint
+# 📈 Stocks, indices, FX, VIX and commodities from Yahoo's spark endpoint
 # (batched, keyless; needs a browser-ish user agent). Bar shows the day
-# change of $baronly; left click pops the full watchlist, middle click
-# refreshes now. Sends a notification when a symbol's day change crosses
-# its threshold (4h cooldown; a closed market never re-alerts because
-# the value stops moving). Logos come from the logo font map
-# (see ~/.scripts/build-logo-font), looked up by symbol.
+# change of $baronly, or the level for an FX rate; left click pops the
+# full watchlist, middle click refreshes now. Sends a notification when
+# a symbol's day change crosses its threshold (4h cooldown; after it
+# only a move that has grown by 30% of the threshold alerts again, so a
+# closed market never repeats). Logos come from the logo font map (see
+# ~/.scripts/build-logo-font), looked up by symbol.
 
-# symbol label threshold%
-watchlist="^GSPC SPX 2
-^NDX NDX 2.5
-^DJI DOW 2
-^N225 N225 3
-GC=F GOLD 3
-SI=F SILV 6
-CL=F OIL 5
-TLT BONDS 1.2
-NVDA NVDA 5
-AAPL AAPL 4
-GOOGL GOOGL 4
-MSFT MSFT 4
-AMZN AMZN 4
-META META 5
-TSLA TSLA 6"
-baronly="SPX NDX NVDA"
+# symbol label threshold% (a dash keeps the row in the popup without alerts;
+# the cash indices and ETFs track the futures, so only the futures alert)
+watchlist="^GSPC SPX -
+ES=F SPF 1.3
+^NDX NDX -
+NQ=F NQF 2.08
+^N225 N225 3.12
+^VIX VIX 11.7
+JPY=X USJPY 0.65
+SPY SPY -
+QQQ QQQ -
+GC=F GOLD 2.6
+SI=F SILV 5.85
+CL=F OIL 4.55
+TLT BONDS 0.91
+NVDA NVDA 3.9
+AAPL AAPL 2.21
+GOOGL GOOGL 2.99
+MSFT MSFT 2.86
+AMZN AMZN 2.99
+META META 3.51
+TSLA TSLA 4.55"
+baronly="SPF NQF N225 USJPY"
 signal=13
 cooldown=14400
 
@@ -73,8 +80,12 @@ fmt() { # adaptive precision: 24.8k / 6788 / 217.49
     else printf "%.2f", n}'
 }
 
+# price prefix: indices, FX rates and index futures are quoted in points,
+# not dollars, so only the rest gets a $
+unit() { case $1 in \^*|*=X|ES=F|NQ=F) ;; *) printf '$' ;; esac ;}
+
 shortlbl() { # bar-only abbreviations; popup keeps the full labels
-  case $1 in SPX) echo SP ;; NDX) echo ND ;; DOW) echo DW ;; NVDA) echo NV ;;
+  case $1 in SPX) echo SP ;; NDX) echo ND ;; NVDA) echo NV ;;
     *) echo "$1" ;; esac
 }
 
@@ -88,7 +99,13 @@ showbar() {
     # logo only; the short text label steps in when no glyph exists
     icon=$(geticon "$sym")
     [ -n "$icon" ] || icon=$(shortlbl "$l")
-    out="$out $icon$(awk -v c="$c" 'BEGIN{printf "%+.1f", c}')"
+    # FX rates show their level (you think in yen per dollar, not in
+    # percent); everything else shows its day change
+    case $sym in
+      *=X) v=$(awk -v p="$(row "$sym" | cut -f2)" 'BEGIN{printf "%.1f", p}') ;;
+      *) v=$(awk -v c="$c" 'BEGIN{printf "%+.1f", c}') ;;
+    esac
+    out="$out $icon$v"
   done
   [ -n "$out" ] && printf '%s\n' "${out# }"
 }
@@ -109,7 +126,7 @@ showall() {
       p=$(row "$sym" | cut -f2)
       [ -n "$p" ] || continue
       icon=$(geticon "$sym")
-      printf '%s %-5s $%-8s %s\n' "${icon:-  }" "$label" "$(fmt "$p")" \
+      printf '%s %-5s %-9s %s\n' "${icon:-  }" "$label" "$(unit "$sym")$(fmt "$p")" \
         "$(awk -v c="$(row "$sym" | cut -f3)" 'BEGIN{printf "%+.1f%%", c}')"
     done)"
 }
@@ -118,6 +135,7 @@ checkalerts() {
   [ -s "$datafile" ] || return 0
   now=$(date +%s)
   moves=$(printf '%s\n' "$watchlist" | while read -r sym label th; do
+    [ "$th" = - ] && continue
     c=$(row "$sym" | cut -f3)
     [ -n "$c" ] || continue
     state="$cache/alerted/$label"
@@ -126,10 +144,13 @@ checkalerts() {
       last=0 lastr=""
       [ -f "$state" ] && { read -r last lastr < "$state" || :; }
       [ $((now - last)) -lt "$cooldown" ] && continue
-      # unchanged value after a full cooldown means the market is closed
-      [ "$r" = "$lastr" ] && continue
+      # after the cooldown only a move that has grown by 30% of the
+      # threshold alerts again: a stale move still inside the window, or
+      # a closed market's frozen value, stays quiet until it re-arms
+      [ -n "$lastr" ] && awk -v c="$c" -v l="$lastr" -v t="$th" 'BEGIN{
+        a = c<0 ? -c : c; b = l<0 ? -l : l; exit !(a < b + t*0.3)}' && continue
       printf '%s %s\n' "$now" "$r" > "$state"
-      printf '%-5s %s%%  $%s\n' "$label" "$r" "$(fmt "$(row "$sym" | cut -f2)")"
+      printf '%-5s %s%%  %s\n' "$label" "$r" "$(unit "$sym")$(fmt "$(row "$sym" | cut -f2)")"
     else
       awk -v c="$c" -v t="$th" 'BEGIN{a = c<0 ? -c : c; exit !(a < t*0.8)}' &&
         rm -f "$state"
@@ -146,7 +167,7 @@ case $BLOCK_BUTTON in
      else
        notify-send -u low "📈 Markets update failed."
      fi; exit ;;
-  3) notify-send "📈 Markets module" "\- Shows $baronly day change.
+  3) notify-send "📈 Markets module" "\- Shows $baronly day change (FX: level).
 - Left click: full watchlist with prices.
 - Middle click: update now.
 - Alerts when a day move crosses a symbol's threshold." ; exit ;;

@@ -4,24 +4,27 @@
 # Bar shows the coins in $baronly; left click pops the full watchlist,
 # middle click refreshes now. Sends a notification when a coin's 24h
 # change crosses its per-coin threshold (4h cooldown, re-arms below
-# 80% of the threshold so a hovering value doesn't flap).
+# 80% of the threshold so a hovering value doesn't flap; after the
+# cooldown only a move grown by 30% of the threshold alerts again, so
+# one move does not repeat for the whole 24h it stays in the window).
+# A dash threshold keeps a coin in the popup without alerts.
 # Coin logos come from the logo font and its map, both built by
 # ~/.scripts/build-logo-font; icons are looked up by ticker, so coins
 # added here get a logo automatically if the map covers them.
 
-# id ticker threshold%
-watchlist="bitcoin BTC 6
-ethereum ETH 8
-binancecoin BNB 8
-ripple XRP 10
-solana SOL 9
-tron TRX 3.5
-zcash ZEC 18
-hyperliquid HYPE 10
-dogecoin DOGE 12
-pump-fun PUMP 18
-sui SUI 12
-backpack BP 18"
+# id ticker threshold% (- = popup only)
+watchlist="bitcoin BTC 3.9
+ethereum ETH 5.2
+binancecoin BNB 3.9
+ripple XRP 5.85
+solana SOL 5.85
+tron TRX 2.34
+zcash ZEC 13
+hyperliquid HYPE 9.1
+dogecoin DOGE 5.85
+pump-fun PUMP 13
+sui SUI 7.15
+backpack BP 15.6"
 baronly="BTC ETH SOL"
 signal=15
 cooldown=14400
@@ -111,6 +114,7 @@ checkalerts() {
   [ -s "$datafile" ] || return 0
   now=$(date +%s)
   moves=$(printf '%s\n' "$watchlist" | while read -r id tick th; do
+    [ "$th" = - ] && continue
     c=$(row "$id" | cut -f3)
     [ -n "$c" ] || continue
     state="$cache/alerted/$tick"
@@ -119,8 +123,11 @@ checkalerts() {
       last=0 lastr=""
       [ -f "$state" ] && { read -r last lastr < "$state" || :; }
       [ $((now - last)) -lt "$cooldown" ] && continue
-      # unchanged value after a full cooldown means the market is closed
-      [ "$r" = "$lastr" ] && continue
+      # after the cooldown only a move that has grown by 30% of the
+      # threshold alerts again: a stale move still inside the window, or
+      # a closed market's frozen value, stays quiet until it re-arms
+      [ -n "$lastr" ] && awk -v c="$c" -v l="$lastr" -v t="$th" 'BEGIN{
+        a = c<0 ? -c : c; b = l<0 ? -l : l; exit !(a < b + t*0.3)}' && continue
       printf '%s %s\n' "$now" "$r" > "$state"
       printf '%-5s %s%%  $%s\n' "$tick" "$r" "$(fmt "$(row "$id" | cut -f2)")"
     else

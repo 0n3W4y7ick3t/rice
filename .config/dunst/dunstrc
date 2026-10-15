@@ -2,7 +2,7 @@
     monitor = 0
     follow = keyboard
     width = 370
-    height = (0, 350)
+    height = (0, 1200)
     offset = (0, 19)
     padding = 2
     horizontal_padding = 2

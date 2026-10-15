@@ -168,7 +168,8 @@ checkalerts() {
         rm -f "$state"
     fi
   done)
-  [ -n "$moves" ] && notify-send "$(movetrend "$moves") Big move (day)" "$moves"
+  # sticky: a big move waits until it is clicked away
+  [ -n "$moves" ] && notify-send -t 0 "$(movetrend "$moves") Big move (day)" "$moves"
 }
 
 case $BLOCK_BUTTON in

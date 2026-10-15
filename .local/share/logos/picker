@@ -101,8 +101,8 @@
 󲁢 币安人生 crypto bianrensheng; token logo
 󲁣 apt crypto aptos; token logo
 󲁤 bp crypto backpack; token logo
-󲠀 ^gspc stock/etf SPY; token logo
-󲠁 ^ndx stock/etf QQQ; token logo
+󲠀 ^gspc stock/etf SPGI; token logo
+󲠁 ^ndx stock/etf NDAQ; token logo
 󲠂 ^dji stock/etf DIA; token logo
 󲠃 ^n225 stock/etf EWJ; token logo
 󲠄 nvda stock/etf NVDA; token logo
@@ -165,8 +165,14 @@
 󲠽 axp stock/etf AXP; token logo
 󲠾 ibm stock/etf IBM; token logo
 󲠿 sbux stock/etf SBUX; token logo
+󲡀 ^vix stock/etf CBOE; token logo
+󲡁 spy stock/etf SPY; token logo
+󲡂 qqq stock/etf QQQ; token logo
 󳀀 gentoo logo GENTOO; token logo
 󳀁 arch logo ARCH; token logo
 󳀂 kali logo KALI; token logo
 󳀃 gc=f commodity gold; token logo
 󳀄 si=f commodity silver; token logo
+󳀅 es=f index futures ^GSPC+F; token logo
+󳀆 nq=f index futures ^NDX+F; token logo
+󳀇 jpy=x fx pair US+JP; token logo

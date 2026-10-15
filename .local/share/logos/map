@@ -102,8 +102,8 @@ CAKE 󲁡 cg:pancakeswap-token
 币安人生 󲁢 cg:bianrensheng
 APT 󲁣 cg:aptos
 BP 󲁤 cg:backpack
-^GSPC 󲠀 fmp:SPY
-^NDX 󲠁 fmp:QQQ
+^GSPC 󲠀 fmp:SPGI
+^NDX 󲠁 fmp:NDAQ
 ^DJI 󲠂 fmp:DIA
 ^N225 󲠃 fmp:EWJ
 NVDA 󲠄 fmp:NVDA
@@ -166,8 +166,14 @@ MS 󲠼 fmp:MS
 AXP 󲠽 fmp:AXP
 IBM 󲠾 fmp:IBM
 SBUX 󲠿 fmp:SBUX
+^VIX 󲡀 fmp:CBOE
+SPY 󲡁 fmp:SPY
+QQQ 󲡂 fmp:QQQ
 GENTOO 󳀀 img:GENTOO
 ARCH 󳀁 img:ARCH
 KALI 󳀂 img:KALI
 GC=F 󳀃 gen:gold
 SI=F 󳀄 gen:silver
+ES=F 󳀅 gen:^GSPC+F
+NQ=F 󳀆 gen:^NDX+F
+JPY=X 󳀇 gen:US+JP

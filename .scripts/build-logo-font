@@ -3,8 +3,10 @@
 # (the Noto Color Emoji format, rendered natively by pango/freetype)
 # whose glyphs are real logos -- the top-50 cryptos by market cap (plus
 # the sb-crypto watchlist regardless of rank, from CoinGecko), a set of
-# famous stocks/ETFs (from financialmodelingprep), and a few non-market
-# logos (EXTRA below). Alongside the font it maintains
+# famous stocks/ETFs (from financialmodelingprep), a few non-market
+# logos (EXTRA below) and some composed badges: stacked ingots for
+# gold/silver, the index logo with an F badge for index futures, and
+# two flags for an FX pair. Alongside the font it maintains
 # ~/.local/share/logos/map, an append-only "KEY GLYPH SOURCE" table that
 # sb-crypto / sb-stocks / wmenuunicode use to look up a glyph at
 # runtime; append-only keeps codepoints stable across rebuilds.
@@ -21,8 +23,9 @@ WATCH_IDS = ["bitcoin", "ethereum", "solana", "hyperliquid", "pump-fun",
              "zcash"]
 # stocks & index-proxy ETFs: display symbol -> financialmodelingprep symbol
 STOCKS = {
-    "^GSPC": "SPY", "^NDX": "QQQ", "^DJI": "DIA", "^N225": "EWJ",
-    "TLT": "TLT",
+    # indices wear their provider's logo so the ETFs can keep their own
+    "^GSPC": "SPGI", "^NDX": "NDAQ", "^DJI": "DIA", "^N225": "EWJ",
+    "^VIX": "CBOE", "SPY": "SPY", "QQQ": "QQQ", "TLT": "TLT",
     "NVDA": "NVDA", "AAPL": "AAPL", "MSFT": "MSFT", "TSLA": "TSLA",
     "GOOGL": "GOOGL", "AMZN": "AMZN", "META": "META", "TSM": "TSM",
     "AVGO": "AVGO", "AMD": "AMD", "INTC": "INTC", "NFLX": "NFLX",
@@ -44,6 +47,17 @@ EMOJI = {"CL=F": "🛢️", "BZ=F": "🛢️"}
 INGOT_URL = ("https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/"
              "Gold_ingot_icon.svg/330px-Gold_ingot_icon.svg.png")
 BULLION = {"GC=F": "gold", "SI=F": "silver"}
+# fractions (left, top, right, bottom) of a logo's own bounding box to keep:
+# a wordmark much wider than the cell shrinks to a strip, so the S&P 500
+# keeps just its "S&P" letters (the gap before "Global" is at 38-43%)
+CROP = {"^GSPC": (0, 0, 0.40, 1)}
+# index futures: the index's own logo with a small F badge in the corner
+FUTURES = {"ES=F": "^GSPC", "NQ=F": "^NDX"}
+# FX pairs: two flags, base currency top left, quote bottom right
+FLAG_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/{}/{}.svg/330px-{}.svg.png"
+FLAGS = {"US": ("a/a4", "Flag_of_the_United_States"),
+         "JP": ("9/9e", "Flag_of_Japan")}
+FX = {"JPY=X": ("US", "JP")}
 # non-market color logos (used by the wmenuunicode picker/emoji list)
 EXTRA = {
     "GENTOO": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Gentoo_Linux_logo_matte.svg/330px-Gentoo_Linux_logo_matte.svg.png",
@@ -122,6 +136,69 @@ def make_bullion(refresh):
         img.save(targets[sym], "PNG", optimize=True)
 
 
+def badge_font(size):
+    from PIL import ImageFont
+    try:
+        path = subprocess.run(["fc-match", "-f", "%{file}", "sans-serif:bold"],
+                              capture_output=True, text=True).stdout.strip()
+        return ImageFont.truetype(path, size)
+    except Exception:
+        return ImageFont.load_default(size)
+
+
+def logo_image(key, path):
+    from PIL import Image
+    img = Image.open(path).convert("RGBA")
+    if key in CROP:
+        x0, y0, x1, y1 = img.getbbox() or (0, 0, img.width, img.height)
+        bw, bh = x1 - x0, y1 - y0
+        l, t, r, b = CROP[key]
+        img = img.crop((x0 + round(bw * l), y0 + round(bh * t),
+                        x0 + round(bw * r), y0 + round(bh * b)))
+    return img
+
+
+def make_futures(images):
+    # the index logo shrunk a little, plus an orange F badge bottom right;
+    # composed on every build so it always follows the current index logo
+    from PIL import Image, ImageDraw
+    for sym, base in FUTURES.items():
+        if base not in images:
+            continue
+        path = os.path.join(CACHE, sym.replace("^", "_") + ".img")
+        logo = logo_image(base, images[base])
+        logo.thumbnail((H - 20, H - 20), Image.LANCZOS)
+        canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        canvas.paste(logo, ((W - logo.width) // 2 - 8,
+                            (H - logo.height) // 2 - 8), logo)
+        r, cx, cy = 26, W - 28, H - 28
+        draw = ImageDraw.Draw(canvas)
+        draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(245, 166, 35, 255))
+        draw.text((cx, cy + 1), "F", fill="white", font=badge_font(38),
+                  anchor="mm")
+        canvas.save(path, "PNG", optimize=True)
+        images[sym] = path
+
+
+def make_fx(images, refresh):
+    # two flags at their own aspect, 96 px wide, in opposite corners
+    from PIL import Image
+    for sym, pair in FX.items():
+        path = os.path.join(CACHE, sym.replace("^", "_") + ".img")
+        canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        for i, cc in enumerate(pair):
+            fp = os.path.join(CACHE, f"_flag_{cc}.img")
+            if refresh or not os.path.exists(fp):
+                h, n = FLAGS[cc]
+                open(fp, "wb").write(fetch(FLAG_URL.format(h, n, n)))
+            flag = Image.open(fp).convert("RGBA")
+            flag = flag.resize((96, round(96 * flag.height / flag.width)),
+                               Image.LANCZOS)
+            canvas.alpha_composite(flag, (i * (W - 96), i * (H - flag.height)))
+        canvas.save(path, "PNG", optimize=True)
+        images[sym] = path
+
+
 def main():
     refresh = "--refresh" in sys.argv
     os.makedirs(CACHE, exist_ok=True)
@@ -151,6 +228,12 @@ def main():
     for sym, fmp in STOCKS.items():
         if sym not in entries:
             entries[sym] = [chr(nextcp(STOCK_BASE, MISC_BASE)), "fmp:" + fmp]
+        elif entries[sym][1] != "fmp:" + fmp:
+            # a changed logo source refetches but keeps the codepoint
+            entries[sym][1] = "fmp:" + fmp
+            stale = os.path.join(CACHE, sym.replace("^", "_") + ".img")
+            if os.path.exists(stale):
+                os.remove(stale)
         img_urls[sym] = f"https://financialmodelingprep.com/image-stock/{fmp}.png"
     for sym, em in EMOJI.items():
         entries[sym] = [em, "emoji"]  # overwrite: emoji rows own no codepoint
@@ -162,6 +245,12 @@ def main():
         if sym not in entries or entries[sym][1] == "emoji":
             entries[sym] = [chr(nextcp(MISC_BASE, 0xF3100)), "gen:" + metal]
     make_bullion(refresh)
+    for sym, base in FUTURES.items():
+        if sym not in entries:
+            entries[sym] = [chr(nextcp(MISC_BASE, 0xF3100)), f"gen:{base}+F"]
+    for sym, pair in FX.items():
+        if sym not in entries:
+            entries[sym] = [chr(nextcp(MISC_BASE, 0xF3100)), "gen:" + "+".join(pair)]
 
     # download (cache by key); a failed fetch falls back to the cached copy
     images = {}
@@ -183,6 +272,8 @@ def main():
             except Exception:
                 print(f"warn: {key}: not an image, dropped", file=sys.stderr)
                 os.remove(path)
+    make_futures(images)
+    make_fx(images, refresh)
     dropped = {k for k in entries if is_glyph(entries[k])} - set(images)
     if dropped:
         print(f"warn: no image, no glyph for: {sorted(dropped)}", file=sys.stderr)
@@ -191,7 +282,7 @@ def main():
     pngs = {}  # glyphname -> png bytes; key order by codepoint
     names = {}
     for key in sorted(images, key=lambda k: ord(entries[k][0])):
-        img = Image.open(images[key]).convert("RGBA")
+        img = logo_image(key, images[key])
         img.thumbnail((H, H), Image.LANCZOS)
         canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         canvas.paste(img, ((W - img.width) // 2, (H - img.height) // 2), img)
@@ -286,8 +377,9 @@ def main():
         for key, (ch, src) in sorted(entries.items(),
                                      key=lambda e: ord(e[1][0][0])):
             kind, _, ident = src.partition(":")
-            desc = {"cg": "crypto", "fmp": "stock/etf",
-                    "img": "logo"}.get(kind, "commodity")
+            desc = {"cg": "crypto", "fmp": "stock/etf", "img": "logo"}.get(
+                kind) or ("index futures" if key in FUTURES else
+                          "fx pair" if key in FX else "commodity")
             if ident:
                 desc += " " + ident
             f.write(f"{ch} {key.lower()} {desc}; token logo\n")

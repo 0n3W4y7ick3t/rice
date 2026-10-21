@@ -39,6 +39,7 @@ STOCKS = {
     "UBER": "UBER", "SHOP": "SHOP", "PYPL": "PYPL", "SOFI": "SOFI",
     "SNOW": "SNOW", "GME": "GME", "F": "F", "GM": "GM", "BAC": "BAC",
     "GS": "GS", "MS": "MS", "AXP": "AXP", "IBM": "IBM", "SBUX": "SBUX",
+    "SPCX": "SPCX",
 }
 # instruments with no logo API: real color emoji straight into the map
 EMOJI = {"CL=F": "🛢️", "BZ=F": "🛢️"}

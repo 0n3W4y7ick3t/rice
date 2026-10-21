@@ -31,6 +31,7 @@ AAPL AAPL 2.21 Apple
 GOOGL GOOGL 2.99 Alphabet
 MSFT MSFT 2.86 Microsoft
 AMZN AMZN 2.99 Amazon
+SPCX SPCX 5.72 SpaceX
 META META 3.51 Meta
 TSLA TSLA 4.55 Tesla"
 baronly="SPF NQF N225 USJPY"
@@ -48,28 +49,33 @@ datafile="$cache/quotes.tsv" # symbol, last price, day change %
 iconmap="${XDG_DATA_HOME:-$HOME/.local/share}/logos/map"
 mkdir -p "$cache/alerted"
 
-syms=$(printf '%s\n' "$watchlist" |
-  awk '{gsub(/\^/, "%5E", $1); gsub(/=/, "%3D", $1); printf "%s%s", s, $1; s=","}')
+# spark takes at most 20 symbols per call, so the list goes in batches
+batches=$(printf '%s\n' "$watchlist" |
+  awk '{gsub(/\^/, "%5E", $1); gsub(/=/, "%3D", $1)
+        printf "%s%s", NR == 1 ? "" : (NR - 1) % 20 ? "," : "\n", $1}
+    END{print ""}')
 
 geticon() { [ -f "$iconmap" ] && awk -v k="$1" '$1 == k {print $2; exit}' "$iconmap" ;}
 
 getquotes() {
   # price = last bar, or Yahoo's fullday price when the window has no bars
-  # (futures between sessions send close: null)
-  if curl -sfm 7 -A "Mozilla/5.0" \
-      "https://query1.finance.yahoo.com/v8/finance/spark?symbols=$syms&range=1d&interval=5m" |
-    jq -r 'to_entries[] | select(.value.chartPreviousClose? != null) |
-      [.key, (((.value.close // []) | map(select(. != null)) | last)
-              // .value.fulldayPrice),
-       .value.chartPreviousClose] | @tsv' |
-    awk -F'\t' '$2 != "" && $3 > 0 {
-      printf "%s\t%s\t%+.2f\n", $1, $2, ($2 - $3) / $3 * 100}' > "$datafile.tmp" &&
-    [ -s "$datafile.tmp" ]; then
-    mv "$datafile.tmp" "$datafile"
-  else
-    rm -f "$datafile.tmp"
-    return 1
-  fi
+  # (futures between sessions send close: null); a failed batch keeps the
+  # old file whole rather than dropping its rows
+  : > "$datafile.tmp"
+  for b in $batches; do
+    curl -sfm 7 -A "Mozilla/5.0" \
+        "https://query1.finance.yahoo.com/v8/finance/spark?symbols=$b&range=1d&interval=5m" |
+      jq -r 'to_entries[] | select(.value.chartPreviousClose? != null) |
+        [.key, (((.value.close // []) | map(select(. != null)) | last)
+                // .value.fulldayPrice),
+         .value.chartPreviousClose] | @tsv' |
+      awk -F'\t' '$2 != "" && $3 > 0 {
+        printf "%s\t%s\t%+.2f\n", $1, $2, ($2 - $3) / $3 * 100}' > "$datafile.batch"
+    [ -s "$datafile.batch" ] || { rm -f "$datafile.tmp" "$datafile.batch"; return 1; }
+    cat "$datafile.batch" >> "$datafile.tmp"
+  done
+  rm -f "$datafile.batch"
+  mv "$datafile.tmp" "$datafile"
 }
 
 row() { awk -F'\t' -v s="$1" '$1 == s' "$datafile" ;}

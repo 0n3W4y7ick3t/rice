@@ -72,6 +72,9 @@ done
 unset _d
 export AWT_TOOLKIT="MToolkit wmname LG3D"  # May have to install wmname
 export _JAVA_AWT_WM_NONREPARENTING=1       # Legacy fix for Java apps under XWayland.
+# rootless docker: the daemon runs as this user, its socket lives in the runtime
+# dir; the fallback covers login shells without a session (ttyd, system units)
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/docker.sock"
 
 export PATH=$HOME/.scripts:$HOME/.scripts/statusbar:${$(find ~/.local/bin -type d -printf %p:)%%:}:$CARGO_HOME/bin:$GOPATH/bin:$PATH
 

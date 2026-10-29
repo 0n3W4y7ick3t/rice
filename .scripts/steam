@@ -11,4 +11,19 @@ if ! flatpak info "$app" >/dev/null 2>&1; then
   exit 1
 fi
 
+# The flatpak only sees the nvidia driver through a GL extension whose
+# version matches the loaded kernel module exactly. After a driver bump and
+# reboot nothing installs the new one, games fall back to the iGPU and never
+# open a window. Fetch it here; fail soft so steam still starts.
+if [ -r /sys/module/nvidia/version ]; then
+  ver=$(tr . - < /sys/module/nvidia/version)
+  ext=org.freedesktop.Platform.GL.nvidia-$ver
+  if ! flatpak info --user "$ext" >/dev/null 2>&1; then
+    notify-send "steam" "installing flatpak GL extension for nvidia $ver"
+    flatpak install --user -y --noninteractive flathub \
+      "$ext" "org.freedesktop.Platform.GL32.nvidia-$ver" >/dev/null 2>&1 ||
+      notify-send -u critical "steam" "failed to install $ext"
+  fi
+fi
+
 exec flatpak run "$app" "$@"
